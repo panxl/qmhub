@@ -38,6 +38,12 @@ class DependArray(container):
         self._dependants = dependants
         self._cache_valid = cache_valid
 
+    def __getitem__(self, index):
+        darray = self._rc(self.array[index])
+        if self._func is None:
+            darray._dependants = self._dependants
+        return darray
+
     def __setitem__(self, index, value):
         if self._func is not None:
             raise NameError("Cannot set the value of <" + self._name + "> directly")
@@ -49,7 +55,7 @@ class DependArray(container):
 
     def update_cache(self):
         if not self._cache_valid:
-            self.array = np.asarray(self._func(*self._dependencies))
+            self.array[:] = np.asarray(self._func(*self._dependencies))
             self._cache_valid = True
 
     def invalidate_cache(self):

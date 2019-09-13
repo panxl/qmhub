@@ -61,7 +61,7 @@ def load_from_file(fin, system=None, simulation=None):
 
     # Initialize System
     if system is None:
-        system = System(n_atoms, n_qm_atoms)
+        system = System(n_atoms, n_qm_atoms, qm_charge=qm_charge, qm_mult=qm_charge)
 
     system.qm.atoms.positions[:] = np.vstack((qm_atoms.pos_x, qm_atoms.pos_y, qm_atoms.pos_z))
     system.qm.atoms.charges[:] = qm_atoms.charge
@@ -82,8 +82,8 @@ def load_from_file(fin, system=None, simulation=None):
     if not np.all(cell_basis == 0.0):
         system.cell_basis[:] = cell_basis
 
-    system.qm.total_charge = qm_charge
-    system.qm.mult = qm_mult
+    system.qm_charge = qm_charge
+    system.qm_mult = qm_mult
 
     if simulation is not None:
         simulation.step = step

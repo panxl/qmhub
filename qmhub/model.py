@@ -24,7 +24,7 @@ class Model(object):
             self.swdist = DependArray([cutoff], name="swdist")
 
         self.mm_charge_scaling = DependArray(
-            np.zeros(system.atoms.n_atoms),
+            np.zeros(len(system.atoms)),
             name="mm_charge_scaling",
             func=get_scaling_factor,
             dependencies=[self.cutoff, system.elecs.dij_min],
