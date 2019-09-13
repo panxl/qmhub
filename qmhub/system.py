@@ -10,14 +10,14 @@ class System(object):
         self.atoms = Atoms(n_atoms)
 
         self.qm = System.__new__(System)
-        self.qm.atoms = Atoms(n_qm_atoms, atoms=self.atoms[:n_qm_atoms])
+        self.qm.atoms = self.atoms[:n_qm_atoms]
         self.qm.total_charge = 0
         self.qm.mult = 1
 
         n_mm_atoms = n_atoms - n_qm_atoms
         if n_mm_atoms > 0:
             self.mm = System.__new__(System)
-            self.mm.atoms = Atoms(n_mm_atoms, atoms=self.atoms[n_qm_atoms:])
+            self.mm.atoms = self.atoms[n_qm_atoms:]
         elif n_mm_atoms == 0:
             self.mm = None
         else:
