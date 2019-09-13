@@ -66,8 +66,8 @@ class Atoms(object):
 
     @property
     def real(self):
-        return self[self._real_mask]
+        return self[self._real_mask.view(np.ndarray)]
 
     @property
     def virtual(self):
-        return self[~self._real_mask]
+        return self[~self._real_mask.view(np.ndarray)]
