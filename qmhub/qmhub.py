@@ -1,34 +1,22 @@
 """
-qmhub.py
+QMHub
 A universal QM/MM interface.
-
-Handles the primary functions
 """
 
+from .simulation import Simulation
+from .model import Model
 
-def canvas(with_attribution=True):
-    """
-    Placeholder function to show example docstring (NumPy format)
+class QMMM(object):
+    def __init__(self, driver=None):
+        self.driver = driver.lower()
 
-    Replace this function and doc string for your own project
+    def setup_simulation(self, protocol="md", n_steps=None):
+        self.simulation = Simulation(protocol, n_steps)
 
-    Parameters
-    ----------
-    with_attribution : bool, Optional, default: True
-        Set whether or not to display who the quote is from
+    def load_system(self, input):
+        if self.driver == "sander":
+            from .mmtools.sander import load_from_file
+            self.system = load_from_file(input, simulation=self.simulation)
 
-    Returns
-    -------
-    quote : str
-        Compiled string including quote and optional attribution
-    """
-
-    quote = "The code is but a canvas to our imagination."
-    if with_attribution:
-        quote += "\n\t- Adapted from Henry David Thoreau"
-    return quote
-
-
-if __name__ == "__main__":
-    # Do something if this file is invoked on its own
-    print(canvas())
+    def build_model(self, switching_type=None, cutoff=None, swdist=None):
+        self.model = Model(self.system, switching_type, cutoff, swdist)
