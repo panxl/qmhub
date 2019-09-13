@@ -2,7 +2,7 @@ import numpy as np
 
 from .utils import DependArray
 
-from .atom import Atoms
+from .atoms import Atoms
 from .elec import Elecs
 
 class System(object):
