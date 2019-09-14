@@ -96,7 +96,7 @@ class Elec(object):
         return cls(**kwargs)
 
     def __len__(self):
-        return len(self.rij.shape[2])
+        return self.rij.shape[2]
 
     def __iter__(self):
         for index in range(len(self)):

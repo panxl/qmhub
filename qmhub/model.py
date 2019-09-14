@@ -6,28 +6,31 @@ from .func import get_scaling_factor, get_scaling_factor_gradient
 class Model(object):
     def __init__(self, system, switching_type='shift', cutoff=None, swdist=None, pbc=None):
 
-        self.system = system
         self.switching_type = switching_type
         self.pbc = pbc
 
         if self.pbc is None:
-            if self.system.cell_basis is not None:
+            if system.cell_basis is not None:
                 self.pbc = True
-
-        # self.near_field_mask = (system.mm.elec.dij_min < cutoff)
-        # self.mm_near_charges = system.mm.atoms.charges[self.near_field_mask]
 
         if cutoff is not None:
             self.cutoff = DependArray([cutoff], name="cutoff")
 
         if swdist is not None:
-            self.swdist = DependArray([cutoff], name="swdist")
+            self.swdist = DependArray([swdist], name="swdist")
+
+        self.near_field_mask = DependArray(
+            np.zeros(len(system.atoms), dtype=bool),
+            name="near_field_mask",
+            func=(lambda x, y: x < y),
+            dependencies=[system.elec.dij_min, self.cutoff],
+        )
 
         self.mm_charge_scaling = DependArray(
             np.zeros(len(system.atoms)),
             name="mm_charge_scaling",
             func=get_scaling_factor,
-            dependencies=[self.cutoff, system.elec.dij_min],
+            dependencies=[self.cutoff, self.swdist, system.elec.dij_min],
         )
 
     # @property

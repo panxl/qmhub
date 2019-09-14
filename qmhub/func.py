@@ -78,7 +78,7 @@ def get_dij_min_gradient(dij_min=None, dij_inverse=None, dij_inverse_gradient=No
     return dij_min_gradient
 
 
-def get_scaling_factor(cutoff, dij_min=None, *, rij=None):
+def get_scaling_factor(cutoff, swdist, dij_min=None, *, rij=None):
     if dij_min is None:
         dij_min = get_dij_min(rij=rij)
 
@@ -89,7 +89,7 @@ def get_scaling_factor(cutoff, dij_min=None, *, rij=None):
     return scaling_factor
 
 
-def get_scaling_factor_gradient(cutoff, dij_min=None, dij_min_gradient=None, *, rij=None):
+def get_scaling_factor_gradient(cutoff, swdist, dij_min=None, dij_min_gradient=None, *, rij=None):
     if dij_min is None:
         dij_min = get_dij_min(rij=rij)
 
