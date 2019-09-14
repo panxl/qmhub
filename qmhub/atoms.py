@@ -59,10 +59,10 @@ class Atoms(object):
 
     def __setitem__(self, index, value):
         atoms = self.from_atoms(self, index)
-        atoms.positions = value.positions
-        atoms.charges = value.charges
-        atoms.indices = value.indices
-        atoms.elements = value.elements
+        atoms.positions[:] = value.positions
+        atoms.charges[:] = value.charges
+        atoms.indices[:] = value.indices
+        atoms.elements[:] = value.elements
 
     @property
     def real(self):
