@@ -23,7 +23,7 @@ class Elec(object):
         for key in Elec._darray:
             value = kwargs[key]
             setattr(self, key, value)
-        
+
         self._real_mask = _real_mask
 
     @classmethod
