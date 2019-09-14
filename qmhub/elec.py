@@ -1,6 +1,6 @@
 import numpy as np
 
-from .func import (
+from .functools import (
     get_rij,
     get_dij2,
     get_dij2_gradient,

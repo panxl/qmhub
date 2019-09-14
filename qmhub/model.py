@@ -1,23 +1,22 @@
 import numpy as np
 
 from .utils import DependArray
-from .func import get_scaling_factor, get_scaling_factor_gradient
+from .functools.switching import get_scaling_factor, get_scaling_factor_gradient
 
 class Model(object):
-    def __init__(self, system, switching_type='shift', cutoff=None, swdist=None, pbc=None):
+    def __init__(self, system, switching_type='shift', cutoff=None, swdist=None):
 
         self.switching_type = switching_type
-        self.pbc = pbc
-
-        if self.pbc is None:
-            if system.cell_basis is not None:
-                self.pbc = True
 
         if cutoff is not None:
             self.cutoff = DependArray([cutoff], name="cutoff")
+        else:
+            raise ValueError("cutoff is not set")
 
-        if swdist is not None:
-            self.swdist = DependArray([swdist], name="swdist")
+        if swdist is None:
+            self.swdist = cutoff * .75
+
+        self.swdist = DependArray([swdist], name="swdist")
 
         self.near_field_mask = DependArray(
             np.zeros(len(system.atoms), dtype=bool),
@@ -29,8 +28,16 @@ class Model(object):
         self.mm_charge_scaling = DependArray(
             np.zeros(len(system.atoms)),
             name="mm_charge_scaling",
-            func=get_scaling_factor,
+            func=get_scaling_factor(switching_type),
             dependencies=[self.cutoff, self.swdist, system.elec.dij_min],
+        )
+
+        self.mm_charge_scaling_gradient = DependArray(
+            np.zeros((3, len(system.qm.atoms), len(system.atoms))),
+            name="mm_charge_scaling_gradient",
+            func=get_scaling_factor_gradient(switching_type),
+            dependencies=[self.cutoff, self.swdist, system.elec.dij_min,
+                          system.elec.dij_min_gradient],
         )
 
     # @property
