@@ -14,7 +14,7 @@ class Model(object):
             if self.system.cell_basis is not None:
                 self.pbc = True
 
-        # self.near_field_mask = (system.mm.elecs.dij_min < cutoff)
+        # self.near_field_mask = (system.mm.elec.dij_min < cutoff)
         # self.mm_near_charges = system.mm.atoms.charges[self.near_field_mask]
 
         if cutoff is not None:
@@ -27,13 +27,13 @@ class Model(object):
             np.zeros(len(system.atoms)),
             name="mm_charge_scaling",
             func=get_scaling_factor,
-            dependencies=[self.cutoff, system.elecs.dij_min],
+            dependencies=[self.cutoff, system.elec.dij_min],
         )
 
     # @property
     # def esp_on_qm_sites_from_mm(self):
-    #     return self.system.mm.elecs.dij_inverse @ self.system.mm.atoms.charges
+    #     return self.system.mm.elec.dij_inverse @ self.system.mm.atoms.charges
 
     # @property
     # def esp_gradient_on_qm_sites_from_mm(self):
-    #     return self.system.mm.elecs.dij_inverse_gradient @ self.system.mm.atoms.charges
+    #     return self.system.mm.elec.dij_inverse_gradient @ self.system.mm.atoms.charges

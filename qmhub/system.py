@@ -3,7 +3,7 @@ import numpy as np
 from .utils import DependArray
 
 from .atoms import Atoms
-from .elec import Elecs
+from .elec import Elec
 
 class System(object):
     def __init__(self, n_atoms, n_qm_atoms, qm_charge, qm_mult):
@@ -22,7 +22,7 @@ class System(object):
             raise ValueError("The numer of QM atoms cannot be greater than the number of total atoms.")
 
         self.cell_basis = DependArray(np.zeros((3, 3)), name="cell_basis")
-        self.elecs = Elecs(self.qm.atoms.positions, self.atoms.positions, self.cell_basis)
+        self.elec = Elec.new(self.qm.atoms.positions, self.atoms.positions, self.cell_basis)
  
         self.qm_charge = qm_charge
         self.qm_mult = qm_mult

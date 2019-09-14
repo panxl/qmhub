@@ -15,63 +15,82 @@ from .func import (
 from .utils import DependArray
 
 
-class Elecs(object):
-    def __init__(self, ri, rj, cell_basis, elecs=None):
-        self.ri = ri
-        self.rj = rj
-        self.cell_basis = cell_basis
+class Elec(object):
 
-        self.rij = DependArray(
+    _darray = ['rij', 'dij2', 'dij2_gradient', 'dij', 'dij_gradient',
+               'dij_inverse', 'dij_inverse_gradient', 'dij_min', 'dij_min_gradient']
+
+    _func = {key: globals()["get_" + key] for key in _darray}
+
+    def __init__(self, **kwargs):
+        for key in Elec._darray:
+            value = kwargs[key]
+            setattr(self, key, value)
+
+    @classmethod
+    def new(cls, ri, rj, cell_basis):
+        rij = DependArray(
             np.zeros((3, ri.shape[1], rj.shape[1])),
             name="rij",
-            func=get_rij,
+            func=Elec._func['rij'],
             dependencies=[ri, rj],
         )
-        self.dij2 = DependArray(
+        dij2 = DependArray(
             np.zeros((ri.shape[1], rj.shape[1])),
             name="dij2",
-            func=get_dij2,
-            dependencies=[self.rij],
+            func=Elec._func['dij2'],
+            dependencies=[rij],
         )
-        self.dij2_gradient = DependArray(
+        dij2_gradient = DependArray(
             np.zeros((3, ri.shape[1], rj.shape[1])),
             name="dij2_gradient",
-            func=get_dij2_gradient,
-            dependencies=[self.rij],
+            func=Elec._func['dij2_gradient'],
+            dependencies=[rij],
         )
-        self.dij = DependArray(
+        dij = DependArray(
             np.zeros((ri.shape[1], rj.shape[1])),
             name="dij",
-            func=get_dij,
-            dependencies=[self.dij2],
+            func=Elec._func['dij'],
+            dependencies=[dij2],
         )
-        self.dij_gradient = DependArray(
+        dij_gradient = DependArray(
             np.zeros((3, ri.shape[1], rj.shape[1])),
             name="dij_gradient",
-            func=get_dij_gradient,
-            dependencies=[self.dij, self.dij2_gradient],
+            func=Elec._func['dij_gradient'],
+            dependencies=[dij, dij2_gradient],
         )
-        self.dij_inverse = DependArray(
+        dij_inverse = DependArray(
             np.zeros((ri.shape[1], rj.shape[1])),
             name="dij_inverse",
-            func=get_dij_inverse,
-            dependencies=[self.dij],
+            func=Elec._func['dij_inverse'],
+            dependencies=[dij],
         )
-        self.dij_inverse_gradient = DependArray(
+        dij_inverse_gradient = DependArray(
             np.zeros((3, ri.shape[1], rj.shape[1])),
             name="dij_inverse_gradient",
-            func=get_dij_inverse_gradient,
-            dependencies=[self.dij_inverse, self.dij_gradient],
+            func=Elec._func['dij_inverse_gradient'],
+            dependencies=[dij_inverse, dij_gradient],
         )
-        self.dij_min = DependArray(
+        dij_min = DependArray(
             np.zeros((rj.shape[1])),
             name="dij_min",
-            func=get_dij_min,
-            dependencies=[self.dij_inverse],
+            func=Elec._func['dij_min'],
+            dependencies=[dij_inverse],
         )
-        self.dij_min_gradient = DependArray(
+        dij_min_gradient = DependArray(
             np.zeros((3, ri.shape[1], rj.shape[1])),
             name="dij_min_gradient",
-            func=get_dij_min_gradient,
-            dependencies=[self.dij_min, self.dij_inverse, self.dij_inverse_gradient],
+            func=Elec._func['dij_min_gradient'],
+            dependencies=[dij_min, dij_inverse, dij_inverse_gradient],
         )
+
+        kwargs = {}
+        for key in Elec._darray:
+            kwargs[key] = locals()[key]
+
+        return cls(**kwargs)
+
+    @classmethod
+    def from_elec(cls, elec, index=None):
+        kwargs = {key: getattr(elec, key)[..., index] for key in Elec._darray}
+        return cls(**kwargs)
