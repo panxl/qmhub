@@ -2,6 +2,14 @@ import numpy as np
 
 from . import get_dij_min, get_dij_min_gradient
 
+
+def get_near_field_mask(dij_min=None, cutoff=None, *, rij=None):
+    if dij_min is None:
+        dij_min = get_dij_min(rij=rij)
+
+    return dij_min < cutoff
+
+
 def get_scaling_factor(switching_type):
     if switching_type.lower() == "shift":
         return get_scaling_factor_shift
@@ -16,7 +24,7 @@ def get_scaling_factor_gradient(switching_type):
         raise ValueError("Switching function" +  switching_type + "not supported.")
 
 
-def get_scaling_factor_shift(cutoff, swdist, dij_min=None, *, rij=None):
+def get_scaling_factor_shift(dij_min=None, cutoff=None, swdist=None, *, rij=None):
     if dij_min is None:
         dij_min = get_dij_min(rij=rij)
 
@@ -27,7 +35,7 @@ def get_scaling_factor_shift(cutoff, swdist, dij_min=None, *, rij=None):
     return scaling_factor
 
 
-def get_scaling_factor_gradient_shift(cutoff, swdist, dij_min=None, dij_min_gradient=None, *, rij=None):
+def get_scaling_factor_gradient_shift(dij_min=None, dij_min_gradient=None, cutoff=None, swdist=None, *, rij=None):
     if dij_min is None:
         dij_min = get_dij_min(rij=rij)
 

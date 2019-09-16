@@ -19,7 +19,7 @@ def update_cache(darray):
         if darray._func is update_cache:
             update_cache(*darray._dependencies)
         elif darray._func is not None:
-            darray.array[:] = np.asarray(darray._func(*darray._dependencies))
+            darray.array[:] = np.asarray(darray._func(*darray._dependencies, **darray._kwargs))
         darray._cache_valid = True
 
 
@@ -33,7 +33,7 @@ def invalidate_cache(darray):
 
 class DependArray(container):
 
-    def __init__(self, data, name=None, func=None, dependencies=None, dependants=None, cache_valid=None):
+    def __init__(self, data, name=None, func=None, kwargs=None, dependencies=None, dependants=None, cache_valid=None):
         self.array = np.asarray(data)
 
         if dependencies is None:
@@ -46,11 +46,15 @@ class DependArray(container):
         else:
             cache_valid = False
 
+        if kwargs is None:
+            kwargs = {}
+
         for item in dependencies:
             item.add_dependant(self)
 
         self._name = name
         self._func = func
+        self._kwargs = kwargs
         self._dependencies = dependencies
         self._dependants = dependants
         self._cache_valid = cache_valid
