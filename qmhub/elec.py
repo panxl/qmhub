@@ -1,9 +1,8 @@
+import math
 import numpy as np
 
 from .functools import (
     get_rij,
-    get_dij2,
-    get_dij2_gradient,
     get_dij,
     get_dij_gradient,
     get_dij_inverse,
@@ -11,13 +10,14 @@ from .functools import (
     get_dij_min,
     get_dij_min_gradient,
 )
+from .functools import Ewald
 from .utils import DependArray
 
 
 class Elec(object):
 
-    _darray = ['rij', 'dij2', 'dij2_gradient', 'dij', 'dij_gradient',
-               'dij_inverse', 'dij_inverse_gradient', 'dij_min', 'dij_min_gradient']
+    _darray = ['rij', 'dij', 'dij_gradient', 'dij_inverse', 'dij_inverse_gradient',
+               'dij_min', 'dij_min_gradient', 'ewald']
 
     def __init__(self, _real_mask=None, **kwargs):
         for key in Elec._darray:
@@ -27,66 +27,50 @@ class Elec(object):
         self._real_mask = _real_mask
 
     @classmethod
-    def new(cls, ri, rj, cell_basis, _real_mask):
+    def new(cls, ri, rj, cell_basis, _real_mask):    
         rij = DependArray(
-            np.zeros((3, ri.shape[1], rj.shape[1])),
             name="rij",
             func=get_rij,
             dependencies=[ri, rj],
         )
-        dij2 = DependArray(
-            np.zeros((ri.shape[1], rj.shape[1])),
-            name="dij2",
-            func=get_dij2,
-            dependencies=[rij],
-        )
-        dij2_gradient = DependArray(
-            np.zeros((3, ri.shape[1], rj.shape[1])),
-            name="dij2_gradient",
-            func=get_dij2_gradient,
-            dependencies=[rij],
-        )
         dij = DependArray(
-            np.zeros((ri.shape[1], rj.shape[1])),
             name="dij",
             func=get_dij,
-            dependencies=[dij2],
+            dependencies=[rij],
         )
         dij_gradient = DependArray(
-            np.zeros((3, ri.shape[1], rj.shape[1])),
             name="dij_gradient",
             func=get_dij_gradient,
-            dependencies=[dij, dij2_gradient],
+            dependencies=[rij, dij],
         )
         dij_inverse = DependArray(
-            np.zeros((ri.shape[1], rj.shape[1])),
             name="dij_inverse",
             func=get_dij_inverse,
             dependencies=[dij],
         )
         dij_inverse_gradient = DependArray(
-            np.zeros((3, ri.shape[1], rj.shape[1])),
             name="dij_inverse_gradient",
             func=get_dij_inverse_gradient,
             dependencies=[dij_inverse, dij_gradient],
         )
         dij_min = DependArray(
-            np.zeros((rj.shape[1])),
             name="dij_min",
             func=get_dij_min,
             dependencies=[dij_inverse],
         )
         dij_min_gradient = DependArray(
-            np.zeros((3, ri.shape[1], rj.shape[1])),
             name="dij_min_gradient",
             func=get_dij_min_gradient,
             dependencies=[dij_min, dij_inverse, dij_inverse_gradient],
         )
 
+        ewald = Ewald(rij, cell_basis)
+
         kwargs = {}
         for key in Elec._darray:
             kwargs[key] = locals()[key]
         kwargs['_real_mask'] = _real_mask
+        kwargs['ewald'] = ewald
         return cls(**kwargs)
 
     @classmethod

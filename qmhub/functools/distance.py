@@ -5,29 +5,15 @@ def get_rij(ri, rj):
     return rj[:, np.newaxis, :] - ri[:, :, np.newaxis]
 
 
-def get_dij2(rij):
-    return np.sum(rij**2, axis=0)
+def get_dij(rij):
+    return np.linalg.norm(rij, axis=0)
 
 
-def get_dij2_gradient(rij):
-    return -2 * rij
-
-
-def get_dij(dij2=None, *, rij=None):
-    if dij2 is None:
-        dij2 = get_dij2(rij=rij)
-
-    return np.sqrt(dij2)
-
-
-def get_dij_gradient(dij=None, dij2_gradient=None, *, rij=None):
+def get_dij_gradient(rij, dij=None):
     if dij is None:
         dij = get_dij(rij=rij)
 
-    if dij2_gradient is None:
-        dij2_gradient = get_dij2_gradient(rij)
-
-    return dij2_gradient / dij / 2.
+    return rij / dij
 
 
 def get_dij_inverse(dij=None, *, rij=None):
