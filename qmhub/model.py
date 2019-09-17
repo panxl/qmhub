@@ -17,7 +17,6 @@ class Model(object):
             self.swdist = cutoff * .75
 
         self.near_field_mask = DependArray(
-            np.zeros(len(system.atoms), dtype=bool),
             name="near_field_mask",
             func=get_near_field_mask,
             kwargs={'cutoff': self.cutoff},
@@ -25,7 +24,6 @@ class Model(object):
         )
 
         self.mm_charge_scaling = DependArray(
-            np.zeros(len(system.atoms)),
             name="mm_charge_scaling",
             func=get_scaling_factor(switching_type),
             kwargs={'cutoff': self.cutoff, 'swdist': self.swdist},
@@ -33,7 +31,6 @@ class Model(object):
         )
 
         self.mm_charge_scaling_gradient = DependArray(
-            np.zeros((3, len(system.qm.atoms), len(system.atoms))),
             name="mm_charge_scaling_gradient",
             func=get_scaling_factor_gradient(switching_type),
             kwargs={'cutoff': self.cutoff, 'swdist': self.swdist},

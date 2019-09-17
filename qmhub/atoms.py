@@ -19,7 +19,6 @@ class Atoms(object):
         elements = DependArray(np.zeros(n_atoms, dtype=str))
 
         _real_mask = DependArray(
-            np.zeros(n_atoms, dtype=bool),
             name="_real_mask",
             func=(lambda x: x != -1),
             dependencies=[indices],
