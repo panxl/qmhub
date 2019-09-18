@@ -10,7 +10,7 @@ SQRTPI = math.sqrt(math.pi)
 
 
 class Ewald(object):
-    def __init__(self, rij, cell_basis, tol=1e-6, order='spherical'):
+    def __init__(self, rij, cell_basis, tol=1e-5, order='spherical'):
         self.cell_basis = cell_basis
         self.tol = tol
         self.order = order
@@ -116,7 +116,7 @@ class Ewald(object):
 
     @staticmethod
     def _get_alpha(cell_basis):
-        return 2 * SQRTPI / np.diag(cell_basis).max()
+        return SQRTPI / np.diag(cell_basis).max()
 
     @staticmethod
     def _get_nmax(threshold, alpha, cell_basis):
