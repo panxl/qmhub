@@ -10,7 +10,7 @@ SQRTPI = math.sqrt(math.pi)
 
 
 class Ewald(object):
-    def __init__(self, rij, cell_basis, tol=1e-4, order='spherical'):
+    def __init__(self, rij, cell_basis, tol=1e-6, order='spherical'):
         self.cell_basis = cell_basis
         self.tol = tol
         self.order = order
@@ -88,12 +88,6 @@ class Ewald(object):
             },
             dependencies=[self.recip_basis],
         )
-        self.recip_prefactor = DependArray(
-            name="recip_prefactor",
-            func=Ewald._get_recip_prefactor,
-            kwargs={'alpha': self.alpha},
-            dependencies=[self.cell_basis, self.recip_lattice],
-        )
 
         # Ewald
         self.ewald_real = DependArray(
@@ -106,7 +100,7 @@ class Ewald(object):
             name="ewald_recip",
             func=Ewald._get_ewald_recip,
             kwargs={'alpha': self.alpha},
-            dependencies=[rij, self.recip_lattice, self.recip_prefactor],
+            dependencies=[rij, self.recip_lattice, self.cell_basis],
         )
 
     def __getitem__(self, index):
@@ -122,7 +116,7 @@ class Ewald(object):
 
     @staticmethod
     def _get_alpha(cell_basis):
-        return SQRTPI / np.diag(cell_basis).max()
+        return 2 * SQRTPI / np.diag(cell_basis).max()
 
     @staticmethod
     def _get_nmax(threshold, alpha, cell_basis):
@@ -155,12 +149,6 @@ class Ewald(object):
         elif order.lower() == 'rectangular':
             return lattice
 
-    @staticmethod
-    def _get_recip_prefactor(cell_basis, lattice, alpha):
-        k2 = np.linalg.norm(lattice, axis=0)**2
-        recip_prefactor = (4 * PI / np.linalg.det(cell_basis)) * np.exp(-1 * k2 / (4 * alpha**2)) / k2
-        return recip_prefactor
-
     @staticmethod    
     def _get_ewald_real(rij, lattice, alpha):
         t = np.zeros((4, rij.shape[1], rij.shape[2]))
@@ -169,28 +157,32 @@ class Ewald(object):
         d = np.linalg.norm(r, axis=0)
         d2 = np.power(d, 2)
         prod = erfc(alpha * d) / d
-        prod[np.isinf(prod)] = 0.
+        prod[np.where(np.isinf(prod))] = 0.
         t[0] = prod.sum(axis=0)
 
         prod2 = prod / d2 + 2 * alpha * np.exp(-1 * alpha**2 * d2) / SQRTPI / d2
-        prod2[np.isnan(prod2)] = 0.
-        t[1:] = (prod2[:, np.newaxis] * rij[np.newaxis]).sum(axis=0)
+        prod2[np.where(np.isnan(prod2))] = 0.
+        t[1:] = (prod2[np.newaxis] * r).sum(axis=1)
 
         return t
 
     @staticmethod
-    def _get_ewald_recip(rij, lattice, prefac, alpha):
+    def _get_ewald_recip(rij, lattice, cell_basis, alpha, correction=True):
         t = np.zeros((4, rij.shape[1], rij.shape[2]))
 
-        kr = np.tensordot(lattice.T, rij, axes=1)
-        prod = prefac[:, np.newaxis, np.newaxis] * np.cos(kr)
+        volume = np.linalg.det(cell_basis)
+        k2 = np.linalg.norm(lattice, axis=0)**2
+        prefac = (4 * PI / volume) * np.exp(-1 * k2 / (4 * alpha**2)) / k2
 
-        # Self energy
-        self_corr = np.all(rij == 0., axis=0) * 2 * alpha / SQRTPI
+        kr = (rij.T @ lattice)
+        t[0] = (np.cos(kr) @ prefac).T
+        t[1:] = (np.sin(kr) @ (prefac * lattice).T).T
 
-        t[0] = prod.sum(axis=0) - self_corr
+        if correction:
+            # Self energy correction
+            t[0] -= np.all(rij == 0., axis=0) * 2 * alpha / SQRTPI
 
-        prod2 = prefac[:, np.newaxis, np.newaxis] * np.sin(kr)
-        t[1:] = (prod2[:, np.newaxis] * rij[np.newaxis]).sum(axis=0)
+            # Net charge correction
+            t[0] -= PI / volume / alpha**2
 
         return t

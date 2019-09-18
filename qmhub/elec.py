@@ -27,7 +27,7 @@ class Elec(object):
         self._real_mask = _real_mask
 
     @classmethod
-    def new(cls, ri, rj, cell_basis, _real_mask):    
+    def new(cls, ri, rj, cell_basis, _real_mask):
         rij = DependArray(
             name="rij",
             func=get_rij,
