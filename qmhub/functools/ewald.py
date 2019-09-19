@@ -10,7 +10,7 @@ SQRTPI = math.sqrt(math.pi)
 
 
 class Ewald(object):
-    def __init__(self, rij, cell_basis, tol=1e-5, order='spherical'):
+    def __init__(self, rij, charges, cell_basis, tol=1e-6, order='spherical'):
         self.cell_basis = cell_basis
         self.tol = tol
         self.order = order
@@ -102,6 +102,11 @@ class Ewald(object):
             kwargs={'alpha': self.alpha},
             dependencies=[rij, self.recip_lattice, self.cell_basis],
         )
+        self.qm_total_esp = DependArray(
+            name="qm_total_esp",
+            func=Ewald._get_qm_total_esp,
+            dependencies=[self.ewald_real, self.ewald_recip, charges],
+        )
 
     def __getitem__(self, index):
         return None
@@ -186,3 +191,7 @@ class Ewald(object):
             t[0] -= PI / volume / alpha**2
 
         return t
+
+    @staticmethod
+    def _get_qm_total_esp(ewald_real, ewald_recip, charges):
+        return (ewald_real + ewald_recip) @ charges

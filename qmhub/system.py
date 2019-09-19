@@ -22,7 +22,13 @@ class System(object):
             raise ValueError("The numer of QM atoms cannot be greater than the number of total atoms.")
 
         self.cell_basis = DependArray(np.zeros((3, 3)), name="cell_basis")
-        self.elec = Elec.new(self.qm.atoms.positions, self.atoms.positions, self.cell_basis, self.atoms._real_mask)
+        self.elec = Elec.new(
+            self.qm.atoms.positions,
+            self.atoms.positions,
+            self.atoms.charges,
+            self.cell_basis,
+            self.atoms._real_mask,
+        )
 
         self.qm.elec = self.elec[:n_qm_atoms]
 

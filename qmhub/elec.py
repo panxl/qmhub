@@ -27,7 +27,7 @@ class Elec(object):
         self._real_mask = _real_mask
 
     @classmethod
-    def new(cls, ri, rj, cell_basis, _real_mask):
+    def new(cls, ri, rj, charges, cell_basis, _real_mask):
         rij = DependArray(
             name="rij",
             func=get_rij,
@@ -64,7 +64,7 @@ class Elec(object):
             dependencies=[dij_min, dij_inverse, dij_inverse_gradient],
         )
 
-        ewald = Ewald(rij, cell_basis)
+        ewald = Ewald(rij, charges, cell_basis)
 
         kwargs = {}
         for key in Elec._darray:
