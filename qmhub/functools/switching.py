@@ -3,11 +3,7 @@ import numpy as np
 from . import get_dij_min, get_dij_min_gradient
 
 
-def get_near_field_mask(dij_min=None, cutoff=None, *, rij=None):
-    if dij_min is None:
-        dij_min = get_dij_min(rij=rij)
-
-    return dij_min < cutoff
+__all__ = ["get_scaling_factor", "get_scaling_factor_gradient"]
 
 
 def get_scaling_factor(switching_type):
