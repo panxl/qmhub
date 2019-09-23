@@ -1,14 +1,14 @@
 import math
 import numpy as np
 
-from .functools import Ewald
+from .functools import Ewald, ElecNear
 from .functools.distance import *
 from .utils import DependArray
 
 
 class Elec(object):
 
-    def __init__(self, ri, rj, charges, cell_basis, cutoff=None):
+    def __init__(self, ri, rj, charges, cell_basis, switching_type=None, cutoff=None, swdist=None):
         self.rij = DependArray(
             name="rij",
             func=get_rij,
@@ -46,12 +46,12 @@ class Elec(object):
         )
         self.coulomb_exclusion = DependArray(
             name="coulomb_exclusion",
-            func=Elec.get_coulomb_exclusion,
+            func=Elec._get_coulomb_exclusion,
             kwargs={'dij_min': self.dij_min},
         )
         self.qm_exclusion_esp = DependArray(
             name="qm_exclusion_esp",
-            func=Elec.get_qm_exclusion_esp,
+            func=Elec._get_qm_exclusion_esp,
             dependencies=[
                 self.dij_inverse,
                 self.dij_inverse_gradient,
@@ -60,23 +60,49 @@ class Elec(object):
             ],
         )
 
-        self.ewald = Ewald(ri, rj, charges, cell_basis, cutoff=cutoff, rij=self.rij)
+        self.ewald = Ewald(
+            ri=ri,
+            rj=rj,
+            charges=charges,
+            cell_basis=cell_basis,
+            cutoff=cutoff,
+            rij=self.rij,
+        )
+
+        self.near_field = ElecNear(
+            dij_min=self.dij_min,
+            dij_min_gradient=self.dij_min_gradient, 
+            dij_inverse=self.dij_inverse,
+            dij_inverse_gradient=self.dij_inverse_gradient,
+            charges=charges,
+            switching_type=switching_type,
+            cutoff=cutoff,
+            swdist=swdist,
+        )
 
         self.qm_total_esp = DependArray(
             name="qm_total_esp",
-            func=Elec.get_qm_total_esp,
+            func=Elec._get_qm_total_esp,
             dependencies=[
                 self.ewald.qm_ewald_esp,
                 self.qm_exclusion_esp,
             ],
         )
+        self.qm_residual_esp = DependArray(
+            name="qm_residual_esp",
+            func=Elec._get_qm_residual_esp,
+            dependencies=[
+                self.qm_total_esp,
+                self.near_field.qm_scaled_esp,
+           ],
+        )
 
     @staticmethod
-    def get_coulomb_exclusion(dij_min):
+    def _get_coulomb_exclusion(dij_min):
         return np.where(dij_min < .8)[0]
 
     @staticmethod
-    def get_qm_exclusion_esp(dij_inverse, dij_inverse_gradient, charges, coulomb_exclusion):
+    def _get_qm_exclusion_esp(dij_inverse, dij_inverse_gradient, charges, coulomb_exclusion):
         coulomb_tensor = np.zeros((4, dij_inverse.shape[0], len(coulomb_exclusion)))
         coulomb_tensor[0] = dij_inverse[:, coulomb_exclusion]
         coulomb_tensor[1:] = -dij_inverse_gradient[:, :, coulomb_exclusion]
@@ -85,5 +111,9 @@ class Elec(object):
         return coulomb_tensor @ charges[coulomb_exclusion,]
 
     @staticmethod
-    def get_qm_total_esp(qm_ewald_esp, qm_exclusion_esp):
+    def _get_qm_total_esp(qm_ewald_esp, qm_exclusion_esp):
         return qm_ewald_esp - qm_exclusion_esp
+
+    @staticmethod
+    def _get_qm_residual_esp(qm_total_esp, qm_scaled_esp):
+        return qm_total_esp - qm_scaled_esp
