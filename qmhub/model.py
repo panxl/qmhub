@@ -1,6 +1,6 @@
 import numpy as np
 
-from .functools import Elec
+from .electools import Elec
 from .utils import DependArray
 
 
