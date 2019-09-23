@@ -11,7 +11,7 @@ def get_scaling_factor(switching_type):
         return get_scaling_factor_shift
     else:
         raise ValueError("Switching function" +  switching_type + "not supported.")
-
+6
 
 def get_scaling_factor_gradient(switching_type):
     if switching_type.lower() == "shift":
@@ -28,6 +28,9 @@ def get_scaling_factor_shift(dij_min=None, cutoff=None, swdist=None, *, rij=None
     scaling_factor = (1 - ratio**2)**2
     scaling_factor *= (ratio < 1.)
 
+    # MM1
+    scaling_factor[np.where(dij_min < .8)] = 1.0
+
     return scaling_factor
 
 
@@ -41,6 +44,9 @@ def get_scaling_factor_gradient_shift(dij_min=None, dij_min_gradient=None, cutof
     ratio = dij_min / cutoff
     scaling_factor_gradient = -4 * (1 - ratio**2) * ratio / cutoff * dij_min_gradient
     scaling_factor_gradient *= (ratio < 1.)
+
+    # MM1
+    scaling_factor_gradient[:, :, np.where(dij_min < .8)] = 0.0
 
     return scaling_factor_gradient
 

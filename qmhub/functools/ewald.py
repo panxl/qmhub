@@ -102,9 +102,9 @@ class Ewald(object):
             kwargs={'alpha': self.alpha},
             dependencies=[rij, self.recip_lattice, self.cell_basis],
         )
-        self.qm_total_esp = DependArray(
-            name="qm_total_esp",
-            func=Ewald._get_qm_total_esp,
+        self.qm_ewald_esp = DependArray(
+            name="qm_ewald_esp",
+            func=Ewald._get_qm_ewald_esp,
             dependencies=[self.ewald_real, self.ewald_recip, charges],
         )
 
@@ -193,5 +193,5 @@ class Ewald(object):
         return t
 
     @staticmethod
-    def _get_qm_total_esp(ewald_real, ewald_recip, charges):
+    def _get_qm_ewald_esp(ewald_real, ewald_recip, charges):
         return (ewald_real + ewald_recip) @ charges
