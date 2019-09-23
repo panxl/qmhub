@@ -1,7 +1,7 @@
 import numpy as np
 
 from ..utils import DependArray
-from . import get_scaling_factor, get_scaling_factor_gradient
+from .switching import get_scaling_factor, get_scaling_factor_gradient
 
 
 class ElecNear(object):

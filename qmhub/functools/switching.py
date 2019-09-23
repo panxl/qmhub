@@ -1,6 +1,6 @@
 import numpy as np
 
-from . import get_dij_min, get_dij_min_gradient
+from .distance import get_dij_min, get_dij_min_gradient
 
 
 __all__ = ["get_scaling_factor", "get_scaling_factor_gradient"]

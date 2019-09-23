@@ -1,8 +1,8 @@
 import numpy as np
 
-from .elec import Elec
+from .functools import Elec
 from .utils import DependArray
-from .functools import get_scaling_factor, get_scaling_factor_gradient
+
 
 class Model(object):
     def __init__(self, system, switching_type=None, cutoff=None, swdist=None):

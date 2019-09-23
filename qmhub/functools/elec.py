@@ -1,9 +1,14 @@
 import math
 import numpy as np
 
-from .functools import Ewald, ElecNear
-from .functools.distance import *
-from .utils import DependArray
+from ..utils import DependArray
+from .distance import *
+from .elec_near import ElecNear
+
+try:
+    from .pme import Ewald
+except ImportError:
+    from .ewald import Ewald
 
 
 class Elec(object):
