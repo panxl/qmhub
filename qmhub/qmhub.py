@@ -18,5 +18,5 @@ class QMMM(object):
             from .mmtools.sander import load_from_file
             self.system = load_from_file(input, simulation=self.simulation)
 
-    def build_model(self, switching_type=None, cutoff=None, swdist=None):
-        self.model = Model(self.system, switching_type, cutoff, swdist)
+    def build_model(self, switching_type=None, cutoff=None, swdist=None, pbc=None):
+        self.model = Model(self.system, switching_type, cutoff, swdist, pbc)

@@ -14,7 +14,7 @@ except ImportError:
 
 class Elec(object):
 
-    def __init__(self, ri, rj, charges, cell_basis, switching_type=None, cutoff=None, swdist=None):
+    def __init__(self, ri, rj, charges, cell_basis, switching_type=None, cutoff=None, swdist=None, pbc=False):
         self.rij = DependArray(
             name="rij",
             func=get_rij,
@@ -50,30 +50,27 @@ class Elec(object):
             func=get_dij_min_gradient,
             dependencies=[self.dij_min, self.dij_inverse, self.dij_inverse_gradient],
         )
-        self.coulomb_exclusion = DependArray(
-            name="coulomb_exclusion",
-            func=Elec._get_coulomb_exclusion,
-            kwargs={'dij_min': self.dij_min},
-        )
-        self.qm_exclusion_esp = DependArray(
-            name="qm_exclusion_esp",
-            func=Elec._get_qm_exclusion_esp,
-            dependencies=[
-                self.dij_inverse,
-                self.dij_inverse_gradient,
-                charges,
-                self.coulomb_exclusion,
-            ],
-        )
 
-        self.ewald = Ewald(
-            ri=ri,
-            rj=rj,
-            charges=charges,
-            cell_basis=cell_basis,
-            cutoff=cutoff,
-            rij=self.rij,
-        )
+        if pbc:
+            self.full = Ewald(
+                ri=ri,
+                rj=rj,
+                charges=charges,
+                cell_basis=cell_basis,
+                cutoff=cutoff,
+                rij=self.rij,
+            )
+        else:
+            import importlib
+            NonPBC = importlib.import_module(".nonpbc", package='qmhub.electools').__getattribute__('NonPBC')
+
+            self.full = NonPBC(
+                rij=self.rij,
+                charges=charges,
+                cell_basis=cell_basis,
+                dij_inverse=self.dij_inverse,
+                dij_inverse_gradient=self.dij_inverse_gradient,
+            )
 
         self.near_field = ElecNear(
             dij_min=self.dij_min,
@@ -86,11 +83,26 @@ class Elec(object):
             swdist=swdist,
         )
 
+        self.coulomb_exclusion = DependArray(
+            name="coulomb_exclusion",
+            func=Elec._get_coulomb_exclusion,
+            kwargs={'dij_min': self.dij_min},
+        )
+        self.qm_exclusion_esp = DependArray(
+            name="qm_exclusion_esp",
+            func=Elec._get_qm_esp,
+            dependencies=[
+                self.dij_inverse,
+                self.dij_inverse_gradient,
+                charges,
+                self.coulomb_exclusion,
+            ],
+        )
         self.qm_total_esp = DependArray(
             name="qm_total_esp",
             func=Elec._get_qm_total_esp,
             dependencies=[
-                self.ewald.qm_ewald_esp,
+                self.full.qm_full_esp,
                 self.qm_exclusion_esp,
             ],
         )
@@ -98,7 +110,8 @@ class Elec(object):
             name="qm_residual_esp",
             func=Elec._get_qm_residual_esp,
             dependencies=[
-                self.qm_total_esp,
+                self.full.qm_full_esp,
+                self.qm_exclusion_esp,
                 self.near_field.qm_scaled_esp,
            ],
         )
@@ -116,21 +129,24 @@ class Elec(object):
         return np.where(dij_min < .8)[0]
 
     @staticmethod
-    def _get_qm_exclusion_esp(dij_inverse, dij_inverse_gradient, charges, coulomb_exclusion):
-        coulomb_tensor = np.zeros((4, dij_inverse.shape[0], len(coulomb_exclusion)))
-        coulomb_tensor[0] = dij_inverse[:, coulomb_exclusion]
-        coulomb_tensor[1:] = -dij_inverse_gradient[:, :, coulomb_exclusion]
-        coulomb_tensor[0, range(len(dij_inverse)), range(len(dij_inverse))] = 0.
+    def _get_qm_esp(dij_inverse, dij_inverse_gradient, charges, index=None):
+        if index is None:
+            coulomb_tensor = np.zeros((4, dij_inverse.shape[0], dij_inverse.shape[1]))
+        else:
+            coulomb_tensor = np.zeros((4, dij_inverse.shape[0], len(index)))
+        coulomb_tensor[0] = dij_inverse[:, index]
+        coulomb_tensor[1:] = -dij_inverse_gradient[:, :, index]
+        coulomb_tensor[0][np.where(np.isinf(dij_inverse))] = 0.
 
-        return coulomb_tensor @ charges[coulomb_exclusion,]
+        return coulomb_tensor @ charges[index,]
 
     @staticmethod
-    def _get_qm_total_esp(qm_ewald_esp, qm_exclusion_esp):
-        return qm_ewald_esp - qm_exclusion_esp
+    def _get_qm_total_esp(qm_full_esp, qm_exclusion_esp):
+        return qm_full_esp - qm_exclusion_esp
 
     @staticmethod
-    def _get_qm_residual_esp(qm_total_esp, qm_scaled_esp):
-        return qm_total_esp - qm_scaled_esp
+    def _get_qm_residual_esp(qm_full_esp, qm_exclusion_esp, qm_scaled_esp):
+        return qm_full_esp - qm_exclusion_esp - qm_scaled_esp
 
     @staticmethod
     def _get_projected_mm_charges(qmmm_coulomb_tensor_inv, qm_residual_esp):
