@@ -4,6 +4,7 @@ import numpy as np
 from ..utils import DependArray
 from .distance import *
 from .elec_near import ElecNear
+from .elec_proj import ElecProj
 
 try:
     from .pme import Ewald
@@ -101,6 +102,14 @@ class Elec(object):
                 self.near_field.qm_scaled_esp,
            ],
         )
+        self.projected_mm_charges = DependArray(
+            name="projected_mm_charges",
+            func=Elec._get_projected_mm_charges,
+            dependencies=[
+                self.near_field.qmmm_coulomb_tensor_inv,
+                self.qm_residual_esp,
+            ],
+        )
 
     @staticmethod
     def _get_coulomb_exclusion(dij_min):
@@ -122,3 +131,7 @@ class Elec(object):
     @staticmethod
     def _get_qm_residual_esp(qm_total_esp, qm_scaled_esp):
         return qm_total_esp - qm_scaled_esp
+
+    @staticmethod
+    def _get_projected_mm_charges(qmmm_coulomb_tensor_inv, qm_residual_esp):
+        return qmmm_coulomb_tensor_inv @ qm_residual_esp[0]

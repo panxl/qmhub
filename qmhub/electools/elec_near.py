@@ -71,6 +71,11 @@ class ElecNear(object):
                 self.scaling_factor_gradient,
            ],
         )
+        self.qmmm_coulomb_tensor_inv = DependArray(
+            name="qmmm_coulomb_tensor",
+            func=ElecNear._get_qmmm_coulomb_tensor_inv,
+            dependencies=[self.qmmm_coulomb_tensor],
+        )
         self.qm_scaled_esp = DependArray(
             name="qm_scaled_esp",
             func=ElecNear._get_qm_scaled_esp,
@@ -95,6 +100,10 @@ class ElecNear(object):
         coulomb_tensor[1:] = -(dij_inverse_gradient @ np.diag(scaling_factor) + dij_inverse * scaling_factor_gradient)
 
         return coulomb_tensor
+
+    @staticmethod
+    def _get_qmmm_coulomb_tensor_inv(qmmm_coulomb_tensor):
+        return np.linalg.pinv(qmmm_coulomb_tensor[0], rcond=1e-5)
 
     @staticmethod
     def _get_qm_scaled_esp(qmmm_coulomb_tensor, charges):
