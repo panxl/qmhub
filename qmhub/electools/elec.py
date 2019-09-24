@@ -2,6 +2,7 @@ import math
 import numpy as np
 
 from ..utils import DependArray
+from ..units import COULOMB_CONSTANT
 from .distance import *
 from .elec_near import ElecNear
 from .elec_proj import ElecProj
@@ -138,7 +139,7 @@ class Elec(object):
         coulomb_tensor[1:] = -dij_inverse_gradient[:, :, index]
         coulomb_tensor[0][np.where(np.isinf(dij_inverse))] = 0.
 
-        return coulomb_tensor @ charges[index,]
+        return (coulomb_tensor @ charges[index,]) * COULOMB_CONSTANT
 
     @staticmethod
     def _get_qm_total_esp(qm_full_esp, qm_exclusion_esp):

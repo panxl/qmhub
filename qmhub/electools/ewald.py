@@ -3,7 +3,7 @@ import numpy as np
 from scipy.special import erfc
 
 from ..utils import DependArray
-
+from ..units import COULOMB_CONSTANT
 
 PI = math.pi
 SQRTPI = math.sqrt(math.pi)
@@ -169,7 +169,7 @@ class Ewald(object):
         prod2[np.where(np.isnan(prod2))] = 0.
         t[1:] = (prod2[np.newaxis] * r).sum(axis=1)
 
-        return t
+        return t * COULOMB_CONSTANT
 
     @staticmethod
     def _get_ewald_recip(rij, lattice, cell_basis, alpha, correction=True):
@@ -190,7 +190,7 @@ class Ewald(object):
             # Net charge correction
             t[0] -= PI / volume / alpha**2
 
-        return t
+        return t * COULOMB_CONSTANT
 
     @staticmethod
     def _get_qm_full_esp(ewald_real, ewald_recip, charges):

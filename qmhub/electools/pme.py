@@ -5,6 +5,7 @@ from scipy.special import erfc
 import qmhub.helpmelib as pme
 
 from ..utils import DependArray
+from ..units import COULOMB_CONSTANT
 
 
 PI = math.pi
@@ -112,7 +113,7 @@ class Ewald(object):
         prod2[mask] = prod[mask] / d2[mask] + 2 * alpha * np.exp(-1 * alpha**2 * d2[mask]) / SQRTPI / d2[mask]
         t[1:] = (prod2 * rij) @ charges
 
-        return t
+        return t * COULOMB_CONSTANT
 
     @staticmethod
     def _get_ewald_recip(rij, ri, rj, charges, cell_basis, nfft=None, alpha=None, order=6, correction=True):
@@ -152,7 +153,7 @@ class Ewald(object):
             # Net charge correction
             t[:, 0] -= (PI / np.linalg.det(cell_basis) / alpha**2) * charges.sum()
 
-        return t.T
+        return t.T * COULOMB_CONSTANT
 
     @staticmethod
     def _get_qm_full_esp(ewald_real, ewald_recip):

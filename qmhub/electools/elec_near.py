@@ -1,6 +1,7 @@
 import numpy as np
 
 from ..utils import DependArray
+from ..units import COULOMB_CONSTANT
 from .switching import get_scaling_factor, get_scaling_factor_gradient
 
 
@@ -99,7 +100,7 @@ class ElecNear(object):
         coulomb_tensor[0] = dij_inverse @ np.diag(scaling_factor)
         coulomb_tensor[1:] = -(dij_inverse_gradient @ np.diag(scaling_factor) + dij_inverse * scaling_factor_gradient)
 
-        return coulomb_tensor
+        return coulomb_tensor * COULOMB_CONSTANT
 
     @staticmethod
     def _get_qmmm_coulomb_tensor_inv(qmmm_coulomb_tensor):
