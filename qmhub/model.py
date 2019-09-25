@@ -16,6 +16,8 @@ class Model(object):
 
         if swdist is None:
             self.swdist = cutoff * .75
+        else:
+            self.swdist = swdist
 
         if pbc is not None:
             self.pbc = pbc

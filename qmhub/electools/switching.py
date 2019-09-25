@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 
 from .distance import get_dij_min, get_dij_min_gradient
@@ -71,12 +72,16 @@ def get_scaling_factor_switch(dij_min=None, cutoff=None, swdist=None, *, rij=Non
     dratio2 = (dij_min / cutoff)**2
     sratio2 = (swdist / cutoff)**2
 
-    scaling_factor = ((1 - dratio2)**2
-                      * (3 * sratio2 + 2 * dratio2 - 1)
-                      / (1 - sratio2)**3
-                      * (dratio2 >= sratio2)
-                      * (dratio2 < 1.)
-                      + (dratio2 < sratio2))
+    if sratio2 < 1.:
+        scaling_factor = ((1 - dratio2)**2
+                        * (3 * sratio2 + 2 * dratio2 - 1)
+                        / (1 - sratio2)**3
+                        * (dratio2 >= sratio2)
+                        * (dratio2 < 1.)
+                        + (dratio2 < sratio2))
+    elif sratio2 == 1.:
+        warnings.warn("Not switching MM charges might cause discontinuity at the cutoff.")
+        scaling_factor = (dratio2 < sratio2).astype(float)
 
     # MM1
     scaling_factor[np.where(dij_min < .8)] = 1.0
@@ -94,10 +99,13 @@ def get_scaling_factor_gradient_switch(dij_min=None, dij_min_gradient=None, cuto
     dratio2 = (dij_min / cutoff)**2
     sratio2 = (swdist / cutoff)**2
 
-    scaling_factor_gradient = (12 * (dratio2 - sratio2)
-                               * (1 - dratio2)
-                               / (1 - sratio2)**3 * dij_min / cutoff**2 * dij_min_gradient)
-    scaling_factor_gradient *= (dratio2 >= sratio2) * (dratio2 < 1.)
+    if sratio2 < 1.:
+        scaling_factor_gradient = (12 * (dratio2 - sratio2)
+                                * (1 - dratio2)
+                                / (1 - sratio2)**3 * dij_min / cutoff**2 * dij_min_gradient)
+        scaling_factor_gradient *= (dratio2 >= sratio2) * (dratio2 < 1.)
+    elif sratio2 == 1.:
+        scaling_factor_gradient = np.zeros_like(dij_min_gradient)
 
     # MM1
     scaling_factor_gradient[:, :, np.where(dij_min < .8)] = 0.0

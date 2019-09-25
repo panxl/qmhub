@@ -122,6 +122,7 @@ class Elec(object):
             dependencies=[
                 self.near_field.qmmm_coulomb_tensor_inv,
                 self.qm_residual_esp,
+                self.near_field.scaling_factor,
             ],
         )
 
@@ -150,5 +151,5 @@ class Elec(object):
         return qm_full_esp - qm_exclusion_esp - qm_scaled_esp
 
     @staticmethod
-    def _get_projected_mm_charges(qmmm_coulomb_tensor_inv, qm_residual_esp):
-        return qmmm_coulomb_tensor_inv @ qm_residual_esp[0]
+    def _get_projected_mm_charges(qmmm_coulomb_tensor_inv, qm_residual_esp, scaling_factor):
+        return np.diag(scaling_factor) @ qmmm_coulomb_tensor_inv @ qm_residual_esp[0]
