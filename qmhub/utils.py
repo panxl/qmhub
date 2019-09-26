@@ -31,7 +31,8 @@ def invalidate_cache(darray):
         darray._cache_valid = False
 
     for item in darray._dependants:
-        invalidate_cache(item())
+        if item() is not None:
+            invalidate_cache(item())
 
 
 class DependArray(container):
