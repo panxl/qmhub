@@ -10,12 +10,17 @@ from ..qmtmpl import QMTmpl
 
 class QChem(QMBase):
 
-    QMTOOL = 'Q-Chem'
+    QMTOOL = "Q-Chem"
 
-    def get_qm_params(self, method=None, basis=None, **kwargs):
-        """Get the parameters for QM calculation."""
+    def __init__(self, basedir=None, method=None, basis=None):
+        """
+        Creat a QM object.
+        """
 
-        super(QChem, self).get_qm_params(**kwargs)
+        if basedir is not None:
+            self.basedir = basedir
+        else:
+            self.basedir = os.getcwd()
 
         if method is not None:
             self.method = method
@@ -27,56 +32,78 @@ class QChem(QMBase):
         else:
             raise ValueError("Please set basis for Q-Chem.")
 
-    def gen_input(self, path=None):
+    def gen_input(
+        self,
+        qm_positions,
+        qm_elements,
+        mm_positions=None,
+        mm_charges=None,
+        charge=None,
+        mult=None,
+        calc_forces=None,
+        read_guess=None,
+        path=None,
+    ):
         """Generate input file for QM software."""
 
         qmtmpl = QMTmpl(self.QMTOOL)
 
-        if self.calc_forces:
-            jobtype = 'force'
-            qm_mm = 'true'
+        if calc_forces:
+            jobtype = "force"
+            qm_mm = "true"
         else:
-            jobtype = 'sp'
-            qm_mm = 'false'
+            jobtype = "sp"
+            qm_mm = "false"
 
-        if self.read_guess:
-            read_guess = 'scf_guess read\n'
+        if read_guess:
+            read_guess = "scf_guess read\n"
         else:
-            read_guess = ''
-
-        if self.addparam is not None:
-            if isinstance(self.addparam, list):
-                addparam = "".join(["%s\n" % i for i in self.addparam])
-            else:
-                addparam = self.addparam + '\n'
-        else:
-            addparam = ''
+            read_guess = ""
 
         if path is None:
             path = self.basedir
 
-        with open(os.path.join(path, "qchem.inp"), 'w') as f:
-            f.write(qmtmpl.gen_qmtmpl().substitute(
-                jobtype=jobtype, method=self.method, basis=self.basis,
-                read_guess=read_guess, qm_mm=qm_mm, esp_and_asp=esp_and_asp,
-                addparam=addparam))
+        with open(os.path.join(path, "qchem.inp"), "w") as f:
+            f.write(
+                qmtmpl.gen_qmtmpl().substitute(
+                    jobtype=jobtype,
+                    method=self.method,
+                    basis=self.basis,
+                    read_guess=read_guess,
+                    qm_mm=qm_mm,
+                )
+            )
             f.write("$molecule\n")
-            f.write("%d %d\n" % (self.charge, self.mult))
+            f.write("%d %d\n" % (charge, mult))
 
-            for i in range(self._n_qm_atoms):
-                f.write("".join(["%3s" % self._qm_element[i],
-                                 "%22.14e" % self._qm_position[i, 0],
-                                 "%22.14e" % self._qm_position[i, 1],
-                                 "%22.14e" % self._qm_position[i, 2], "\n"]))
+            for i in range(len(qm_elements)):
+                f.write(
+                    "".join(
+                        [
+                            "%3s" % qm_elements[i],
+                            "%22.14e" % qm_positions[0, i],
+                            "%22.14e" % qm_positions[1, i],
+                            "%22.14e" % qm_positions[2, i],
+                            "\n",
+                        ]
+                    )
+                )
             f.write("$end" + "\n\n")
 
             f.write("$external_charges\n")
-            if self._mm_charge is not None:
-                for i in range(self._n_mm_atoms):
-                    f.write("".join(["%22.14e" % self._mm_position[i, 0],
-                                     "%22.14e" % self._mm_position[i, 1],
-                                     "%22.14e" % self._mm_position[i, 2],
-                                     " %22.14e" % self._mm_charge[i], "\n"]))
+            if mm_charges is not None:
+                for i in range(len(mm_charges)):
+                    f.write(
+                        "".join(
+                            [
+                                "%22.14e" % mm_positions[0, i],
+                                "%22.14e" % mm_positions[1, i],
+                                "%22.14e" % mm_positions[2, i],
+                                " %22.14e" % mm_charges[i],
+                                "\n",
+                            ]
+                        )
+                    )
             f.write("$end" + "\n")
 
     def gen_cmdline(self):
@@ -91,8 +118,8 @@ class QChem(QMBase):
     def rm_guess(self):
         """Remove save from previous QM calculation."""
 
-        if 'QCSCRATCH' in os.environ:
-            qmsave = os.environ['QCSCRATCH'] + "/save"
+        if "QCSCRATCH" in os.environ:
+            qmsave = os.environ["QCSCRATCH"] + "/save"
             if os.path.isdir(qmsave):
                 shutil.rmtree(qmsave)
 
@@ -155,7 +182,7 @@ class QChem(QMBase):
         if output is None:
             output = self.load_output(os.path.join(self.basedir, "efield.dat"))
 
-        self.qm_force = -1 * np.loadtxt(output[(-1 * self._n_qm_atoms):], dtype=float)
+        self.qm_force = -1 * np.loadtxt(output[(-1 * self._n_qm_atoms) :], dtype=float)
 
         return self.qm_force
 

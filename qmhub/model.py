@@ -1,6 +1,7 @@
 import numpy as np
 
 from .electools import Elec
+from .engine import Engine
 from .utils import DependArray
 
 
@@ -35,4 +36,13 @@ class Model(object):
             cutoff=self.cutoff,
             swdist=self.swdist,
             pbc=self.pbc,
+        )
+
+        self.engine = Engine(
+            system.qm.atoms.positions,
+            system.qm.atoms.elements,
+            self.elec.embedding_mm_positions,
+            self.elec.embedding_mm_charges,
+            charge=system.qm_charge,
+            mult=system.qm_mult,
         )

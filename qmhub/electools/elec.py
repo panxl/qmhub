@@ -116,6 +116,14 @@ class Elec(object):
                 self.near_field.qm_scaled_esp,
            ],
         )
+        self.scaled_mm_charges = DependArray(
+            name="scaled_mm_charges",
+            func=Elec._get_scaled_mm_charges,
+            dependencies=[
+                self.near_field.charges,
+                self.near_field.scaling_factor,
+            ],
+        )
         self.projected_mm_charges = DependArray(
             name="projected_mm_charges",
             func=Elec._get_projected_mm_charges,
@@ -123,6 +131,22 @@ class Elec(object):
                 self.near_field.qmmm_coulomb_tensor_inv,
                 self.qm_residual_esp,
                 self.near_field.scaling_factor,
+            ],
+        )
+        self.embedding_mm_charges = DependArray(
+            name="embedding_mm_charges",
+            func=Elec._get_embedding_mm_charges,
+            dependencies=[
+                self.scaled_mm_charges,
+                self.projected_mm_charges,
+            ],
+        )
+        self.embedding_mm_positions = DependArray(
+            name="embedding_mm_positions",
+            func=Elec._get_embedding_mm_positions,
+            dependencies=[
+                rj,
+                self.near_field.near_field_mask,
             ],
         )
 
@@ -151,5 +175,17 @@ class Elec(object):
         return qm_full_esp - qm_exclusion_esp - qm_scaled_esp
 
     @staticmethod
+    def _get_scaled_mm_charges(charges, scaling_factor):
+        return charges * scaling_factor
+
+    @staticmethod
     def _get_projected_mm_charges(qmmm_coulomb_tensor_inv, qm_residual_esp, scaling_factor):
         return np.diag(scaling_factor) @ qmmm_coulomb_tensor_inv @ qm_residual_esp[0]
+
+    @staticmethod
+    def _get_embedding_mm_charges(scaled_mm_charges, projected_mm_charges):
+        return scaled_mm_charges + projected_mm_charges
+
+    @staticmethod
+    def _get_embedding_mm_positions(mm_positions, near_field_mask):
+        return mm_positions[:, near_field_mask]
