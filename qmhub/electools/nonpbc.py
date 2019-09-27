@@ -18,7 +18,7 @@ class NonPBC(object):
         coulomb_tensor = np.zeros((4, dij_inverse.shape[0], dij_inverse.shape[1]))
 
         coulomb_tensor[0] = dij_inverse
-        coulomb_tensor[1:] = -dij_inverse_gradient
+        coulomb_tensor[1:] = dij_inverse_gradient
         coulomb_tensor[0][np.where(np.isinf(dij_inverse))] = 0.
 
         return (coulomb_tensor @ charges) * COULOMB_CONSTANT

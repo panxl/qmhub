@@ -97,8 +97,8 @@ class ElecNear(object):
     @staticmethod
     def _get_qmmm_coulomb_tensor(dij_inverse, dij_inverse_gradient, scaling_factor, scaling_factor_gradient):
         coulomb_tensor = np.zeros((4, dij_inverse.shape[0], dij_inverse.shape[1]))
-        coulomb_tensor[0] = dij_inverse @ np.diag(scaling_factor)
-        coulomb_tensor[1:] = -(dij_inverse_gradient @ np.diag(scaling_factor) + dij_inverse * scaling_factor_gradient)
+        coulomb_tensor[0] = dij_inverse * scaling_factor
+        coulomb_tensor[1:] = dij_inverse_gradient * scaling_factor + dij_inverse * scaling_factor_gradient
 
         return coulomb_tensor * COULOMB_CONSTANT
 
