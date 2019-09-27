@@ -2,7 +2,7 @@ import os
 import shutil
 import numpy as np
 
-from .. import units
+from ..units import BOHR_IN_ANGSTROM
 
 from .qmbase import QMBase
 from ..qmtmpl import QMTmpl
@@ -12,10 +12,15 @@ class ORCA(QMBase):
 
     QMTOOL = 'ORCA'
 
-    def get_qm_params(self, method=None, basis=None, **kwargs):
-        """Get the parameters for QM calculation."""
+    def __init__(self, basedir=None, method=None, basis=None):
+        """
+        Creat a QM object.
+        """
 
-        super(ORCA, self).get_qm_params(**kwargs)
+        if basedir is not None:
+            self.basedir = basedir
+        else:
+            self.basedir = os.getcwd()
 
         if method is not None:
             self.method = method
@@ -27,28 +32,31 @@ class ORCA(QMBase):
         else:
             raise ValueError("Please set basis for ORCA.")
 
-    def gen_input(self, path=None):
+    def gen_input(
+        self,
+        qm_positions,
+        qm_elements,
+        mm_positions=None,
+        mm_charges=None,
+        charge=None,
+        mult=None,
+        calc_forces=None,
+        read_guess=None,
+        path=None,
+    ):
         """Generate input file for QM software."""
 
         qmtmpl = QMTmpl(self.QMTOOL)
 
-        if self.calc_forces:
+        if calc_forces:
             calc_forces = 'EnGrad '
         else:
             calc_forces = ''
 
-        if self.read_guess:
+        if read_guess:
             read_guess = ''
         else:
             read_guess = 'NoAutoStart '
-
-        if self.addparam is not None:
-            if isinstance(self.addparam, list):
-                addparam = "".join(["%s " % i for i in self.addparam])
-            else:
-                addparam = self.addparam + " "
-        else:
-            addparam = ''
 
         nproc = self.get_nproc()
 
@@ -59,37 +67,36 @@ class ORCA(QMBase):
             f.write(qmtmpl.gen_qmtmpl().substitute(
                 method=self.method, basis=self.basis,
                 calc_forces=calc_forces, read_guess=read_guess,
-                addparam=addparam, nproc=nproc,
-                pntchrgspath="\"orca.pntchrg\""))
+                nproc=nproc, pntchrgspath="\"orca.pntchrg\""))
             f.write("%coords\n")
             f.write("  CTyp xyz\n")
-            f.write("  Charge %d\n" % self.charge)
-            f.write("  Mult %d\n" % self.mult)
+            f.write("  Charge %d\n" % charge)
+            f.write("  Mult %d\n" % mult)
             f.write("  Units Angs\n")
             f.write("  coords\n")
 
-            for i in range(self._n_qm_atoms):
-                f.write(" ".join(["%6s" % self._qm_element[i],
-                                  "%22.14e" % self._qm_position[i, 0],
-                                  "%22.14e" % self._qm_position[i, 1],
-                                  "%22.14e" % self._qm_position[i, 2], "\n"]))
+            for i in range(len(qm_elements)):
+                f.write(" ".join(["%6s" % qm_elements[i],
+                                  "%22.14e" % qm_positions[0, i],
+                                  "%22.14e" % qm_positions[1, i],
+                                  "%22.14e" % qm_positions[2, i], "\n"]))
             f.write("  end\n")
             f.write("end\n")
 
         with open(os.path.join(path, "orca.pntchrg"), 'w') as f:
-            f.write("%d\n" % self._n_mm_atoms)
-            for i in range(self._n_mm_atoms):
-                f.write("".join(["%22.14e " % self._mm_charge[i],
-                                 "%22.14e" % self._mm_position[i, 0],
-                                 "%22.14e" % self._mm_position[i, 1],
-                                 "%22.14e" % self._mm_position[i, 2], "\n"]))
+            f.write("%d\n" % len(mm_charges))
+            for i in range(len(mm_charges)):
+                f.write("".join(["%22.14e " % mm_charges[i],
+                                 "%22.14e" % mm_positions[0, i],
+                                 "%22.14e" % mm_positions[1, i],
+                                 "%22.14e" % mm_positions[2, i], "\n"]))
 
         with open(os.path.join(path, "orca.pntvpot.xyz"), 'w') as f:
-            f.write("%d\n" % self._n_mm_atoms)
-            for i in range(self._n_mm_atoms):
-                f.write("".join(["%22.14e" % (self._mm_position[i, 0] / units.L_AU),
-                                 "%22.14e" % (self._mm_position[i, 1] / units.L_AU),
-                                 "%22.14e" % (self._mm_position[i, 2] / units.L_AU), "\n"]))
+            f.write("%d\n" % len(mm_charges))
+            for i in range(len(mm_charges)):
+                f.write("".join(["%22.14e" % (mm_positions[0, i] / BOHR_IN_ANGSTROM),
+                                 "%22.14e" % (mm_positions[1, i] / BOHR_IN_ANGSTROM),
+                                 "%22.14e" % (mm_positions[2, i] / BOHR_IN_ANGSTROM), "\n"]))
 
     def gen_cmdline(self):
         """Generate commandline for QM calculation."""

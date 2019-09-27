@@ -94,7 +94,7 @@ Elements = ["None", 'H', 'He',
             'Lu', 'Hf', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Tl', 'Pb', 'Bi']
 
 orca_tmpl = """\
-! ${method} ${basis} Grid4 TightSCF NOFINALGRID ${calc_forces}${read_guess}${addparam}KeepDens
+! ${method} ${basis} Grid4 TightSCF NOFINALGRID ${calc_forces}${read_guess}KeepDens
 %output PrintLevel Mini Print[ P_Mulliken ] 1 Print[P_AtCharges_M] 1 end
 %pal nprocs ${nproc} end
 %pointcharges ${pntchrgspath}
