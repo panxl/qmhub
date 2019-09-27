@@ -127,3 +127,35 @@ class DependArray(container):
     def __imatmul__(self, other):
         np.matmul(self.array, other, self.array)
         return self
+
+
+def get_numerical_gradient(system, property, gradient, over='i', i=None, j=None, k=None):
+    ndim = property.ndim
+
+    if over == 'i':
+        analytical_gradient = -np.asscalar(gradient[k, i, j])
+
+        system.atoms.positions[k, i:i+1] += 0.001
+        property_pos = np.copy(property)
+
+        system.atoms.positions[k, i:i+1] -= 0.002
+        property_neg = np.copy(property)
+
+        system.atoms.positions[k, i:i+1] += 0.001
+    elif over == 'j':
+        analytical_gradient = np.asscalar(gradient[k, i, j])
+
+        system.atoms.positions[k, j:j+1] += 0.001
+        property_pos = np.copy(property)
+
+        system.atoms.positions[k, j:j+1] -= 0.002
+        property_neg = np.copy(property)
+
+        system.atoms.positions[k, j:j+1] += 0.001
+
+    if ndim == 2:
+        numerical_gradient = (property_pos[i, j] - property_neg[i, j]) / 0.002
+    elif ndim == 1:
+        numerical_gradient = (property_pos[j] - property_neg[j]) / 0.002
+
+    return analytical_gradient, numerical_gradient, analytical_gradient - numerical_gradient
