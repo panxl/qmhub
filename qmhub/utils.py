@@ -163,7 +163,7 @@ def get_numerical_gradient(system, property, gradient, mask=None, over='i', i=No
     if ndim == 1:
         if len(property) == len(system.qm.atoms):
             if over == 'i':
-                analytical_gradient = -np.asscalar(gradient[k, i])
+                analytical_gradient = np.asscalar(gradient[k, i])
 
                 system.atoms.positions[k, i:i+1] += 0.001
                 property_pos = np.copy(property)

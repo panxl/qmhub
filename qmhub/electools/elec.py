@@ -161,7 +161,7 @@ class Elec(object):
         else:
             coulomb_tensor = np.zeros((4, dij_inverse.shape[0], len(index)))
         coulomb_tensor[0] = dij_inverse[:, index]
-        coulomb_tensor[1:] = dij_inverse_gradient[:, :, index]
+        coulomb_tensor[1:] = -dij_inverse_gradient[:, :, index]
         coulomb_tensor[0][np.where(np.isinf(dij_inverse))] = 0.
 
         return (coulomb_tensor @ charges[index,]) * COULOMB_CONSTANT

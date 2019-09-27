@@ -13,7 +13,7 @@ SQRTPI = math.sqrt(math.pi)
 
 
 class Ewald(object):
-    def __init__(self, ri, rj, charges, cell_basis, tol=1e-6, cutoff=None, *, rij=None):
+    def __init__(self, ri, rj, charges, cell_basis, tol=1e-10, *, cutoff=None, rij=None, **kwargs):
         self.cell_basis = cell_basis
         self.tol = tol
         self.cutoff = cutoff
