@@ -76,7 +76,8 @@ class DependArray(container):
             )
         else:
             darray = self._rc(self.array[index])
-            darray._dependants = self._dependants
+            if isinstance(darray, DependArray):
+                darray._dependants = self._dependants
         return darray
 
     def __setitem__(self, index, value):
