@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import shutil
 import numpy as np
 
@@ -10,27 +11,7 @@ class QChem(QMBase):
 
     QMTOOL = "Q-Chem"
 
-    def __init__(self, basedir=None, method=None, basis=None):
-        """
-        Creat a QM object.
-        """
-
-        if basedir is not None:
-            self.basedir = basedir
-        else:
-            self.basedir = os.getcwd()
-
-        if method is not None:
-            self.method = method
-        else:
-            raise ValueError("Please set method for Q-Chem.")
-
-        if basis is not None:
-            self.basis = basis
-        else:
-            raise ValueError("Please set basis for Q-Chem.")
-
-    def gen_input(
+    def __init__(
         self,
         qm_positions,
         qm_elements,
@@ -38,13 +19,42 @@ class QChem(QMBase):
         mm_charges=None,
         charge=None,
         mult=None,
+        ):
+        """
+        Creat a QM object.
+        """
+
+        self.qm_positions = qm_positions
+        self.qm_elements = qm_elements
+        self.mm_positions = mm_positions
+        self.mm_charges = mm_charges
+
+        if charge is not None:
+            self.charge = charge
+        else:
+            raise ValueError("Please set 'charge' for QM calculation.")
+        if mult is not None:
+            self.mult = mult
+        else:
+            self.mult = 1
+
+    def gen_input(
+        self,
+        method=None,
+        basis=None,
         calc_forces=None,
         read_guess=None,
-        path=None,
+        basedir=None,
     ):
         """Generate input file for QM software."""
 
         qmtmpl = QMTmpl(self.QMTOOL)
+
+        if method is None:
+            raise ValueError("Please set method for Q-Chem.")
+
+        if basis is None:
+            raise ValueError("Please set basis for Q-Chem.")
 
         if calc_forces:
             jobtype = "force"
@@ -58,21 +68,26 @@ class QChem(QMBase):
         else:
             read_guess = ""
 
-        if path is None:
-            path = self.basedir
+        if basedir is not None:
+            basedir = basedir
+        else:
+            basedir = os.getcwd()
 
-        with open(os.path.join(path, "qchem.inp"), "w") as f:
+        with open(os.path.join(basedir, "qchem.inp"), "w") as f:
             f.write(
                 qmtmpl.gen_qmtmpl().substitute(
                     jobtype=jobtype,
-                    method=self.method,
-                    basis=self.basis,
+                    method=method,
+                    basis=basis,
                     read_guess=read_guess,
                     qm_mm=qm_mm,
                 )
             )
             f.write("$molecule\n")
-            f.write("%d %d\n" % (charge, mult))
+            f.write("%d %d\n" % (self.charge, self.mult))
+
+            qm_elements = np.asarray(self.qm_elements, dtype=self.qm_elements.dtype)
+            qm_positions = np.asarray(self.qm_positions, dtype=self.qm_positions.dtype)
 
             for i in range(len(qm_elements)):
                 f.write(
@@ -89,7 +104,9 @@ class QChem(QMBase):
             f.write("$end" + "\n\n")
 
             f.write("$external_charges\n")
-            if mm_charges is not None:
+            if self.mm_charges is not None:
+                mm_charges = np.asarray(self.mm_charges, dtype=self.mm_charges.dtype)
+                mm_positions = np.asarray(self.mm_positions, dtype=self.mm_positions.dtype)
                 for i in range(len(mm_charges)):
                     f.write(
                         "".join(
@@ -104,11 +121,16 @@ class QChem(QMBase):
                     )
             f.write("$end" + "\n")
 
-    def gen_cmdline(self):
+    def gen_cmdline(self, basedir=None):
         """Generate commandline for QM calculation."""
 
+        if basedir is not None:
+            basedir = basedir
+        else:
+            basedir = os.getcwd()
+
         nproc = self.get_nproc()
-        cmdline = "cd " + self.basedir + "; "
+        cmdline = "cd " + basedir + "; "
         cmdline += "qchem -nt %d qchem.inp qchem.out save > qchem_run.log" % nproc
 
         return cmdline
@@ -121,22 +143,34 @@ class QChem(QMBase):
             if os.path.isdir(qmsave):
                 shutil.rmtree(qmsave)
 
-    def parse_output(self):
+    def parse_output(self, basedir=None, calc_forces=True):
         """Parse the output of QM calculation."""
 
-        output = self.load_output(os.path.join(self.basedir, "qchem.out"))
+        if basedir is not None:
+            basedir = basedir
+        else:
+            basedir = os.getcwd()
 
-        self.get_qm_energy(output)
-        self.get_qm_charge(output)
+        output = Path(basedir).joinpath("qchem.out").read_text().split("\n")
+    
+        self.qm_energy = self.get_qm_energy(output)
 
-        output = self.load_output(os.path.join(self.basedir, "efield.dat"))
-        self.get_qm_force(output)
+        if calc_forces:
+            output = Path(basedir).joinpath("efield.dat").read_text().split("\n")
+            self.qm_forces = self.get_qm_forces(output)
+            self.mm_efield = self.get_mm_efield(output)
 
-    def get_qm_energy(self, output=None):
+            output = Path(basedir).joinpath("esp.dat").read_text().split("\n")
+            self.mm_esp = self.get_mm_esp(output)
+
+    def get_qm_energy(self, output):
         """Get QM energy from output of QM calculation."""
 
-        if output is None:
-            output = self.load_output(os.path.join(self.basedir, "qchem.out"))
+        if isinstance(output, str):
+            try:
+                output = Path(output).read_text().split("\n")
+            except:
+                output = output.split("\n")
 
         for line in output:
             line = line.strip().expandtabs()
@@ -149,47 +183,58 @@ class QChem(QMBase):
                 scf_energy = line.split()[-1]
                 break
 
-        self.qm_energy = float(scf_energy) - float(cc_energy)
+        return float(scf_energy) - float(cc_energy)
 
-        return self.qm_energy
+    def get_qm_forces(self, output):
+        """Get QM forces from output of QM calculation."""
 
-    def get_qm_charge(self, output=None):
+        if isinstance(output, str):
+            try:
+                output = Path(output).read_text().split("\n")
+            except:
+                output = output.split("\n")
+
+        return np.loadtxt(output[len(self.mm_charges):], dtype=float)
+
+    def get_mm_efield(self, output):
+        """Get QM forces from output of QM calculation."""
+
+        if isinstance(output, str):
+            try:
+                output = Path(output).read_text().split("\n")
+            except:
+                output = output.split("\n")
+
+        return np.loadtxt(output[:len(self.mm_charges)], dtype=float)
+
+    def get_mm_esp(self, output):
+        """Get ESP at MM atoms in the near field from QM density."""
+
+        if isinstance(output, str):
+            try:
+                output = Path(output).read_text().split("\n")
+            except:
+                output = output.split("\n")
+
+        return np.loadtxt(output)
+
+    def get_mulliken_charges(self, output):
         """Get Mulliken charges from output of QM calculation."""
 
-        if output is None:
-            output = self.load_output(os.path.join(self.basedir, "qchem.out"))
+        if isinstance(output, str):
+            try:
+                output = Path(output).read_text().split("\n")
+            except:
+                output = output.split("\n")
 
-        if self._qm_esp is not None:
-            charge_string = "Merz-Kollman ESP Net Atomic Charges"
-        else:
-            charge_string = "Ground-State Mulliken Net Atomic Charges"
+        charge_string = "Ground-State Mulliken Net Atomic Charges"
 
         for i in range(len(output)):
             if charge_string in output[i]:
-                self.qm_charge = np.empty(self._n_qm_atoms, dtype=float)
-                for j in range(self._n_qm_atoms):
+                mulliken_charges = np.empty(len(self.qm_elements), dtype=float)
+                for j in range(len(self.qm_elements)):
                     line = output[i + 4 + j]
-                    self.qm_charge[j] = float(line.split()[2])
+                    mulliken_charges[j] = float(line.split()[2])
                 break
 
-        return self.qm_charge
-
-    def get_qm_force(self, output=None):
-        """Get QM forces from output of QM calculation."""
-
-        if output is None:
-            output = self.load_output(os.path.join(self.basedir, "efield.dat"))
-
-        self.qm_force = -1 * np.loadtxt(output[(-1 * self._n_qm_atoms) :], dtype=float)
-
-        return self.qm_force
-
-    def get_mm_esp_eed(self, output=None):
-        """Get ESP at MM atoms in the near field from QM density."""
-
-        if output is None:
-            output = self.load_output(os.path.join(self.basedir, "esp.dat"))
-
-        self.mm_esp_eed = np.loadtxt(output)
-
-        return self.mm_esp_eed
+        return mulliken_charges

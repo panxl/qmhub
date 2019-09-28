@@ -13,7 +13,7 @@ class QMBase(object):
     def gen_input(self):
         raise NotImplementedError()
 
-    def gen_cmdline(self):
+    def gen_cmdline(self, basedir=None):
         """Generate commandline for QM calculation."""
 
         raise NotImplementedError()
@@ -23,10 +23,10 @@ class QMBase(object):
 
         raise NotImplementedError()
 
-    def run(self, read_guess=False):
+    def run(self, basedir=None, read_guess=False):
         """Run QM calculation."""
 
-        cmdline = self.gen_cmdline()
+        cmdline = self.gen_cmdline(basedir=basedir)
 
         if not read_guess:
             self.rm_guess()
@@ -46,13 +46,3 @@ class QMBase(object):
         else:
             nproc = 1
         return nproc
-
-    @staticmethod
-    def load_output(output_file):
-        """Load output file."""
-
-        f = open(output_file, "r")
-        output = f.readlines()
-        f.close()
-
-        return output
