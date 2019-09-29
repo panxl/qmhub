@@ -88,8 +88,8 @@ class QChem(QMBase):
 
         return float(scf_energy) - float(cc_energy)
 
-    def get_qm_forces(self, qm_cache=None, output=None):
-        """Get QM forces from output of QM calculation."""
+    def get_qm_energy_gradient(self, qm_cache=None, output=None):
+        """Get QM energy gradient from output of QM calculation."""
 
         if qm_cache is not None:
             assert np.asscalar(qm_cache) == True
@@ -103,23 +103,8 @@ class QChem(QMBase):
 
         return np.loadtxt(output[len(self.mm_charges):], dtype=float).T
 
-    def get_mm_efield(self, qm_cache=None, output=None):
-        """Get electric field at MM atoms in the near field from QM density."""
-
-        if qm_cache is not None:
-            assert np.asscalar(qm_cache) == True
-
-        if output is None:
-            output = Path(self.basedir).joinpath("efield.dat")
-        else:
-            output = Path(output)
-
-        output = output.read_text().split("\n")
-
-        return np.loadtxt(output[:len(self.mm_charges)], dtype=float).T
-
     def get_mm_esp(self, qm_cache=None, output=None):
-        """Get ESP at MM atoms in the near field from QM density."""
+        """Get electrostatic potential  at MM atoms in the near field from QM density."""
 
         if qm_cache is not None:
             assert np.asscalar(qm_cache) == True
@@ -132,6 +117,21 @@ class QChem(QMBase):
         output = output.read_text().split("\n")
 
         return np.loadtxt(output)
+
+    def get_mm_esp_gradient(self, qm_cache=None, output=None):
+        """Get electrostatic potential gradient at MM atoms in the near field from QM density."""
+
+        if qm_cache is not None:
+            assert np.asscalar(qm_cache) == True
+
+        if output is None:
+            output = Path(self.basedir).joinpath("efield.dat")
+        else:
+            output = Path(output)
+
+        output = output.read_text().split("\n")
+
+        return -np.loadtxt(output[:len(self.mm_charges)], dtype=float).T
 
     def get_mulliken_charges(self, qm_cache=None, output=None):
         """Get Mulliken charges from output of QM calculation."""

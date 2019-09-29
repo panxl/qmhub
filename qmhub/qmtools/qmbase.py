@@ -62,19 +62,19 @@ class QMBase(object):
             func=self.get_qm_energy,
             dependencies=[self._qm_cache],
         )
-        self.qm_forces = DependArray(
-            name="qm_forces ",
-            func=self.get_qm_forces,
-            dependencies=[self._qm_cache],
-        )
-        self.mm_efield= DependArray(
-            name="qm_efield",
-            func=self.get_mm_efield,
+        self.qm_energy_gradient = DependArray(
+            name="qm_energy_gradient",
+            func=self.get_qm_energy_gradient,
             dependencies=[self._qm_cache],
         )
         self.mm_esp = DependArray(
             name="mm_esp",
             func=self.get_mm_esp,
+            dependencies=[self._qm_cache],
+        )
+        self.mm_esp_gradient= DependArray(
+            name="mm_esp_gradient",
+            func=self.get_mm_esp_gradient,
             dependencies=[self._qm_cache],
         )
         self.mulliken_charges = DependArray(
@@ -85,7 +85,7 @@ class QMBase(object):
 
     def _get_qm_cache(self, *args):
         self.gen_input()
-        run_cmdline(self.gen_cmdline())
+        # run_cmdline(self.gen_cmdline())
 
         return True
 
@@ -108,18 +108,18 @@ class QMBase(object):
 
         raise NotImplementedError()
 
-    def get_qm_forces(self, qm_cache=None, output=None):
-        """Get QM forces from output of QM calculation."""
-
-        raise NotImplementedError()
-
-    def get_mm_efield(self, qm_cache=None, output=None):
-        """Get QM forces from output of QM calculation."""
+    def get_qm_energy_gradient(self, qm_cache=None, output=None):
+        """Get QM energy gradient from output of QM calculation."""
 
         raise NotImplementedError()
 
     def get_mm_esp(self, qm_cache=None, output=None):
-        """Get ESP at MM atoms in the near field from QM density."""
+        """Get electrostatic potential at MM atoms in the near field from QM density."""
+
+        raise NotImplementedError()
+
+    def get_mm_esp_gradient(self, qm_cache=None, output=None):
+        """Get electrostatic potential gradient at MM atoms in the near field from QM density."""
 
         raise NotImplementedError()
 
