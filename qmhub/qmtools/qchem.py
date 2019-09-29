@@ -13,13 +13,15 @@ class QChem(QMBase):
     def gen_input(self):
         """Generate input file for QM software."""
 
+        qm_elements = np.asarray(self.qm_elements, dtype=self.qm_elements.dtype)
+        qm_positions = np.asarray(self.qm_positions, dtype=self.qm_positions.dtype)
+        mm_charges = np.asarray(self.mm_charges, dtype=self.mm_charges.dtype)
+        mm_positions = np.asarray(self.mm_positions, dtype=self.mm_positions.dtype)
+
         with open(Path(self.basedir).joinpath("qchem.inp"), "w") as f:
             f.write(get_qm_template(self.keywords))
             f.write("$molecule\n")
             f.write("%d %d\n" % (self.charge, self.mult))
-
-            qm_elements = np.asarray(self.qm_elements, dtype=self.qm_elements.dtype)
-            qm_positions = np.asarray(self.qm_positions, dtype=self.qm_positions.dtype)
 
             for i in range(len(qm_elements)):
                 f.write(
@@ -36,9 +38,7 @@ class QChem(QMBase):
             f.write("$end" + "\n\n")
 
             f.write("$external_charges\n")
-            if self.mm_charges is not None:
-                mm_charges = np.asarray(self.mm_charges, dtype=self.mm_charges.dtype)
-                mm_positions = np.asarray(self.mm_positions, dtype=self.mm_positions.dtype)
+            if mm_charges is not None:
                 for i in range(len(mm_charges)):
                     f.write(
                         "".join(

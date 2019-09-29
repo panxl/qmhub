@@ -15,10 +15,13 @@ class ORCA(QMBase):
     def gen_input(self):
         """Generate input file for QM software."""
 
-        nproc = get_nproc()
-
         qm_elements = np.asarray(self.qm_elements, dtype=self.qm_elements.dtype)
         qm_positions = np.asarray(self.qm_positions, dtype=self.qm_positions.dtype)
+        mm_charges = np.asarray(self.mm_charges, dtype=self.mm_charges.dtype)
+        mm_positions = np.asarray(self.mm_positions, dtype=self.mm_positions.dtype)
+
+        nproc = get_nproc()
+
         with open(Path(self.basedir).joinpath("orca.inp"), 'w') as f:
             f.write(get_qm_template(self.keywords, nproc=nproc, pointcharges="orca.pc"))
 
@@ -37,8 +40,6 @@ class ORCA(QMBase):
             f.write("  end\n")
             f.write("end\n")
 
-        mm_charges = np.asarray(self.mm_charges, dtype=self.mm_charges.dtype)
-        mm_positions = np.asarray(self.mm_positions, dtype=self.mm_positions.dtype)
         with open(Path(self.basedir).joinpath("orca.pc"), 'w') as f:
             f.write("%d\n" % len(mm_charges))
             for i in range(len(mm_charges)):
