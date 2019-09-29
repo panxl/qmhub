@@ -20,7 +20,7 @@ def get_qm_template(keywords_dict=None):
 
     keywords = {
         "jobtype": "force",
-        "method": "b3lyp",
+        "method": "hf",
         "basis": "6-31g*",
     }
 

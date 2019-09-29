@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 import numpy as np
 
@@ -102,10 +101,10 @@ class QChem(QMBase):
 
         output = output.read_text().split("\n")
 
-        return np.loadtxt(output[len(self.mm_charges):], dtype=float)
+        return np.loadtxt(output[len(self.mm_charges):], dtype=float).T
 
     def get_mm_efield(self, qm_cache=None, output=None):
-        """Get QM forces from output of QM calculation."""
+        """Get electric field at MM atoms in the near field from QM density."""
 
         if qm_cache is not None:
             assert np.asscalar(qm_cache) == True
@@ -117,7 +116,7 @@ class QChem(QMBase):
 
         output = output.read_text().split("\n")
 
-        return np.loadtxt(output[:len(self.mm_charges)], dtype=float)
+        return np.loadtxt(output[:len(self.mm_charges)], dtype=float).T
 
     def get_mm_esp(self, qm_cache=None, output=None):
         """Get ESP at MM atoms in the near field from QM density."""

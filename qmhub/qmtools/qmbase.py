@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-from ..utils import DependArray, run_cmdline
+from ..utils import DependArray, invalidate_cache, run_cmdline
 
 
 class QMBase(object):
@@ -88,6 +88,10 @@ class QMBase(object):
         run_cmdline(self.gen_cmdline())
 
         return True
+
+    def update_keywords(self, keywords):
+        self.keywords.update(keywords)
+        invalidate_cache(self._qm_cache)
 
     def gen_input(self):
         """Generate input file for QM software."""
