@@ -85,7 +85,7 @@ class QMBase(object):
 
     def _get_qm_cache(self, *args):
         self.gen_input()
-        # run_cmdline(self.gen_cmdline())
+        run_cmdline(self.gen_cmdline())
 
         return True
 
