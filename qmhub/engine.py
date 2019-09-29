@@ -36,7 +36,7 @@ class Engine(object):
 
         self._engines = {}
 
-    def add_engine(self, engine, name=None):
+    def add_engine(self, engine, name=None, basedir=None, keywords=None):
         if name is None:
             name = engine
 
@@ -47,39 +47,9 @@ class Engine(object):
             mm_charges = self.mm_charges,
             charge = self.charge,
             mult = self.mult,
+            basedir = basedir,
+            keywords = keywords,
         )
 
         setattr(self, name, engine_obj)
         self._engines[name] = engine_obj
-
-    def gen_input(self, name=None, basedir=None, calc_forces=True, read_guess=False, **kwargs):
-        if name is not None:
-            engines = {name: self._engines[name]}
-        else:
-            engines = self._engines
-
-        for engine in engines.values():
-            engine.gen_input(
-                basedir=basedir,
-                calc_forces=calc_forces,
-                read_guess=read_guess,
-                **kwargs,
-            )
-
-    def run(self, name=None, basedir=None, read_guess=False):
-        if name is not None:
-            engines = {name: self._engines[name]}
-        else:
-            engines = self._engines
-
-        for engine in engines.values():
-            engine.run(basedir=basedir, read_guess=read_guess)
-
-    def parse_output(self, name=None, basedir=None, calc_forces=True):
-        if name is not None:
-            engines = {name: self._engines[name]}
-        else:
-            engines = self._engines
-
-        for engine in engines.values():
-            engine.parse_output(basedir=basedir, calc_forces=calc_forces)
