@@ -182,8 +182,33 @@ def get_numerical_gradient(system, property, gradient, mask=None, over='i', i=No
 
         numerical_gradient = (property_pos[i, j] - property_neg[i, j]) / 0.002
 
-    if ndim == 1:
-        if len(property) == len(system.qm.atoms):
+    elif ndim == 1:
+        if len(property) == 1:
+            if over == 'i':
+                analytical_gradient = np.asscalar(gradient[k, i])
+
+                system.atoms.positions[k, i:i+1] += 0.001
+                property_pos = np.copy(property)
+
+                system.atoms.positions[k, i:i+1] -= 0.002
+                property_neg = np.copy(property)
+
+                system.atoms.positions[k, i:i+1] += 0.001
+
+                numerical_gradient = (property_pos - property_neg) / 0.002
+            elif over == 'j':
+                analytical_gradient = np.asscalar(gradient[k, j])
+
+                system.atoms.positions[k, j2:j2+1] += 0.001
+                property_pos = np.copy(property)
+
+                system.atoms.positions[k, j2:j2+1] -= 0.002
+                property_neg = np.copy(property)
+
+                system.atoms.positions[k, j2:j2+1] += 0.001
+
+                numerical_gradient = (property_pos - property_neg) / 0.002
+        elif len(property) == len(system.qm.atoms):
             if over == 'i':
                 analytical_gradient = np.asscalar(gradient[k, i])
 

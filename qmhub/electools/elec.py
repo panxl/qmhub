@@ -179,7 +179,7 @@ class Elec(object):
 
     @staticmethod
     def _get_projected_mm_charges(qmmm_coulomb_tensor_inv, qm_residual_esp, scaling_factor):
-        return np.diag(scaling_factor) @ qmmm_coulomb_tensor_inv @ qm_residual_esp[0]
+        return (qmmm_coulomb_tensor_inv @ qm_residual_esp[0]) * scaling_factor
 
     @staticmethod
     def _get_embedding_mm_charges(scaled_mm_charges, projected_mm_charges):
