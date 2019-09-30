@@ -64,7 +64,7 @@ class ORCA(QMBase):
 
         return cmdline
 
-    def get_qm_energy(self, qm_cache=None, output=None):
+    def _get_qm_energy(self, qm_cache=None, output=None):
         """Get QM energy from output of QM calculation."""
 
         if qm_cache is not None:
@@ -83,7 +83,7 @@ class ORCA(QMBase):
             if "FINAL SINGLE POINT ENERGY" in line:
                 return float(line.split()[-1])
 
-    def get_qm_energy_gradient(self, qm_cache=None, output=None):
+    def _get_qm_energy_gradient(self, qm_cache=None, output=None):
         """Get QM energy gradient from output of QM calculation."""
 
         if qm_cache is not None:
@@ -99,7 +99,7 @@ class ORCA(QMBase):
         stop = start + len(self.qm_elements) * 3
         return np.loadtxt(output[start:stop]).reshape((len(self.qm_elements), 3)).T
 
-    def get_mm_esp(self, qm_cache=None, output=None):
+    def _get_mm_esp(self, qm_cache=None, output=None):
         """Get electrostatic potential at MM atoms in the near field from QM density."""
 
         if qm_cache is not None:
@@ -114,7 +114,7 @@ class ORCA(QMBase):
 
         return np.loadtxt(output[1:(len(self.mm_charges) + 1)], usecols=3)
 
-    def get_mm_esp_gradient(self, qm_cache=None, output=None):
+    def _get_mm_esp_gradient(self, qm_cache=None, output=None):
         """Get electrostatic potential gradient at MM atoms in the near field from QM density."""
 
         if qm_cache is not None:
@@ -129,7 +129,7 @@ class ORCA(QMBase):
 
         return np.loadtxt(output[1:(len(self.mm_charges) + 1)]).T / self.mm_charges
 
-    def get_mulliken_charges(self, qm_cache=None, output=None):
+    def _get_mulliken_charges(self, qm_cache=None, output=None):
         """Get Mulliken charges from output of QM calculation."""
 
         if qm_cache is not None:

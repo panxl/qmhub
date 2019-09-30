@@ -6,7 +6,25 @@ from .utils import DependArray
 
 
 class Model(object):
-    def __init__(self, system, switching_type=None, cutoff=None, swdist=None, pbc=None):
+    def __init__(
+        self,
+        qm_positions,
+        positions,
+        charges,
+        cell_basis,
+        switching_type=None,
+        cutoff=None,
+        swdist=None,
+        pbc=None
+        ):
+        """
+        Creat a Model object.
+        """
+
+        self.qm_positions = qm_positions
+        self.positions = positions
+        self.charges = charges
+        self.cell_basis = cell_basis
 
         self.switching_type = switching_type
 
@@ -22,27 +40,18 @@ class Model(object):
 
         if pbc is not None:
             self.pbc = pbc
-        elif np.any(system.cell_basis != 0.0):
+        elif np.any(cell_basis != 0.0):
             self.pbc = True
         else:
             self.pbc = False
 
         self.elec = Elec(
-            system.qm.atoms.positions,
-            system.atoms.positions,
-            system.atoms.charges,
-            system.cell_basis,
+            qm_positions,
+            positions,
+            charges,
+            cell_basis,
             switching_type=self.switching_type,
             cutoff=self.cutoff,
             swdist=self.swdist,
             pbc=self.pbc,
-        )
-
-        self.engine = Engine(
-            system.qm.atoms.positions,
-            system.qm.atoms.elements,
-            self.elec.embedding_mm_positions,
-            self.elec.embedding_mm_charges,
-            charge=system.qm_charge,
-            mult=system.qm_mult,
         )

@@ -58,7 +58,7 @@ class SQM(QMBase):
 
         return cmdline
 
-    def get_qm_energy(self, qm_cache=None, output=None):
+    def _get_qm_energy(self, qm_cache=None, output=None):
         """Get QM energy from output of QM calculation."""
 
         if qm_cache is not None:
@@ -77,7 +77,7 @@ class SQM(QMBase):
             if "Heat of formation" in line:
                 return float(line.split()[-5]) / HARTREE_IN_KCAL_PER_MOLE
 
-    def get_qm_energy_gradient(self, qm_cache=None, output=None):
+    def _get_qm_energy_gradient(self, qm_cache=None, output=None):
         """Get QM energy gradient from output of QM calculation."""
 
         if qm_cache is not None:
@@ -100,7 +100,7 @@ class SQM(QMBase):
                     gradient[2, j] = float(line[58:78])
                 return gradient / FORCE_AU_IN_IU
 
-    def get_mm_esp(self, qm_cache=None, output=None):
+    def _get_mm_esp(self, qm_cache=None, output=None):
         """Get electrostatic potential at MM atoms in the near field from QM density."""
 
         if qm_cache is not None:
@@ -121,7 +121,7 @@ class SQM(QMBase):
                     mm_esp[j] = float(line.split()[-1])
                 return mm_esp / HARTREE_IN_KCAL_PER_MOLE
 
-    def get_mm_esp_gradient(self, qm_cache=None, output=None):
+    def _get_mm_esp_gradient(self, qm_cache=None, output=None):
         """Get electrostatic potential gradient at MM atoms in the near field from QM density."""
 
         if qm_cache is not None:
@@ -142,7 +142,7 @@ class SQM(QMBase):
                     mm_esp_gradient[:, j] = [float(n) for n in line.split()[-3:]]
                 return mm_esp_gradient / FORCE_AU_IN_IU
 
-    def get_mulliken_charges(self, qm_cache=None, output=None):
+    def _get_mulliken_charges(self, qm_cache=None, output=None):
         """Get Mulliken charges from output of QM calculation."""
 
         if qm_cache is not None:
