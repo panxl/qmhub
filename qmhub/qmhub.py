@@ -37,9 +37,7 @@ class QMMM(object):
         )
 
     def add_engine(self, engine, name=None, basedir=None, keywords=None):
-        try:
-            self.engine.add_engine(engine, name=name, basedir=basedir, keywords=keywords)
-        except AttributeError:
+        if not hasattr(self, 'engine'):
             self.engine = Engine(
                 self.system.qm.atoms.positions,
                 self.system.qm.atoms.elements,
@@ -49,4 +47,15 @@ class QMMM(object):
                 mult=self.system.qm_mult,
             )
 
-            self.engine.add_engine(engine, name=name, basedir=basedir, keywords=keywords)
+        if name is None:
+            name = engine
+
+        self.engine.add_engine(engine, name=name, basedir=basedir, keywords=keywords)
+
+        engine_obj = getattr(self.engine, name)
+        self.model.get_result(
+            name=name,
+            qm_energy=engine_obj.qm_energy,
+            qm_energy_gradient=engine_obj.qm_energy_gradient,
+            mm_esp=engine_obj.mm_esp,
+        )

@@ -62,18 +62,13 @@ class QChem(QMBase):
 
         return cmdline
 
-    def _get_qm_energy(self, qm_cache=None, output=None):
+    def _get_qm_energy(self, qm_cache=None):
         """Get QM energy from output of QM calculation."""
 
         if qm_cache is not None:
             assert np.asscalar(qm_cache) == True
 
-        if output is None:
-            output = Path(self.basedir).joinpath("qchem.out")
-        else:
-            output = Path(output)
-
-        output = output.read_text().split("\n")
+        output = Path(self.basedir).joinpath("qchem.out").read_text().split("\n")
 
         for line in output:
             line = line.strip().expandtabs()
@@ -88,63 +83,34 @@ class QChem(QMBase):
 
         return float(scf_energy) - float(cc_energy)
 
-    def _get_qm_energy_gradient(self, qm_cache=None, output=None):
+    def _get_qm_energy_gradient(self, qm_cache=None):
         """Get QM energy gradient from output of QM calculation."""
 
         if qm_cache is not None:
             assert np.asscalar(qm_cache) == True
 
-        if output is None:
-            output = Path(self.basedir).joinpath("efield.dat")
-        else:
-            output = Path(output)
+        return np.loadtxt(Path(self.basedir).joinpath("efield.dat"), skiprows=len(self.mm_charges), dtype=float).T
 
-        output = output.read_text().split("\n")
-
-        return np.loadtxt(output[len(self.mm_charges):], dtype=float).T
-
-    def _get_mm_esp(self, qm_cache=None, output=None):
+    def _get_mm_esp(self, qm_cache=None):
         """Get electrostatic potential  at MM atoms in the near field from QM density."""
 
         if qm_cache is not None:
             assert np.asscalar(qm_cache) == True
 
-        if output is None:
-            output = Path(self.basedir).joinpath("esp.dat")
-        else:
-            output = Path(output)
+        mm_esp = np.zeros((4, len(self.mm_charges)))
 
-        output = output.read_text().split("\n")
+        mm_esp[0] = np.loadtxt(Path(self.basedir).joinpath("esp.dat"), dtype=float)
+        mm_esp[1:] = -np.loadtxt(Path(self.basedir).joinpath("efield.dat"), max_rows=len(self.mm_charges), dtype=float).T
 
-        return np.loadtxt(output)
+        return mm_esp
 
-    def _get_mm_esp_gradient(self, qm_cache=None, output=None):
-        """Get electrostatic potential gradient at MM atoms in the near field from QM density."""
-
-        if qm_cache is not None:
-            assert np.asscalar(qm_cache) == True
-
-        if output is None:
-            output = Path(self.basedir).joinpath("efield.dat")
-        else:
-            output = Path(output)
-
-        output = output.read_text().split("\n")
-
-        return -np.loadtxt(output[:len(self.mm_charges)], dtype=float).T
-
-    def _get_mulliken_charges(self, qm_cache=None, output=None):
+    def _get_mulliken_charges(self, qm_cache=None):
         """Get Mulliken charges from output of QM calculation."""
 
         if qm_cache is not None:
             assert np.asscalar(qm_cache) == True
 
-        if output is None:
-            output = Path(self.basedir).joinpath("qchem.out")
-        else:
-            output = Path(output)
-
-        output = output.read_text().split("\n")
+        output = Path(self.basedir).joinpath("qchem.out").read_text().split("\n")
 
         charge_string = "Ground-State Mulliken Net Atomic Charges"
 

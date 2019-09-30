@@ -72,11 +72,6 @@ class QMBase(object):
             func=self._get_mm_esp,
             dependencies=[self._qm_cache],
         )
-        self.mm_esp_gradient= DependArray(
-            name="mm_esp_gradient",
-            func=self._get_mm_esp_gradient,
-            dependencies=[self._qm_cache],
-        )
         self.mulliken_charges = DependArray(
             name="mulliken_charges",
             func=self._get_mulliken_charges,
@@ -103,27 +98,22 @@ class QMBase(object):
 
         raise NotImplementedError()
 
-    def _get_qm_energy(self, qm_cache=None, output=None):
+    def _get_qm_energy(self, qm_cache=None):
         """Get QM energy from output of QM calculation."""
 
         raise NotImplementedError()
 
-    def _get_qm_energy_gradient(self, qm_cache=None, output=None):
+    def _get_qm_energy_gradient(self, qm_cache=None):
         """Get QM energy gradient from output of QM calculation."""
 
         raise NotImplementedError()
 
-    def _get_mm_esp(self, qm_cache=None, output=None):
+    def _get_mm_esp(self, qm_cache=None):
         """Get electrostatic potential at MM atoms in the near field from QM density."""
 
         raise NotImplementedError()
 
-    def _get_mm_esp_gradient(self, qm_cache=None, output=None):
-        """Get electrostatic potential gradient at MM atoms in the near field from QM density."""
-
-        raise NotImplementedError()
-
-    def _get_mulliken_charges(self, qm_cache=None, output=None):
+    def _get_mulliken_charges(self, qm_cache=None):
         """Get Mulliken charges from output of QM calculation."""
 
         raise NotImplementedError()

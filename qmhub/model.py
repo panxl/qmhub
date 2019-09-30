@@ -1,6 +1,6 @@
 import numpy as np
 
-from .electools import Elec
+from .electools import Elec, Result
 from .engine import Engine
 from .utils import DependArray
 
@@ -55,3 +55,24 @@ class Model(object):
             swdist=self.swdist,
             pbc=self.pbc,
         )
+
+    def get_result(
+        self,
+        name,
+        qm_energy,
+        qm_energy_gradient,
+        mm_esp,
+        ):
+
+        result_obj = Result(
+            qm_energy=qm_energy,
+            qm_energy_gradient=qm_energy_gradient,
+            mm_esp=mm_esp,
+            qm_esp=self.elec.qm_residual_esp,
+            scaling_factor=self.elec.near_field.scaling_factor,
+            scaling_factor_gradient=self.elec.near_field.scaling_factor_gradient,
+            qmmm_coulomb_tensor=self.elec.near_field.qmmm_coulomb_tensor,
+            qmmm_coulomb_tensor_inv=self.elec.near_field.qmmm_coulomb_tensor_inv,
+        )
+
+        setattr(self, name, result_obj)

@@ -58,18 +58,13 @@ class SQM(QMBase):
 
         return cmdline
 
-    def _get_qm_energy(self, qm_cache=None, output=None):
+    def _get_qm_energy(self, qm_cache=None):
         """Get QM energy from output of QM calculation."""
 
         if qm_cache is not None:
             assert np.asscalar(qm_cache) == True
 
-        if output is None:
-            output = Path(self.basedir).joinpath("sqm.out")
-        else:
-            output = Path(output)
-
-        output = output.read_text().split("\n")
+        output = Path(self.basedir).joinpath("sqm.out").read_text().split("\n")
 
         for line in output:
             line = line.strip().expandtabs()
@@ -77,18 +72,13 @@ class SQM(QMBase):
             if "Heat of formation" in line:
                 return float(line.split()[-5]) / HARTREE_IN_KCAL_PER_MOLE
 
-    def _get_qm_energy_gradient(self, qm_cache=None, output=None):
+    def _get_qm_energy_gradient(self, qm_cache=None):
         """Get QM energy gradient from output of QM calculation."""
 
         if qm_cache is not None:
             assert np.asscalar(qm_cache) == True
 
-        if output is None:
-            output = Path(self.basedir).joinpath("sqm.out")
-        else:
-            output = Path(output)
-
-        output = output.read_text().split("\n")
+        output = Path(self.basedir).joinpath("sqm.out").read_text().split("\n")
 
         for i in range(len(output)):
             if "Forces on QM atoms from SCF calculation" in output[i]:
@@ -100,60 +90,41 @@ class SQM(QMBase):
                     gradient[2, j] = float(line[58:78])
                 return gradient / FORCE_AU_IN_IU
 
-    def _get_mm_esp(self, qm_cache=None, output=None):
+    def _get_mm_esp(self, qm_cache=None):
         """Get electrostatic potential at MM atoms in the near field from QM density."""
 
         if qm_cache is not None:
             assert np.asscalar(qm_cache) == True
 
-        if output is None:
-            output = Path(self.basedir).joinpath("sqm.out")
-        else:
-            output = Path(output)
-    
-        output = output.read_text().split("\n")
+        output = Path(self.basedir).joinpath("sqm.out").read_text().split("\n")
+
+        mm_esp = np.zeros((4, len(self.mm_charges)))
 
         for i in range(len(output)):
             if "Electrostatic Potential on MM atoms from QM Atoms" in output[i]:
-                mm_esp = np.empty(len(self.mm_charges), dtype=float)
                 for j in range(len(self.mm_charges)):
                     line = output[i + 1 + j]
-                    mm_esp[j] = float(line.split()[-1])
-                return mm_esp / HARTREE_IN_KCAL_PER_MOLE
-
-    def _get_mm_esp_gradient(self, qm_cache=None, output=None):
-        """Get electrostatic potential gradient at MM atoms in the near field from QM density."""
-
-        if qm_cache is not None:
-            assert np.asscalar(qm_cache) == True
-
-        if output is None:
-            output = Path(self.basedir).joinpath("sqm.out")
-        else:
-            output = Path(output)
-
-        output = output.read_text().split("\n")
+                    mm_esp[0, j] = float(line.split()[-1])
+                break
 
         for i in range(len(output)):
             if "Forces on MM atoms from SCF calculation" in output[i]:
-                mm_esp_gradient = np.empty((3, len(self.mm_charges)), dtype=float)
                 for j in range(len(self.mm_charges)):
                     line = output[i + 1 + j]
-                    mm_esp_gradient[:, j] = [float(n) for n in line.split()[-3:]]
-                return mm_esp_gradient / FORCE_AU_IN_IU
+                    mm_esp[1:, j] = [float(n) for n in line.split()[-3:]]
+                break
 
-    def _get_mulliken_charges(self, qm_cache=None, output=None):
+        mm_esp[0] /= HARTREE_IN_KCAL_PER_MOLE
+        mm_esp[1:] /= FORCE_AU_IN_IU
+        return mm_esp
+
+    def _get_mulliken_charges(self, qm_cache=None):
         """Get Mulliken charges from output of QM calculation."""
 
         if qm_cache is not None:
             assert np.asscalar(qm_cache) == True
 
-        if output is None:
-            output = Path(self.basedir).joinpath("sqm.out")
-        else:
-            output = Path(output)
-
-        output = output.read_text().split("\n")
+        output = Path(self.basedir).joinpath("sqm.out").read_text().split("\n")
 
         for i in range(len(output)):
             if "Atomic Charges" in output[i]:
