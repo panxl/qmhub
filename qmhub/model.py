@@ -40,16 +40,16 @@ class Model(object):
 
         if pbc is not None:
             self.pbc = pbc
-        elif np.any(cell_basis != 0.0):
+        elif np.any(self.cell_basis != 0.0):
             self.pbc = True
         else:
             self.pbc = False
 
         self.elec = Elec(
-            qm_positions,
-            positions,
-            charges,
-            cell_basis,
+            self.qm_positions,
+            self.positions,
+            self.charges,
+            self.cell_basis,
             switching_type=self.switching_type,
             cutoff=self.cutoff,
             swdist=self.swdist,

@@ -22,6 +22,9 @@ class QMMM(object):
             self.system = load_from_file(input, simulation=self.simulation)
 
     def build_model(self, switching_type=None, cutoff=None, swdist=None, pbc=None):
+        if not hasattr(self, 'system'):
+            raise AttributeError("Please load system first.")
+
         self.model = Model(
             self.system.qm.atoms.positions,
             self.system.atoms.positions,

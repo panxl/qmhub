@@ -5,7 +5,6 @@ from ..utils import DependArray
 from ..units import COULOMB_CONSTANT
 from .distance import *
 from .elec_near import ElecNear
-from .elec_proj import ElecProj
 
 try:
     from .pme import Ewald
