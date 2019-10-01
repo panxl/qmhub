@@ -74,7 +74,7 @@ def get_scaling_factor_switch(dij_min=None, cutoff=None, swdist=None, *, rij=Non
 
     if sratio2 < 1.:
         scaling_factor = ((1 - dratio2)**2
-                        * (3 * sratio2 + 2 * dratio2 - 1)
+                        * (1 + 2 * dratio2 - 3 * sratio2)
                         / (1 - sratio2)**3
                         * (dratio2 >= sratio2)
                         * (dratio2 < 1.)
@@ -100,7 +100,7 @@ def get_scaling_factor_gradient_switch(dij_min=None, dij_min_gradient=None, cuto
     sratio2 = (swdist / cutoff)**2
 
     if sratio2 < 1.:
-        scaling_factor_gradient = (12 * (dratio2 - sratio2)
+        scaling_factor_gradient = (-12 * (dratio2 - sratio2)
                                 * (1 - dratio2)
                                 / (1 - sratio2)**3 * dij_min / cutoff**2 * dij_min_gradient)
         scaling_factor_gradient *= (dratio2 >= sratio2) * (dratio2 < 1.)
