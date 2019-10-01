@@ -135,7 +135,7 @@ def get_scaling_factor_gradient_lrec(dij_min=None, dij_min_gradient=None, cutoff
         dij_min_gradient = get_dij_min_gradient(rij=rij)
 
     ratio = 1 - dij_min / cutoff
-    scaling_factor_gradient = 12 * ratio * (2 * ratio**3 - 3 * ratio**2 + 1) * dij_min / cutoff**2 * dij_min_gradient
+    scaling_factor_gradient = -12 * ratio * (2 * ratio**3 - 3 * ratio**2 + 1) * dij_min / cutoff**2 * dij_min_gradient
     scaling_factor_gradient *= (ratio < 1.)
 
     # MM1
