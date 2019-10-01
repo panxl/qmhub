@@ -127,10 +127,9 @@ class ElecNear(object):
     @staticmethod
     def _get_qmmm_coulomb_tensor_inv_gradient_qm(t, t_inv):
         t_grad = np.zeros((3, t.shape[1], t.shape[1], t.shape[2]))
-        for i in range(3):
-            for j in range(t.shape[1]):
-                for k in range(t.shape[2]):
-                    t_grad[i, j, j, k] = -np.asscalar(t[i + 1, j, k])
+        for i in range(t.shape[1]):
+            for j in range(t.shape[2]):
+                t_grad[:, i, i, j] = -t[1:, i, j]
 
         t_inv_grad_qm = (
             -(t_inv @ t_grad @ t_inv)
@@ -142,10 +141,9 @@ class ElecNear(object):
     @staticmethod
     def _get_qmmm_coulomb_tensor_inv_gradient_mm(t, t_inv):
         t_grad = np.zeros((3, t.shape[2], t.shape[1], t.shape[2]))
-        for i in range(3):
-            for j in range(t.shape[1]):
-                for k in range(t.shape[2]):
-                    t_grad[i, k, j, k] = np.asscalar(t[i + 1, j, k])
+        for i in range(t.shape[1]):
+            for j in range(t.shape[2]):
+                t_grad[:, j, i, j] = t[1:, i, j]
 
         t_inv_grad_mm = (
             -(t_inv @ t_grad @ t_inv)
