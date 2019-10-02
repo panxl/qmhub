@@ -92,14 +92,15 @@ class ElecNear(object):
         )
         self.qmmm_coulomb_tensor_inv = DependArray(
             name="qmmm_coulomb_tensor_inv",
-            func=ElecNear._get_qmmm_coulomb_tensor_inv,
+            func=np.linalg.pinv,
+            kwargs={"rcond": 1e-5},
             dependencies=[
                 self.qmmm_coulomb_tensor,
             ],
         )
         self.qmmm_coulomb_tensor_inv_gradient_qm = DependArray(
             name="qmmm_coulomb_tensor_inv_gradient_qm",
-            func=ElecNear._get_qmmm_coulomb_tensor_inv_gradient,
+            func=ElecNear._get_tensor_inverse_gradient,
             dependencies=[
                 self.qmmm_coulomb_tensor,
                 self.qmmm_coulomb_tensor_gradient_qm,
@@ -108,7 +109,7 @@ class ElecNear(object):
         )
         self.qmmm_coulomb_tensor_inv_gradient_mm = DependArray(
             name="qmmm_coulomb_tensor_inv_gradient_mm",
-            func=ElecNear._get_qmmm_coulomb_tensor_inv_gradient,
+            func=ElecNear._get_tensor_inverse_gradient,
             dependencies=[
                 self.qmmm_coulomb_tensor,
                 self.qmmm_coulomb_tensor_gradient_mm,
@@ -168,15 +169,13 @@ class ElecNear(object):
         return tw_grad * COULOMB_CONSTANT
 
     @staticmethod
-    def _get_qmmm_coulomb_tensor_inv(qmmm_coulomb_tensor):
-        return np.linalg.pinv(qmmm_coulomb_tensor, rcond=1e-5)
+    def _get_tensor_inverse_gradient(t, t_grad, t_inv):
+        """https://mathoverflow.net/q/29511"""
 
-    @staticmethod
-    def _get_qmmm_coulomb_tensor_inv_gradient(t, t_grad, t_inv):
         t_inv_grad = (
             -(t_inv @ t_grad @ t_inv)
-            + (t_inv @ t_inv.T) @ np.swapaxes(t_grad, 2, 3) @ (np.identity(t_grad.shape[2]) - t @ t_inv)
-            + (np.identity(t_grad.shape[3]) - t_inv @ t) @ np.swapaxes(t_grad, 2, 3) @ (t_inv.T @ t_inv)
+            + (t_inv @ t_inv.T) @ np.swapaxes(t_grad, -1, -2) @ (np.identity(t_grad.shape[-2]) - t @ t_inv)
+            + (np.identity(t_grad.shape[-1]) - t_inv @ t) @ np.swapaxes(t_grad, -1, -2) @ (t_inv.T @ t_inv)
         )
 
         return t_inv_grad
