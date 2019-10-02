@@ -67,6 +67,24 @@ class ElecNear(object):
             func=ElecNear._get_qmmm_coulomb_tensor,
             dependencies=[
                 self.dij_inverse,
+                self.scaling_factor,
+            ],
+        )
+        self.qmmm_coulomb_tensor_gradient_qm = DependArray(
+            name="qmmm_coulomb_tensor_gradient_qm",
+            func=ElecNear._get_qmmm_coulomb_tensor_gradient_qm,
+            dependencies=[
+                self.dij_inverse,
+                self.dij_inverse_gradient,
+                self.scaling_factor,
+                self.scaling_factor_gradient,
+            ],
+        )
+        self.qmmm_coulomb_tensor_gradient_mm = DependArray(
+            name="qmmm_coulomb_tensor_gradient_mm",
+            func=ElecNear._get_qmmm_coulomb_tensor_gradient_mm,
+            dependencies=[
+                self.dij_inverse,
                 self.dij_inverse_gradient,
                 self.scaling_factor,
                 self.scaling_factor_gradient,
@@ -81,17 +99,19 @@ class ElecNear(object):
         )
         self.qmmm_coulomb_tensor_inv_gradient_qm = DependArray(
             name="qmmm_coulomb_tensor_inv_gradient_qm",
-            func=ElecNear._get_qmmm_coulomb_tensor_inv_gradient_qm,
+            func=ElecNear._get_qmmm_coulomb_tensor_inv_gradient,
             dependencies=[
                 self.qmmm_coulomb_tensor,
+                self.qmmm_coulomb_tensor_gradient_qm,
                 self.qmmm_coulomb_tensor_inv,
             ],
         )
         self.qmmm_coulomb_tensor_inv_gradient_mm = DependArray(
             name="qmmm_coulomb_tensor_inv_gradient_mm",
-            func=ElecNear._get_qmmm_coulomb_tensor_inv_gradient_mm,
+            func=ElecNear._get_qmmm_coulomb_tensor_inv_gradient,
             dependencies=[
                 self.qmmm_coulomb_tensor,
+                self.qmmm_coulomb_tensor_gradient_mm,
                 self.qmmm_coulomb_tensor_inv,
             ],
         )
@@ -99,7 +119,10 @@ class ElecNear(object):
             name="qm_scaled_esp",
             func=ElecNear._get_qm_scaled_esp,
             dependencies=[
-                self.qmmm_coulomb_tensor,
+                self.dij_inverse,
+                self.dij_inverse_gradient,
+                self.scaling_factor,
+                self.scaling_factor_gradient,
                 self.charges,
            ],
         )
@@ -113,45 +136,63 @@ class ElecNear(object):
         return array[..., mask]
 
     @staticmethod
-    def _get_qmmm_coulomb_tensor(dij_inverse, dij_inverse_gradient, scaling_factor, scaling_factor_gradient):
-        coulomb_tensor = np.zeros((4, dij_inverse.shape[0], dij_inverse.shape[1]))
-        coulomb_tensor[0] = dij_inverse * scaling_factor
-        coulomb_tensor[1:] = dij_inverse_gradient * scaling_factor + dij_inverse * scaling_factor_gradient
+    def _get_qmmm_coulomb_tensor(dij_inverse, scaling_factor):
+        return dij_inverse * scaling_factor * COULOMB_CONSTANT
 
-        return coulomb_tensor * COULOMB_CONSTANT
+    @staticmethod
+    def _get_qmmm_coulomb_tensor_gradient_qm(dij_inverse, dij_inverse_gradient, scaling_factor, scaling_factor_gradient):
+        t_grad = np.zeros((3, dij_inverse.shape[0], dij_inverse.shape[0],  dij_inverse.shape[1]))
+        for i in range(dij_inverse_gradient.shape[1]):
+            for j in range(dij_inverse_gradient.shape[2]):
+                t_grad[:, i, i, j] = -dij_inverse_gradient[:, i, j]
+    
+        tw_grad = dij_inverse[np.newaxis] * -scaling_factor_gradient[:, :, np.newaxis] + t_grad * scaling_factor
+
+        return tw_grad * COULOMB_CONSTANT
+
+    @staticmethod
+    def _get_qmmm_coulomb_tensor_gradient_mm(dij_inverse, dij_inverse_gradient, scaling_factor, scaling_factor_gradient):
+        t = dij_inverse
+        t_grad = np.zeros((3, dij_inverse.shape[1], dij_inverse.shape[0],  dij_inverse.shape[1]))
+        for i in range(dij_inverse_gradient.shape[1]):
+            for j in range(dij_inverse_gradient.shape[2]):
+                t_grad[:, j, i, j] = dij_inverse_gradient[:, i, j]
+
+        w_grad = np.zeros((3, scaling_factor_gradient.shape[2], scaling_factor_gradient.shape[2],  scaling_factor_gradient.shape[2]))
+        for i in range(dij_inverse_gradient.shape[1]):
+            for j in range(dij_inverse_gradient.shape[2]):
+                w_grad[:, j, j, j] = scaling_factor_gradient[:, :, j].sum(axis=1)
+
+        tw_grad = t @ w_grad + t_grad * scaling_factor
+
+        return tw_grad * COULOMB_CONSTANT
 
     @staticmethod
     def _get_qmmm_coulomb_tensor_inv(qmmm_coulomb_tensor):
-        return np.linalg.pinv(qmmm_coulomb_tensor[0], rcond=1e-5)
+        return np.linalg.pinv(qmmm_coulomb_tensor, rcond=1e-5)
 
     @staticmethod
-    def _get_qmmm_coulomb_tensor_inv_gradient_qm(t, t_inv):
-        t_grad = np.zeros((3, t.shape[1], t.shape[1], t.shape[2]))
-        for i in range(t.shape[1]):
-            for j in range(t.shape[2]):
-                t_grad[:, i, i, j] = -t[1:, i, j]
-
-        t_inv_grad_qm = (
+    def _get_qmmm_coulomb_tensor_inv_gradient(t, t_grad, t_inv):
+        t_inv_grad = (
             -(t_inv @ t_grad @ t_inv)
-            + (t_inv @ t_inv.T) @ np.swapaxes(t_grad, 2, 3) @ (np.identity(t_grad.shape[2]) - t[0] @ t_inv)
-            + (np.identity(t_grad.shape[3]) - t_inv @ t[0]) @ np.swapaxes(t_grad, 2, 3) @ (t_inv.T @ t_inv)
+            + (t_inv @ t_inv.T) @ np.swapaxes(t_grad, 2, 3) @ (np.identity(t_grad.shape[2]) - t @ t_inv)
+            + (np.identity(t_grad.shape[3]) - t_inv @ t) @ np.swapaxes(t_grad, 2, 3) @ (t_inv.T @ t_inv)
         )
-        return t_inv_grad_qm
+
+        return t_inv_grad
 
     @staticmethod
-    def _get_qmmm_coulomb_tensor_inv_gradient_mm(t, t_inv):
-        t_grad = np.zeros((3, t.shape[2], t.shape[1], t.shape[2]))
-        for i in range(t.shape[1]):
-            for j in range(t.shape[2]):
-                t_grad[:, j, i, j] = t[1:, i, j]
+    def _get_qm_scaled_esp(
+        dij_inverse,
+        dij_inverse_gradient,
+        scaling_factor,
+        scaling_factor_gradient,
+        charges
+        ):
 
-        t_inv_grad_mm = (
-            -(t_inv @ t_grad @ t_inv)
-            + (t_inv @ t_inv.T) @ np.swapaxes(t_grad, 2, 3) @ (np.identity(t_grad.shape[2]) - t[0] @ t_inv)
-            + (np.identity(t_grad.shape[3]) - t_inv @ t[0]) @ np.swapaxes(t_grad, 2, 3) @ (t_inv.T @ t_inv)
-        )
-        return t_inv_grad_mm
+        esp = np.zeros((4, len(dij_inverse)))
 
-    @staticmethod
-    def _get_qm_scaled_esp(qmmm_coulomb_tensor, charges):
-        return (np.array([1., -1., -1., -1.])[:, np.newaxis, np.newaxis] * qmmm_coulomb_tensor) @ charges
+        esp[0] = dij_inverse @ (scaling_factor * charges)
+        esp[1:] = -(dij_inverse_gradient @ (scaling_factor * charges) + (dij_inverse * scaling_factor_gradient) @ charges)
+
+        return esp * COULOMB_CONSTANT
