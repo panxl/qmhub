@@ -127,6 +127,22 @@ class ElecNear(object):
                 self.charges,
            ],
         )
+        self.qm_scaled_esp_gradient_qm = DependArray(
+            name="qm_scaled_esp_gradient_qm",
+            func=(lambda x, y: x @ y),
+            dependencies=[
+                self.qmmm_coulomb_tensor_gradient_qm,
+                self.charges,
+           ],
+        )
+        self.qm_scaled_esp_gradient_mm = DependArray(
+            name="qm_scaled_esp_gradient_mm",
+            func=(lambda x, y: x @ y),
+            dependencies=[
+                self.qmmm_coulomb_tensor_gradient_mm,
+                self.charges,
+           ],
+        )
 
     @staticmethod
     def _get_near_field_mask(dij_min=None, cutoff=None):

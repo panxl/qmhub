@@ -69,10 +69,15 @@ class Model(object):
             qm_energy_gradient=qm_energy_gradient,
             mm_esp=mm_esp,
             qm_esp=self.elec.qm_residual_esp,
+            qm_esp_gradient_qm=self.elec.qm_residual_esp_gradient_qm,
+            mm_charges=self.elec.near_field.charges,
+            near_field_mask=self.elec.near_field.near_field_mask,
             scaling_factor=self.elec.near_field.scaling_factor,
             scaling_factor_gradient=self.elec.near_field.scaling_factor_gradient,
             qmmm_coulomb_tensor=self.elec.near_field.qmmm_coulomb_tensor,
+            qmmm_coulomb_tensor_gradient_qm=self.elec.near_field.qmmm_coulomb_tensor_gradient_qm,
             qmmm_coulomb_tensor_inv=self.elec.near_field.qmmm_coulomb_tensor_inv,
+            qmmm_coulomb_tensor_inv_gradient_qm=self.elec.near_field.qmmm_coulomb_tensor_inv_gradient_qm,
         )
 
         setattr(self, name, result_obj)
