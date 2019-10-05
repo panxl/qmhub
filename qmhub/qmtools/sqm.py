@@ -111,7 +111,7 @@ class SQM(QMBase):
             if "Forces on MM atoms from SCF calculation" in output[i]:
                 for j in range(len(self.mm_charges)):
                     line = output[i + 1 + j]
-                    mm_esp[1:, j] = [float(n) for n in line.split()[-3:]]
+                    mm_esp[1:, j] = [float(n) / self.mm_charges[j] for n in line.split()[-3:]]
                 break
 
         mm_esp[0] /= AMBER_AU_TO_KCAL
