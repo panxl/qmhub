@@ -12,15 +12,15 @@ class Result(object):
         qm_energy_gradient,
         mm_esp,
         qm_esp,
-        qm_esp_gradient_qm,
         mm_charges,
         near_field_mask,
         scaling_factor,
         scaling_factor_gradient,
         qmmm_coulomb_tensor,
-        qmmm_coulomb_tensor_gradient_qm,
-        qmmm_coulomb_tensor_inv,
-        qmmm_coulomb_tensor_inv_gradient_qm,
+        qmmm_coulomb_tensor_gradient,
+        weighted_qmmm_coulomb_tensor,
+        weighted_qmmm_coulomb_tensor_inv,
+        qm_total_esp,
         ):
 
         self.qm_energy = DependArray(
@@ -39,7 +39,7 @@ class Result(object):
             dependencies=[
                 self.mm_esp,
                 scaling_factor,
-                qmmm_coulomb_tensor_inv,
+                weighted_qmmm_coulomb_tensor_inv,
             ],
         )
 
@@ -55,12 +55,10 @@ class Result(object):
             name="qm_energy_gradient_term2",
             func=Result._get_qm_energy_gradient_term2,
             dependencies=[
-                qmmm_coulomb_tensor_inv,
-                qmmm_coulomb_tensor_inv_gradient_qm,
+                scaling_factor_gradient,
+                weighted_qmmm_coulomb_tensor_inv,
                 qm_esp,
                 self.mm_esp,
-                scaling_factor,
-                scaling_factor_gradient,
                 mm_charges,
             ],
         )
@@ -68,7 +66,26 @@ class Result(object):
             name="qm_energy_gradient_term3",
             func=Result._get_qm_energy_gradient_term3,
             dependencies=[
-                qm_esp_gradient_qm,
+                qmmm_coulomb_tensor,
+                qmmm_coulomb_tensor_gradient,
+                scaling_factor,
+                scaling_factor_gradient,
+                weighted_qmmm_coulomb_tensor,
+                weighted_qmmm_coulomb_tensor_inv,
+                qm_esp,
+                self.mm_esp,
+            ],
+        )
+        self._qm_energy_gradient_term4 = DependArray(
+            name="qm_energy_gradient_term4",
+            func=Result._get_qm_energy_gradient_term4,
+            dependencies=[
+                qmmm_coulomb_tensor,
+                qmmm_coulomb_tensor_gradient,
+                scaling_factor,
+                scaling_factor_gradient,
+                mm_charges,
+                qm_total_esp,
                 self.qm_esp_charges,
             ],
         )
@@ -79,6 +96,7 @@ class Result(object):
                 self._qm_energy_gradient_term1,
                 self._qm_energy_gradient_term2,
                 self._qm_energy_gradient_term3,
+                self._qm_energy_gradient_term4,
             ],
         )
 
@@ -87,6 +105,9 @@ class Result(object):
             name="mm_energy_gradient_term1",
             func=Result._get_mm_energy_gradient_term1,
             dependencies=[
+                scaling_factor,
+                weighted_qmmm_coulomb_tensor_inv,
+                qm_esp,
                 self.mm_esp,
                 mm_charges,
             ],
@@ -95,29 +116,48 @@ class Result(object):
             name="mm_energy_gradient_term2",
             func=Result._get_mm_energy_gradient_term2,
             dependencies=[
+                scaling_factor_gradient,
+                weighted_qmmm_coulomb_tensor_inv,
+                qm_esp,
+                self.mm_esp,
+                mm_charges,
+            ],
+        )
+        self._mm_energy_gradient_term3 = DependArray(
+            name="mm_energy_gradient_term3",
+            func=Result._get_mm_energy_gradient_term3,
+            dependencies=[
                 qmmm_coulomb_tensor,
-                qmmm_coulomb_tensor_inv,
+                qmmm_coulomb_tensor_gradient,
+                scaling_factor,
+                scaling_factor_gradient,
+                weighted_qmmm_coulomb_tensor,
+                weighted_qmmm_coulomb_tensor_inv,
                 qm_esp,
                 self.mm_esp,
             ],
         )
-        # self._mm_energy_gradient_term3 = DependArray(
-        #     name="mm_energy_gradient_term3",
-        #     func=Result._get_mm_energy_gradient_term3,
-        #     dependencies=[
-        #         qmmm_coulomb_tensor,
-        #         qmmm_coulomb_tensor_inv,
-        #         qm_esp,
-        #         self.mm_esp,
-        #     ],
-        # )
+        self._mm_energy_gradient_term4 = DependArray(
+            name="mm_energy_gradient_term4",
+            func=Result._get_mm_energy_gradient_term4,
+            dependencies=[
+                qmmm_coulomb_tensor,
+                qmmm_coulomb_tensor_gradient,
+                scaling_factor,
+                scaling_factor_gradient,
+                mm_charges,
+                qm_total_esp,
+                self.qm_esp_charges,
+            ],
+        )
         self.mm_energy_gradient = DependArray(
             name="mm_energy_gradient",
             func=Result._get_energy_gradient,
             dependencies=[
                 self._mm_energy_gradient_term1,
                 self._mm_energy_gradient_term2,
-                # self._mm_energy_gradient_term3,
+                self._mm_energy_gradient_term3,
+                self._mm_energy_gradient_term4,
             ],
         )
 
@@ -130,46 +170,91 @@ class Result(object):
         return _mm_esp
 
     @staticmethod
-    def _get_qm_esp_charges(mm_esp, scaling_factor, qmmm_coulomb_tensor_inv):
-        return (mm_esp[0] * scaling_factor) @ qmmm_coulomb_tensor_inv
+    def _get_qm_esp_charges(mm_esp, scaling_factor, weighted_qmmm_coulomb_tensor_inv):
+        return (mm_esp[0] * scaling_factor) @ weighted_qmmm_coulomb_tensor_inv
 
     @staticmethod
-    def _get_qm_energy_gradient_term2(t_inv, t_inv_grad, qm_esp, mm_esp, scaling_factor, scaling_factor_gradient, mm_charges):
-        w = np.diag(scaling_factor)
-        w_grad = np.zeros((3, scaling_factor_gradient.shape[1], scaling_factor_gradient.shape[2],  scaling_factor_gradient.shape[2]))
-        for i in range(scaling_factor_gradient.shape[1]):
-            for j in range(scaling_factor_gradient.shape[2]):
-                w_grad[:, i, j, j] = -scaling_factor_gradient[:, i, j]
-
-        gradient = mm_esp[0] @ w_grad @ (t_inv @ qm_esp[0] + mm_charges) + mm_esp[0] @ w @ t_inv_grad @ qm_esp[0]
-
-        return gradient
+    def _get_qm_energy_gradient_term2(w_grad, wt_inv, qm_esp, mm_esp, mm_charges):
+        return mm_esp[0] * -w_grad @ (wt_inv @ qm_esp[0] + mm_charges)
 
     @staticmethod
-    def _get_qm_energy_gradient_term3(qm_esp_gradient, qm_esp_charges):
-        return qm_esp_gradient @ qm_esp_charges
+    def _get_qm_energy_gradient_term3(t, t_grad, w, w_grad, wt, wt_inv, qm_esp, mm_esp):
+
+        # w * mm_esp[0] @ t_inv_grad @ qm_esp[0]
+        w_mm_esp_wt_inv =  w * mm_esp[0] @ wt_inv
+        wt_inv_qm_esp = wt_inv @ qm_esp[0]
+
+        grad = (
+            (w_mm_esp_wt_inv @ t * w_grad) @ wt_inv_qm_esp
+            + w_mm_esp_wt_inv * (t_grad * w @ wt_inv_qm_esp)
+            - (qm_esp[0] - wt @ wt_inv_qm_esp) @ t * w_grad @ (w_mm_esp_wt_inv @ wt_inv.T)
+            - (qm_esp[0] - wt @ wt_inv_qm_esp) * (t_grad * w @ (w_mm_esp_wt_inv @ wt_inv.T))
+            - (wt_inv.T @ wt_inv_qm_esp) @ t * w_grad @ (w * mm_esp[0] - w_mm_esp_wt_inv @ wt)
+            - (wt_inv.T @ wt_inv_qm_esp) * (t_grad * w @ (w * mm_esp[0] - w_mm_esp_wt_inv @ wt))
+        )
+        return grad
 
     @staticmethod
-    def _get_mm_energy_gradient_term1(mm_esp, mm_charges):
-        return mm_esp[1:] * mm_charges
+    def _get_qm_energy_gradient_term4(
+        t,
+        t_grad,
+        w,
+        w_grad,
+        mm_charges,
+        qm_total_esp,
+        qm_esp_charges
+        ):
 
-    @staticmethod
-    def _get_mm_energy_gradient_term2(t, t_inv, qm_esp, mm_esp):
-        mm_esp_t_inv = mm_esp[0] @ t_inv
-        t_inv_qm_esp = t_inv @ qm_esp[0]
-
-        gradient = (
-            (qm_esp[0] - t @ t_inv_qm_esp) @ t[1:] * (mm_esp_t_inv @ t_inv.T)
-            + (t_inv.T @ t_inv_qm_esp) @ t[1:] * (mm_esp[0] - mm_esp_t_inv @ t)
-            - mm_esp_t_inv @ t[1:] * t_inv_qm_esp
+        grad = (
+            qm_total_esp[1:] * qm_esp_charges
+            + (mm_charges * w_grad) @ (qm_esp_charges @ t)
+            + (w * t_grad) @ mm_charges * qm_esp_charges
         )
 
-        return gradient
-
-    # @staticmethod
-    # def _get_mm_energy_gradient_term3(qm_esp, qm_esp_charges):
-    #     return qm_esp[1:] * qm_esp_charges
+        return grad
 
     @staticmethod
-    def _get_energy_gradient(gradient_term1, gradient_term2, gradient_term3):
-        return gradient_term1 + gradient_term2 + gradient_term3
+    def _get_mm_energy_gradient_term1(w, wt_inv, qm_esp, mm_esp, mm_charges):
+        return  w * (wt_inv @ qm_esp[0] + mm_charges) * mm_esp[1:]
+
+    @staticmethod
+    def _get_mm_energy_gradient_term2(w_grad, wt_inv, qm_esp, mm_esp, mm_charges):
+        return  mm_esp[0] * w_grad.sum(axis=1) * (wt_inv @ qm_esp[0] + mm_charges)
+
+    @staticmethod
+    def _get_mm_energy_gradient_term3(t, t_grad, w, w_grad, wt, wt_inv, qm_esp, mm_esp):
+
+        w_mm_esp_wt_inv =  w * mm_esp[0] @ wt_inv
+        wt_inv_qm_esp = wt_inv @ qm_esp[0]
+
+        grad = (
+            -(w_mm_esp_wt_inv @ t) * w_grad.sum(axis=1) * wt_inv_qm_esp
+            - w_mm_esp_wt_inv @ t_grad * (w * wt_inv_qm_esp)
+            + ((qm_esp[0] - wt @ wt_inv_qm_esp) @ t) * w_grad.sum(axis=1) * (w_mm_esp_wt_inv @ wt_inv.T)
+            + (qm_esp[0] - wt @ wt_inv_qm_esp) @ t_grad * (w * (w_mm_esp_wt_inv @ wt_inv.T))
+            + (wt_inv.T @ wt_inv_qm_esp @ t) * w_grad.sum(axis=1) * (w * mm_esp[0] - w_mm_esp_wt_inv @ wt)
+            + (wt_inv.T @ wt_inv_qm_esp) @ t_grad * (w * (w * mm_esp[0] - w_mm_esp_wt_inv @ wt))
+        )
+        return grad
+
+    @staticmethod
+    def _get_mm_energy_gradient_term4(
+        t,
+        t_grad,
+        w,
+        w_grad,
+        mm_charges,
+        qm_total_esp,
+        qm_esp_charges
+        ):
+
+        grad = (
+            qm_esp_charges @ t_grad * ((1 - w) * mm_charges)
+            - mm_charges * w_grad.sum(axis=1) * (qm_esp_charges @ t)
+        )
+
+        return grad
+
+    @staticmethod
+    def _get_energy_gradient(*args):
+        return sum(args)

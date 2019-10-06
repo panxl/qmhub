@@ -115,14 +115,6 @@ class Elec(object):
                 self.near_field.qm_scaled_esp,
            ],
         )
-        self.qm_residual_esp_gradient_qm = DependArray(
-            name="qm_residual_esp_gradient_qm",
-            func=Elec._get_qm_residual_esp_gradient_qm,
-            dependencies=[
-                self.qm_total_esp,
-                self.near_field.qm_scaled_esp_gradient_qm,
-           ],
-        )
         self.scaled_mm_charges = DependArray(
             name="scaled_mm_charges",
             func=Elec._get_scaled_mm_charges,
@@ -135,7 +127,7 @@ class Elec(object):
             name="projected_mm_charges",
             func=Elec._get_projected_mm_charges,
             dependencies=[
-                self.near_field.qmmm_coulomb_tensor_inv,
+                self.near_field.weighted_qmmm_coulomb_tensor_inv,
                 self.qm_residual_esp,
                 self.near_field.scaling_factor,
             ],
@@ -154,18 +146,6 @@ class Elec(object):
             dependencies=[
                 rj,
                 self.near_field.near_field_mask,
-            ],
-        )
-        self.projected_mm_charges_gradient_qm = DependArray(
-            name="projected_mm_charges_gradient_qm",
-            func=Elec._get_projected_mm_charges_gradient_qm,
-            dependencies=[
-                self.near_field.qmmm_coulomb_tensor_inv,
-                self.near_field.qmmm_coulomb_tensor_inv_gradient_qm,
-                self.qm_residual_esp,
-                self.qm_residual_esp_gradient_qm,
-                self.near_field.scaling_factor,
-                self.near_field.scaling_factor_gradient,
             ],
         )
 
@@ -194,20 +174,12 @@ class Elec(object):
         return qm_full_esp - qm_exclusion_esp - qm_scaled_esp
 
     @staticmethod
-    def _get_qm_residual_esp_gradient_qm(qm_total_esp, qm_scaled_esp_gradient_qm):
-        t_grad = np.zeros_like(qm_scaled_esp_gradient_qm)
-        for i in range(qm_total_esp.shape[1]):
-                t_grad[:, i, i] = qm_total_esp[1:, i]
-
-        return t_grad - qm_scaled_esp_gradient_qm
-
-    @staticmethod
     def _get_scaled_mm_charges(charges, scaling_factor):
         return charges * scaling_factor
 
     @staticmethod
-    def _get_projected_mm_charges(qmmm_coulomb_tensor_inv, qm_residual_esp, scaling_factor):
-        return (qmmm_coulomb_tensor_inv @ qm_residual_esp[0]) * scaling_factor
+    def _get_projected_mm_charges(wt_inv, qm_esp, w):
+        return (wt_inv @ qm_esp[0]) * w
 
     @staticmethod
     def _get_embedding_mm_charges(scaled_mm_charges, projected_mm_charges):
@@ -216,24 +188,3 @@ class Elec(object):
     @staticmethod
     def _get_embedding_mm_positions(mm_positions, near_field_mask):
         return mm_positions[:, near_field_mask]
-
-    @staticmethod
-    def _get_projected_mm_charges_gradient_qm(
-        t_inv,
-        t_inv_grad,
-        qm_esp,
-        qm_esp_grad,
-        scaling_factor,
-        scaling_factor_gradient
-        ):
-
-        w = np.diag(scaling_factor)
-        w_grad = np.zeros((3, scaling_factor_gradient.shape[1], scaling_factor_gradient.shape[2],  scaling_factor_gradient.shape[2]))
-        for i in range(scaling_factor_gradient.shape[1]):
-            for j in range(scaling_factor_gradient.shape[2]):
-                w_grad[:, i, j, j] = -scaling_factor_gradient[:, i, j]
-
-        gradient = (
-            t_inv @ qm_esp[0] @ w_grad + t_inv_grad @ qm_esp[0] @ w + qm_esp_grad @ t_inv.T @ w
-        )
-        return gradient
