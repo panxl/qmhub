@@ -68,7 +68,6 @@ class Model(object):
             qm_energy=qm_energy,
             qm_energy_gradient=qm_energy_gradient,
             mm_esp=mm_esp,
-            qm_esp=self.elec.qm_residual_esp,
             mm_charges=self.elec.near_field.charges,
             near_field_mask=self.elec.near_field.near_field_mask,
             scaling_factor=self.elec.near_field.scaling_factor,
@@ -77,7 +76,6 @@ class Model(object):
             qmmm_coulomb_tensor_gradient=self.elec.near_field.qmmm_coulomb_tensor_gradient,
             weighted_qmmm_coulomb_tensor=self.elec.near_field.weighted_qmmm_coulomb_tensor,
             weighted_qmmm_coulomb_tensor_inv=self.elec.near_field.weighted_qmmm_coulomb_tensor_inv,
-            qm_total_esp=self.elec.qm_total_esp,
             elec=self.elec,
         )
 

@@ -11,7 +11,6 @@ class Result(object):
         qm_energy,
         qm_energy_gradient,
         mm_esp,
-        qm_esp,
         mm_charges,
         near_field_mask,
         scaling_factor,
@@ -20,7 +19,6 @@ class Result(object):
         qmmm_coulomb_tensor_gradient,
         weighted_qmmm_coulomb_tensor,
         weighted_qmmm_coulomb_tensor_inv,
-        qm_total_esp,
         elec,
         ):
 
@@ -58,7 +56,7 @@ class Result(object):
             dependencies=[
                 scaling_factor_gradient,
                 weighted_qmmm_coulomb_tensor_inv,
-                qm_esp,
+                elec.qm_residual_esp,
                 self.mm_esp,
                 mm_charges,
             ],
@@ -73,7 +71,7 @@ class Result(object):
                 scaling_factor_gradient,
                 weighted_qmmm_coulomb_tensor,
                 weighted_qmmm_coulomb_tensor_inv,
-                qm_esp,
+                elec.qm_residual_esp,
                 self.mm_esp,
             ],
         )
@@ -86,7 +84,7 @@ class Result(object):
                 scaling_factor,
                 scaling_factor_gradient,
                 mm_charges,
-                qm_total_esp,
+                elec.qm_total_esp,
                 self.qm_esp_charges,
             ],
         )
@@ -108,7 +106,7 @@ class Result(object):
             dependencies=[
                 scaling_factor,
                 weighted_qmmm_coulomb_tensor_inv,
-                qm_esp,
+                elec.qm_residual_esp,
                 self.mm_esp,
                 mm_charges,
             ],
@@ -119,7 +117,7 @@ class Result(object):
             dependencies=[
                 scaling_factor_gradient,
                 weighted_qmmm_coulomb_tensor_inv,
-                qm_esp,
+                elec.qm_residual_esp,
                 self.mm_esp,
                 mm_charges,
             ],
@@ -134,7 +132,7 @@ class Result(object):
                 scaling_factor_gradient,
                 weighted_qmmm_coulomb_tensor,
                 weighted_qmmm_coulomb_tensor_inv,
-                qm_esp,
+                elec.qm_residual_esp,
                 self.mm_esp,
             ],
         )
