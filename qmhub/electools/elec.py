@@ -136,9 +136,10 @@ class Elec(object):
             name="embedding_mm_charges",
             func=Elec._get_embedding_mm_charges,
             dependencies=[
-                self.scaled_mm_charges,
-                self.projected_mm_charges,
-            ],
+                self.near_field.scaling_factor,
+                self.near_field.weighted_qmmm_coulomb_tensor_inv,
+                self.qm_residual_esp,
+                self.near_field.charges,            ],
         )
         self.embedding_mm_positions = DependArray(
             name="embedding_mm_positions",
@@ -182,8 +183,8 @@ class Elec(object):
         return (wt_inv @ qm_esp[0]) * w
 
     @staticmethod
-    def _get_embedding_mm_charges(scaled_mm_charges, projected_mm_charges):
-        return scaled_mm_charges + projected_mm_charges
+    def _get_embedding_mm_charges(w, wt_inv, qm_esp, charges):
+        return (wt_inv @ qm_esp[0] + charges) * w
 
     @staticmethod
     def _get_embedding_mm_positions(mm_positions, near_field_mask):

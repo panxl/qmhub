@@ -96,8 +96,8 @@ class ElecNear(object):
             name="qm_scaled_esp",
             func=ElecNear._get_qm_scaled_esp,
             dependencies=[
-                self.dij_inverse,
-                self.dij_inverse_gradient,
+                self.qmmm_coulomb_tensor,
+                self.qmmm_coulomb_tensor_gradient,
                 self.scaling_factor,
                 self.scaling_factor_gradient,
                 self.charges,
@@ -129,17 +129,11 @@ class ElecNear(object):
         return t_inv_grad
 
     @staticmethod
-    def _get_qm_scaled_esp(
-        dij_inverse,
-        dij_inverse_gradient,
-        scaling_factor,
-        scaling_factor_gradient,
-        charges
-        ):
+    def _get_qm_scaled_esp(t, t_grad, w, w_grad, charges):
 
-        esp = np.zeros((4, len(dij_inverse)))
+        esp = np.zeros((4, len(t)))
 
-        esp[0] = dij_inverse @ (scaling_factor * charges)
-        esp[1:] = -(dij_inverse_gradient @ (scaling_factor * charges) + (dij_inverse * scaling_factor_gradient) @ charges)
+        esp[0] = t @ (w * charges)
+        esp[1:] = -(t_grad @ (w * charges) + (t * w_grad) @ charges)
 
-        return esp * COULOMB_CONSTANT
+        return esp
