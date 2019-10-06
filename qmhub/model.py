@@ -78,6 +78,7 @@ class Model(object):
             weighted_qmmm_coulomb_tensor=self.elec.near_field.weighted_qmmm_coulomb_tensor,
             weighted_qmmm_coulomb_tensor_inv=self.elec.near_field.weighted_qmmm_coulomb_tensor_inv,
             qm_total_esp=self.elec.qm_total_esp,
+            elec=self.elec,
         )
 
         setattr(self, name, result_obj)

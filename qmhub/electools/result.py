@@ -21,6 +21,7 @@ class Result(object):
         weighted_qmmm_coulomb_tensor,
         weighted_qmmm_coulomb_tensor_inv,
         qm_total_esp,
+        elec,
         ):
 
         self.qm_energy = DependArray(
@@ -91,7 +92,7 @@ class Result(object):
         )
         self.qm_energy_gradient = DependArray(
             name="qm_energy_gradient",
-            func=Result._get_energy_gradient,
+            func=Result._get_qm_energy_gradient,
             dependencies=[
                 self._qm_energy_gradient_term1,
                 self._qm_energy_gradient_term2,
@@ -146,18 +147,28 @@ class Result(object):
                 scaling_factor,
                 scaling_factor_gradient,
                 mm_charges,
-                qm_total_esp,
                 self.qm_esp_charges,
+            ],
+        )
+        self._mm_energy_gradient_term5 = DependArray(
+            name="mm_total_esp_gradient",
+            func=elec.full.get_mm_total_espc_gradient,
+            dependencies=[
+                elec.dij_inverse_gradient,
+                self.qm_esp_charges,
+                elec.charges,
             ],
         )
         self.mm_energy_gradient = DependArray(
             name="mm_energy_gradient",
-            func=Result._get_energy_gradient,
+            func=Result._get_mm_energy_gradient,
             dependencies=[
                 self._mm_energy_gradient_term1,
                 self._mm_energy_gradient_term2,
                 self._mm_energy_gradient_term3,
                 self._mm_energy_gradient_term4,
+                self._mm_energy_gradient_term5,
+                near_field_mask,
             ],
         )
 
@@ -244,17 +255,26 @@ class Result(object):
         w,
         w_grad,
         mm_charges,
-        qm_total_esp,
         qm_esp_charges
         ):
 
         grad = (
-            qm_esp_charges @ t_grad * ((1 - w) * mm_charges)
+            -qm_esp_charges @ t_grad * (w * mm_charges)
             - mm_charges * w_grad.sum(axis=1) * (qm_esp_charges @ t)
         )
 
         return grad
 
     @staticmethod
-    def _get_energy_gradient(*args):
+    def _get_mm_energy_gradient_term5(mm_esp_grad, mm_charges):
+        return mm_esp_grad * mm_charges
+
+    @staticmethod
+    def _get_qm_energy_gradient(*args):
         return sum(args)
+        
+    @staticmethod
+    def _get_mm_energy_gradient(term1, term2, term3, term4, term5, near_field_mask):
+        grad = np.copy(term5)
+        grad[:, near_field_mask] += term1 + term2 + term3 + term4
+        return grad

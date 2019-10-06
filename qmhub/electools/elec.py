@@ -15,6 +15,8 @@ except ImportError:
 class Elec(object):
 
     def __init__(self, ri, rj, charges, cell_basis, switching_type=None, cutoff=None, swdist=None, pbc=False):
+        self.charges = charges
+
         self.rij = DependArray(
             name="rij",
             func=get_rij,
@@ -50,6 +52,11 @@ class Elec(object):
             func=get_dij_min_gradient,
             dependencies=[self.dij_min, self.dij_inverse, self.dij_inverse_gradient],
         )
+        self.coulomb_exclusion = DependArray(
+            name="coulomb_exclusion",
+            func=Elec._get_coulomb_exclusion,
+            kwargs={'dij_min': self.dij_min},
+        )
 
         if pbc:
             self.full = Ewald(
@@ -70,6 +77,7 @@ class Elec(object):
                 cell_basis=cell_basis,
                 dij_inverse=self.dij_inverse,
                 dij_inverse_gradient=self.dij_inverse_gradient,
+                exclusion=self.coulomb_exclusion,
             )
 
         self.near_field = ElecNear(
@@ -83,11 +91,6 @@ class Elec(object):
             swdist=swdist,
         )
 
-        self.coulomb_exclusion = DependArray(
-            name="coulomb_exclusion",
-            func=Elec._get_coulomb_exclusion,
-            kwargs={'dij_min': self.dij_min},
-        )
         self.qm_exclusion_esp = DependArray(
             name="qm_exclusion_esp",
             func=Elec._get_qm_esp,
