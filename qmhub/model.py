@@ -9,8 +9,9 @@ class Model(object):
     def __init__(
         self,
         qm_positions,
-        positions,
-        charges,
+        mm_positions,
+        qm_charges,
+        mm_charges,
         cell_basis,
         switching_type=None,
         cutoff=None,
@@ -22,8 +23,9 @@ class Model(object):
         """
 
         self.qm_positions = qm_positions
-        self.positions = positions
-        self.charges = charges
+        self.mm_positions = mm_positions
+        self.qm_charges = qm_charges
+        self.mm_charges = mm_charges
         self.cell_basis = cell_basis
 
         self.switching_type = switching_type
@@ -47,8 +49,9 @@ class Model(object):
 
         self.elec = Elec(
             self.qm_positions,
-            self.positions,
-            self.charges,
+            self.mm_positions,
+            self.qm_charges,
+            self.mm_charges,
             self.cell_basis,
             switching_type=self.switching_type,
             cutoff=self.cutoff,
