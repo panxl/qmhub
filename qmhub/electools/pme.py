@@ -24,13 +24,19 @@ class Ewald(object):
         tol=1e-10,
         *,
         cutoff=None,
-        rij=None,
+        order=6,
         **kwargs
         ):
 
+        self.qm_positions = qm_positions
+        self.mm_positions = mm_positions
+        self.qm_charges = qm_charges
+        self.mm_charges = mm_charges
         self.cell_basis = cell_basis
+        self.exclusion = exclusion
         self.tol = tol
         self.cutoff = cutoff
+        self.order = order
 
         self.alpha = DependArray(
             name="alpha",
@@ -73,6 +79,7 @@ class Ewald(object):
                 'nfft': self.nfft,
                 'alpha': self.alpha,
                 'exclusion': exclusion,
+                'order': order,
             },
             dependencies=[
                 qm_positions,
@@ -166,7 +173,7 @@ class Ewald(object):
         nfft=None,
         alpha=None,
         exclusion=None,
-        order=6
+        order=6,
         ):
 
         t = np.zeros((qm_positions.shape[1], 4))
@@ -220,3 +227,56 @@ class Ewald(object):
         t[:, 0] -= (PI / np.linalg.det(cell_basis) / alpha**2) * charges.sum()
 
         return t.T * COULOMB_CONSTANT
+
+    def _get_mm_total_espc_gradient(self, qm_esp_charges):
+        real_grad = qm_esp_charges @ -self.ewald_real_tensor[1:]
+
+        pmeD = pme.PMEInstanceD()
+        pmeD.setup(
+            1,np.asscalar(self.alpha),
+            self.order,
+            *self.nfft.tolist(),
+            1.,
+            1,
+        )
+        pmeD.set_lattice_vectors(
+            *np.diag(self.cell_basis).tolist(),
+            *[90., 90., 90.],
+            pmeD.LatticeType.XAligned,
+        )
+
+        ri = self.qm_positions.T
+        rj = self.mm_positions.T
+        charges = np.concatenate((qm_esp_charges, self.mm_charges))[:, np.newaxis]
+        charges2 = np.ascontiguousarray(self.mm_charges)[:, np.newaxis]
+        coords = np.ascontiguousarray(np.concatenate((ri, rj)))
+        coords2 = np.ascontiguousarray(rj)
+        grad = np.zeros_like(coords)
+        grad2 = np.zeros_like(coords2)
+
+        mat = pme.MatrixD
+        pmeD.compute_EF_rec(
+            0, 
+            mat(charges),
+            mat(coords),
+            mat(grad),
+        )
+        pmeD.compute_EF_rec(
+            0, 
+            mat(charges2),
+            mat(coords2),
+            mat(grad2),
+        )
+
+        recip_grad = (grad2 - grad[len(self.qm_charges):]) * COULOMB_CONSTANT
+
+        if self.exclusion is not None:
+            r = rj[np.asarray(self.exclusion)][:, np.newaxis:] - ri[np.newaxis]
+            d = np.linalg.norm(r, axis=-1)
+            d2 = np.power(d, 2)
+            prod = (1 - erfc(self.alpha * d)) / d
+            prod2 = prod / d2 - 2 * self.alpha * np.exp(-1 * self.alpha**2 * d2) / SQRTPI / d2
+
+            recip_grad[np.asarray(self.exclusion)] -= qm_esp_charges @ (prod2[:, :, np.newaxis] * r) * COULOMB_CONSTANT
+
+        return real_grad + recip_grad.T
