@@ -150,9 +150,10 @@ class Result(object):
         )
         self._mm_energy_gradient_term5 = DependArray(
             name="mm_total_esp_gradient",
-            func=Result._get_mm_energy_gradient_term5,
+            func=elec.full._get_mm_total_espc_gradient,
             dependencies=[
-                elec.full.qm_total_esp_gradient,
+                elec.full.qmmm_coulomb_tensor_gradient,
+                elec.mm_charges,
                 self.qm_esp_charges,
             ],
         )
@@ -261,11 +262,6 @@ class Result(object):
         )
 
         return grad
-
-    @staticmethod
-    def _get_mm_energy_gradient_term5(qm_esp_gradient, qm_esp_charges):
-
-        return qm_esp_charges @ qm_esp_gradient
 
     @staticmethod
     def _get_qm_energy_gradient(*args):

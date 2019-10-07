@@ -23,16 +23,7 @@ class NonPBC(object):
             dependencies=[
                 self.qmmm_coulomb_tensor,
                 self.qmmm_coulomb_tensor_gradient,
-                mm_charges,
-            ],
-        )
-        self.qm_total_esp_gradient = DependArray(
-            name="qm_total_esp_gradient",
-            func=NonPBC._get_qm_total_esp_gradient,
-            dependencies=[
-                self.qmmm_coulomb_tensor_gradient,
-                mm_charges,
-            ],
+                mm_charges],
         )
 
     @staticmethod
@@ -62,7 +53,6 @@ class NonPBC(object):
 
         return coulomb_tensor @ mm_charges
 
-    @staticmethod
-    def _get_qm_total_esp_gradient(t_grad, mm_charges):
+    def _get_mm_total_espc_gradient(self, t_grad, mm_charges, qm_esp_charges):
 
-        return t_grad * mm_charges
+        return qm_esp_charges @ t_grad * mm_charges
