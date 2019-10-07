@@ -10,7 +10,21 @@ SQRTPI = math.sqrt(math.pi)
 
 
 class Ewald(object):
-    def __init__(self, ri, rj, charges, cell_basis, tol=1e-6, *, order='spherical', rij=None, **kwargs):
+    def __init__(
+        self,
+        qm_positions,
+        mm_positions,
+        qm_charges,
+        mm_charges,
+        cell_basis,
+        exclusion=None,
+        tol=1e-6,
+        *,
+        order='spherical',
+        rij=None,
+        **kwargs
+        ):
+
         self.cell_basis = cell_basis
         self.tol = tol
         self.order = order
@@ -90,26 +104,74 @@ class Ewald(object):
         )
 
         # Ewald
-        self.ewald_real = DependArray(
-            name="ewald_real",
-            func=Ewald._get_ewald_real,
-            kwargs={'alpha': self.alpha},
-            dependencies=[rij, self.real_lattice],
+        self.ewald_real_tensor_qmmm = DependArray(
+            name="ewald_real_tensor",
+            func=Ewald._get_ewald_real_tensor,
+            kwargs={
+                'alpha': self.alpha,
+                'exclusion': exclusion,
+            },
+            dependencies=[
+                qm_positions,
+                mm_positions,
+                self.real_lattice,
+            ],
         )
-        self.ewald_recip = DependArray(
-            name="ewald_recip",
-            func=Ewald._get_ewald_recip,
-            kwargs={'alpha': self.alpha},
-            dependencies=[rij, self.recip_lattice, self.cell_basis],
+        self.ewald_real_tensor_qmqm = DependArray(
+            name="ewald_real_tensor",
+            func=Ewald._get_ewald_real_tensor,
+            kwargs={
+                'alpha': self.alpha,
+                'exclusion': np.arange(len(qm_charges)),
+            },
+            dependencies=[
+                qm_positions,
+                qm_positions,
+                self.real_lattice,
+            ],
         )
-        self.qm_full_esp = DependArray(
+        self.ewald_recip_tensor_qmmm = DependArray(
+            name="ewald_recip_tensor",
+            func=Ewald._get_ewald_recip_tensor,
+            kwargs={'alpha': self.alpha},
+            dependencies=[
+                qm_positions,
+                mm_positions,
+                self.recip_lattice,
+                self.cell_basis,
+            ],
+        )
+        self.ewald_recip_tensor_qmqm = DependArray(
+            name="ewald_recip_tensor",
+            func=Ewald._get_ewald_recip_tensor,
+            kwargs={'alpha': self.alpha},
+            dependencies=[
+                qm_positions,
+                qm_positions,
+                self.recip_lattice,
+                self.cell_basis,
+            ],
+        )
+        self.qm_total_esp = DependArray(
             name="qm_full_esp",
-            func=Ewald._get_qm_full_esp,
-            dependencies=[self.ewald_real, self.ewald_recip, charges],
+            func=Ewald._get_qm_total_esp,
+            dependencies=[
+                self.ewald_real_tensor_qmmm,
+                self.ewald_real_tensor_qmqm,
+                self.ewald_recip_tensor_qmmm,
+                self.ewald_recip_tensor_qmqm,
+                qm_charges,
+                mm_charges,
+            ],
         )
-
-    def __getitem__(self, index):
-        return None
+        self.qmmm_coulomb_tensor_gradient = DependArray(
+            name="qmmm_coulomb_tensor_gradient",
+            func=(lambda x, y: x[1:] + y[1:]),
+            dependencies=[
+                self.ewald_real_tensor_qmmm,
+                self.ewald_recip_tensor_qmmm,
+            ],
+        )
 
     @property
     def volume(self):
@@ -155,26 +217,31 @@ class Ewald(object):
             return lattice
 
     @staticmethod    
-    def _get_ewald_real(rij, lattice, alpha):
-        t = np.zeros((4, rij.shape[1], rij.shape[2]))
+    def _get_ewald_real_tensor(ri, rj, lattice, alpha, exclusion=None):
+        t = np.zeros((4, ri.shape[1], rj.shape[1]))
 
+        rij = rj[:, np.newaxis, :] - ri[:, :, np.newaxis]
         r = rij[:, np.newaxis] + lattice[:, :, np.newaxis, np.newaxis]
         d = np.linalg.norm(r, axis=0)
         d2 = np.power(d, 2)
         prod = erfc(alpha * d) / d
-        prod[np.where(np.isinf(prod))] = 0.
-        t[0] = prod.sum(axis=0)
-
         prod2 = prod / d2 + 2 * alpha * np.exp(-1 * alpha**2 * d2) / SQRTPI / d2
-        prod2[np.where(np.isnan(prod2))] = 0.
+
+        if exclusion is not None:
+            center_index = np.all(lattice == 0., axis=0)
+            prod[center_index, :, np.asarray(exclusion)] = 0.
+            prod2[center_index, :, np.asarray(exclusion)] = 0.
+
+        t[0] = prod.sum(axis=0)
         t[1:] = (prod2[np.newaxis] * r).sum(axis=1)
 
         return t * COULOMB_CONSTANT
 
     @staticmethod
-    def _get_ewald_recip(rij, lattice, cell_basis, alpha, correction=True):
-        t = np.zeros((4, rij.shape[1], rij.shape[2]))
+    def _get_ewald_recip_tensor(ri, rj, lattice, cell_basis, alpha, exclusion=None):
+        t = np.zeros((4, ri.shape[1], rj.shape[1]))
 
+        rij = rj[:, np.newaxis, :] - ri[:, :, np.newaxis]
         volume = np.linalg.det(cell_basis)
         k2 = np.linalg.norm(lattice, axis=0)**2
         prefac = (4 * PI / volume) * np.exp(-1 * k2 / (4 * alpha**2)) / k2
@@ -183,15 +250,52 @@ class Ewald(object):
         t[0] = (np.cos(kr) @ prefac).T
         t[1:] = (np.sin(kr) @ (prefac * lattice).T).T
 
-        if correction:
-            # Self energy correction
-            t[0] -= np.all(rij == 0., axis=0) * 2 * alpha / SQRTPI
+        if exclusion is not None:
+            r = rij[:, np.asarray(exclusion)]
+            d = np.linalg.norm(r, axis=0)
+            d2 = np.power(d, 2)
+            prod = (1 - erfc(alpha * d)) / d
+            prod2 = -prod / d2 - 2 * alpha * np.exp(-1 * alpha**2 * d2) / SQRTPI / d2
+            prod[np.where(np.isinf(prod))] = 0.
+            prod2[np.where(np.isnan(prod2))] = 0.
 
-            # Net charge correction
-            t[0] -= PI / volume / alpha**2
+            t[0, :, np.asarray(exclusion)] -= prod.sum(axis=0)
+            t[1:, :, np.asarray(exclusion)] -= (prod2[np.newaxis] * r).sum(axis=1)
+    
+        # Net charge correction
+        t[0] -= PI / volume / alpha**2
+
+        # Self energy correction
+        t[0] -= np.all(rij == 0., axis=0) * 2 * alpha / SQRTPI
 
         return t * COULOMB_CONSTANT
 
     @staticmethod
-    def _get_qm_full_esp(ewald_real, ewald_recip, charges):
-        return (ewald_real + ewald_recip) @ charges
+    def _get_qm_total_esp(
+        ewald_real_tensor_qmmm,
+        ewald_real_tensor_qmqm,
+        ewald_recip_tensor_qmmm,
+        ewald_recip_tensor_qmqm,
+        qm_charges,
+        mm_charges,
+        ):
+
+        esp = (
+            (ewald_real_tensor_qmmm + ewald_recip_tensor_qmmm) @ mm_charges
+            + (ewald_real_tensor_qmqm + ewald_recip_tensor_qmqm) @ qm_charges
+        )
+
+        return esp
+
+    @staticmethod
+    def _get_qm_full_esp(ewald_real_tensor, ewald_recip_tensor, charges):
+        return (ewald_real_tensor + ewald_recip_tensor) @ charges
+
+    def _get_mm_total_espc_gradient(
+        self,
+        t_grad,
+        qm_esp_charges,
+        mm_charges,
+        ):
+
+        return qm_esp_charges @ t_grad * mm_charges

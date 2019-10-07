@@ -73,13 +73,13 @@ class Elec(object):
 
         if pbc:
             self.full = Ewald(
-                ri=qm_positions,
-                rj=mm_positions,
+                qm_positions=qm_positions,
+                mm_positions=mm_positions,
                 qm_charges=qm_charges,
                 mm_charges=mm_charges,
                 cell_basis=cell_basis,
+                exclusion=self.coulomb_exclusion,
                 cutoff=cutoff,
-                rij=self.rij,
             )
         else:
             import importlib
