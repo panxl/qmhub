@@ -169,12 +169,13 @@ class Ewald(object):
                 mm_charges,
             ],
         )
-        self.qmmm_coulomb_tensor_gradient = DependArray(
-            name="qmmm_coulomb_tensor_gradient",
-            func=(lambda x, y: x[1:] + y[1:]),
+        self.qm_total_esp_gradient = DependArray(
+            name="qm_total_esp_gradient",
+            func=Ewald._get_qm_total_esp_gradient,
             dependencies=[
                 self.ewald_real_tensor_qmmm,
                 self.ewald_recip_tensor_qmmm,
+                mm_charges,
             ],
         )
 
@@ -292,6 +293,11 @@ class Ewald(object):
 
         return esp
 
-    def _get_mm_total_espc_gradient(self, t_grad, mm_charges, qm_esp_charges):
+    @staticmethod
+    def _get_qm_total_esp_gradient(
+        ewald_real_tensor_qmmm,
+        ewald_recip_tensor_qmmm,
+        mm_charges
+        ):
 
-        return qm_esp_charges @ t_grad * mm_charges
+        return (ewald_real_tensor_qmmm[1:] + ewald_recip_tensor_qmmm[1:]) * mm_charges
