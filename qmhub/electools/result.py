@@ -152,8 +152,6 @@ class Result(object):
             name="mm_total_esp_gradient",
             func=elec.full._get_mm_total_espc_gradient,
             dependencies=[
-                elec.full.qmmm_coulomb_tensor_gradient,
-                elec.mm_charges,
                 self.qm_esp_charges,
             ],
         )
