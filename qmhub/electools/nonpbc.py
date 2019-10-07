@@ -53,6 +53,6 @@ class NonPBC(object):
 
         return coulomb_tensor @ mm_charges
 
-    def _get_mm_total_espc_gradient(self, t_grad, qm_esp_charges, mm_charges):
+    def _get_mm_total_espc_gradient(self, t_grad, mm_charges, qm_esp_charges):
 
         return qm_esp_charges @ t_grad * mm_charges

@@ -21,7 +21,6 @@ class Ewald(object):
         tol=1e-6,
         *,
         order='spherical',
-        rij=None,
         **kwargs
         ):
 
@@ -133,7 +132,10 @@ class Ewald(object):
         self.ewald_recip_tensor_qmmm = DependArray(
             name="ewald_recip_tensor",
             func=Ewald._get_ewald_recip_tensor,
-            kwargs={'alpha': self.alpha},
+            kwargs={
+                'alpha': self.alpha,
+                'exclusion': exclusion,
+            },
             dependencies=[
                 qm_positions,
                 mm_positions,
@@ -144,7 +146,10 @@ class Ewald(object):
         self.ewald_recip_tensor_qmqm = DependArray(
             name="ewald_recip_tensor",
             func=Ewald._get_ewald_recip_tensor,
-            kwargs={'alpha': self.alpha},
+            kwargs={
+                'alpha': self.alpha,
+                'exclusion': np.arange(len(qm_charges)),
+            },
             dependencies=[
                 qm_positions,
                 qm_positions,
@@ -251,17 +256,17 @@ class Ewald(object):
         t[1:] = (np.sin(kr) @ (prefac * lattice).T).T
 
         if exclusion is not None:
-            r = rij[:, np.asarray(exclusion)]
+            r = rij[:, :, np.asarray(exclusion)]
             d = np.linalg.norm(r, axis=0)
             d2 = np.power(d, 2)
             prod = (1 - erfc(alpha * d)) / d
-            prod2 = -prod / d2 - 2 * alpha * np.exp(-1 * alpha**2 * d2) / SQRTPI / d2
-            prod[np.where(np.isinf(prod))] = 0.
-            prod2[np.where(np.isnan(prod2))] = 0.
+            prod2 = prod / d2 - 2 * alpha * np.exp(-1 * alpha**2 * d2) / SQRTPI / d2
+            prod[np.nonzero(np.isnan(prod))] = 0.
+            prod2[np.nonzero(np.isnan(prod2))] = 0.
 
-            t[0, :, np.asarray(exclusion)] -= prod.sum(axis=0)
-            t[1:, :, np.asarray(exclusion)] -= (prod2[np.newaxis] * r).sum(axis=1)
-    
+            t[0:1, :, np.asarray(exclusion)] -= prod
+            t[1:, :, np.asarray(exclusion)] -= (prod2[np.newaxis] * r)
+
         # Net charge correction
         t[0] -= PI / volume / alpha**2
 
@@ -287,15 +292,6 @@ class Ewald(object):
 
         return esp
 
-    @staticmethod
-    def _get_qm_full_esp(ewald_real_tensor, ewald_recip_tensor, charges):
-        return (ewald_real_tensor + ewald_recip_tensor) @ charges
-
-    def _get_mm_total_espc_gradient(
-        self,
-        t_grad,
-        qm_esp_charges,
-        mm_charges,
-        ):
+    def _get_mm_total_espc_gradient(self, t_grad, mm_charges, qm_esp_charges):
 
         return qm_esp_charges @ t_grad * mm_charges
