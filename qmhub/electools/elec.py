@@ -27,9 +27,6 @@ class Elec(object):
         pbc=False
         ):
 
-        self.qm_charges = qm_charges
-        self.mm_charges = mm_charges
-
         self.rij = DependArray(
             name="rij",
             func=get_rij,
