@@ -13,7 +13,21 @@ SQRTPI = math.sqrt(math.pi)
 
 
 class Ewald(object):
-    def __init__(self, ri, rj, charges, cell_basis, exclusion=None, tol=1e-10, *, cutoff=None, rij=None, **kwargs):
+    def __init__(
+        self,
+        qm_positions,
+        mm_positions,
+        qm_charges,
+        mm_charges,
+        cell_basis,
+        exclusion=None,
+        tol=1e-10,
+        *,
+        cutoff=None,
+        rij=None,
+        **kwargs
+        ):
+
         self.cell_basis = cell_basis
         self.tol = tol
         self.cutoff = cutoff
@@ -31,32 +45,48 @@ class Ewald(object):
             func=Ewald._get_nfft,
             kwargs={'cell_basis': cell_basis},
         )
-        self.ewald_real = DependArray(
-            name="ewald_real",
-            func=Ewald._get_ewald_real,
+        self.ewald_real_tensor = DependArray(
+            name="ewald_real_tensor",
+            func=Ewald._get_ewald_real_tensor,
             kwargs={
                 'cutoff': cutoff,
                 'alpha': self.alpha,
+                'exclusion': exclusion,
             },
-            dependencies=[rij, charges],
+            dependencies=[
+                qm_positions,
+                mm_positions,
+            ],
+        )
+        self.ewald_real = DependArray(
+            name="ewald_real",
+            func=(lambda x, y: x @ y),
+            dependencies=[
+                self.ewald_real_tensor,
+                mm_charges,
+            ],
         )
         self.ewald_recip = DependArray(
             name="ewald_recip",
             func=Ewald._get_ewald_recip,
             kwargs={
                 'nfft': self.nfft,
-                'alpha': self.alpha
+                'alpha': self.alpha,
+                'exclusion': exclusion,
             },
-            dependencies=[rij, ri, rj, charges, cell_basis],
+            dependencies=[
+                qm_positions,
+                mm_positions,
+                qm_charges,
+                mm_charges,
+                cell_basis,
+            ],
         )
-        self.qm_full_esp = DependArray(
+        self.qm_total_esp = DependArray(
             name="qm_full_esp",
-            func=Ewald._get_qm_full_esp,
+            func=(lambda x, y: x + y),
             dependencies=[self.ewald_real, self.ewald_recip],
         )
-
-    def __getitem__(self, index):
-        return None
 
     @property
     def volume(self):
@@ -98,26 +128,50 @@ class Ewald(object):
             minimum += 1
 
     @staticmethod
-    def _get_ewald_real(rij, charges, cutoff, alpha):
-        t = np.zeros((4, rij.shape[1]))
+    def _get_ewald_real_tensor(
+        qm_positions,
+        mm_positions,
+        cutoff,
+        alpha,
+        exclusion=None
+        ):
 
+        t = np.zeros((4, qm_positions.shape[1], mm_positions.shape[1]))
+
+        rij = mm_positions[:, np.newaxis, :] - qm_positions[:, :, np.newaxis]
         d = np.linalg.norm(rij, axis=0)
         d2 = np.power(d, 2)
-        mask = (d < cutoff) * (d > 0.)
+        mask = (d < cutoff)
+        mask[:, np.asarray(exclusion)] = False
+        d = d[mask]
+        d2 = d2[mask]
 
         prod = np.zeros((rij.shape[1], rij.shape[2]))
-        prod[mask] = erfc(alpha * d[mask]) / d[mask]
-        t[0] = prod @ charges
+        prod[mask] = erfc(alpha * d) / d
+        t[0] = prod
 
         prod2 = np.zeros((rij.shape[1], rij.shape[2]))
-        prod2[mask] = prod[mask] / d2[mask] + 2 * alpha * np.exp(-1 * alpha**2 * d2[mask]) / SQRTPI / d2[mask]
-        t[1:] = (prod2 * rij) @ charges
+        prod2[mask] = prod[mask] / d2 + 2 * alpha * np.exp(-1 * alpha**2 * d2) / SQRTPI / d2
+        t[1:] = (prod2 * rij)
 
         return t * COULOMB_CONSTANT
 
     @staticmethod
-    def _get_ewald_recip(rij, ri, rj, charges, cell_basis, nfft=None, alpha=None, order=6, correction=True):
-        t = np.zeros((ri.shape[1], 4))
+    def _get_ewald_recip(
+        qm_positions,
+        mm_positions,
+        qm_charges,
+        mm_charges,
+        cell_basis,
+        nfft=None,
+        alpha=None,
+        exclusion=None,
+        order=6
+        ):
+
+        t = np.zeros((qm_positions.shape[1], 4))
+        ri = qm_positions.T
+        rj = mm_positions.T
 
         pmeD = pme.PMEInstanceD()
         pmeD.setup(
@@ -133,28 +187,36 @@ class Ewald(object):
             pmeD.LatticeType.XAligned,
         )
 
-        charge = charges.array[:, np.newaxis]
-        coord1 = np.ascontiguousarray(rj.T)
-        coord2 = np.ascontiguousarray(ri.T)
+        charges = np.concatenate((qm_charges, mm_charges))[:, np.newaxis]
+        coord1 = np.ascontiguousarray(np.concatenate((ri, rj)))
+        coord2 = np.ascontiguousarray(ri)
         mat = pme.MatrixD
         pmeD.compute_P_rec(
             0, 
-            mat(charge),
+            mat(charges),
             mat(coord1),
             mat(coord2),
             1,
             mat(t),
         )
 
-        if correction:
-            # Self energy correction
-            t[:, 0] -= (np.all(rij == 0., axis=0) * 2 * alpha / SQRTPI) @ charges
+        if exclusion is not None:
+            r = np.concatenate((ri, rj[np.asarray(exclusion)]))[np.newaxis:, ] - ri[:, np.newaxis]
+            d = np.linalg.norm(r, axis=-1)
+            d2 = np.power(d, 2)
+            prod = (1 - erfc(alpha * d)) / d
+            prod2 = prod / d2 - 2 * alpha * np.exp(-1 * alpha**2 * d2) / SQRTPI / d2
+            prod[np.nonzero(np.isnan(prod))] = 0.
+            prod2[np.nonzero(np.isnan(prod2))] = 0.
 
-            # Net charge correction
-            t[:, 0] -= (PI / np.linalg.det(cell_basis) / alpha**2) * charges.sum()
+            exclusion_charges = np.concatenate((qm_charges, mm_charges[np.asarray(exclusion)]))
+            t[:, 0] -= prod @ exclusion_charges
+            t[:, 1:] -= exclusion_charges @ (prod2[:, :, np.newaxis] * r)
+
+        # Self energy correction
+        t[:, 0] -= 2 * qm_charges * alpha / SQRTPI
+
+        # Net charge correction
+        t[:, 0] -= (PI / np.linalg.det(cell_basis) / alpha**2) * charges.sum()
 
         return t.T * COULOMB_CONSTANT
-
-    @staticmethod
-    def _get_qm_full_esp(ewald_real, ewald_recip):
-        return (ewald_real + ewald_recip)
