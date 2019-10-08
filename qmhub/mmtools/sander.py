@@ -39,6 +39,8 @@ def load_from_file(fin, system=None, simulation=None):
         qm_charge, qm_mult, step, n_steps = \
         np.fromstring(lines[0], dtype=int, count=7, sep=' ')
 
+    n_atoms = n_qm_atoms + n_mm_atoms
+
     # Load QM information
     f = io.StringIO("".join(lines[1:(n_qm_atoms + 1)]))
     qm_atoms = pd.read_csv(f, delimiter=' ', header=None, nrows=n_qm_atoms,
@@ -50,14 +52,16 @@ def load_from_file(fin, system=None, simulation=None):
                                names=['pos_x', 'pos_y', 'pos_z', 'charge', 'idx']).to_records()
 
     # Process QM atoms
-    n_virt_qm_atoms = np.count_nonzero(qm_atoms.idx == -1)
-    # n_real_qm_atoms = n_qm_atoms - n_virt_qm_atoms
-    n_atoms += n_virt_qm_atoms
-
     if np.any(qm_atoms.element.astype(str) == 'nan'):
         qm_element = np.empty(n_qm_atoms, dtype=str)
     else:
         qm_element = np.char.capitalize(qm_atoms.element.astype(str))
+
+    # Force charge neutrality
+    total_charge = qm_atoms.charge.sum() + mm_atoms.charge.sum()
+    assert total_charge < 1e-2
+    qm_atoms.charge -= total_charge / n_atoms
+    mm_atoms.charge -= total_charge / n_atoms
 
     # Initialize System
     if system is None:
