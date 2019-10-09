@@ -2,9 +2,8 @@ import math
 import numpy as np
 from scipy.special import erfc
 
-import qmhub.helpmelib as pme
-
 from ..utils.darray import DependArray
+from ..utils.dpme import DependPME
 from ..units import COULOMB_CONSTANT
 
 
@@ -51,6 +50,9 @@ class Ewald(object):
             func=Ewald._get_nfft,
             kwargs={'cell_basis': cell_basis},
         )
+
+        self.pme = DependPME(self.cell_basis, self.alpha, self.order, self.nfft)
+
         self.ewald_real_tensor = DependArray(
             name="ewald_real_tensor",
             func=Ewald._get_ewald_real_tensor,
@@ -76,12 +78,11 @@ class Ewald(object):
             name="ewald_recip",
             func=Ewald._get_ewald_recip,
             kwargs={
-                'nfft': self.nfft,
                 'alpha': self.alpha,
                 'exclusion': exclusion,
-                'order': order,
             },
             dependencies=[
+                self.pme,
                 qm_positions,
                 mm_positions,
                 qm_charges,
@@ -165,50 +166,24 @@ class Ewald(object):
 
     @staticmethod
     def _get_ewald_recip(
+        pme,
         qm_positions,
         mm_positions,
         qm_charges,
         mm_charges,
         cell_basis,
-        nfft=None,
         alpha=None,
         exclusion=None,
-        order=6,
         ):
 
-        pmeD = pme.PMEInstanceD()
-        pmeD.setup(
-            1,np.asscalar(alpha),
-            order,
-            *nfft.tolist(),
-            1.,
-            1,
-        )
-        pmeD.set_lattice_vectors(
-            *np.diag(cell_basis).tolist(),
-            *[90., 90., 90.],
-            pmeD.LatticeType.XAligned,
-        )
+        positions = np.ascontiguousarray(qm_positions)
+        grid_positions = np.ascontiguousarray(np.concatenate((qm_positions, mm_positions), axis=1))
+        grid_charges = np.concatenate((qm_charges, mm_charges))
 
-        ri = qm_positions.T
-        rj = mm_positions.T
-        t = np.zeros((len(ri), 4))
-
-        charges = np.concatenate((qm_charges, mm_charges))[:, np.newaxis]
-        coord1 = np.ascontiguousarray(np.concatenate((ri, rj)))
-        coord2 = np.ascontiguousarray(ri)
-        mat = pme.MatrixD
-        pmeD.compute_P_rec(
-            0, 
-            mat(charges),
-            mat(coord1),
-            mat(coord2),
-            1,
-            mat(t),
-        )
+        recip_esp = pme.compute_recip_esp(positions, grid_positions, grid_charges)
 
         if exclusion is not None:
-            r = np.concatenate((ri, rj[np.asarray(exclusion)]))[np.newaxis:, ] - ri[:, np.newaxis]
+            r = np.concatenate((qm_positions.T, mm_positions.T[np.asarray(exclusion)]))[np.newaxis:, ] - qm_positions.T[:, np.newaxis]
             d = np.linalg.norm(r, axis=-1)
             d2 = np.power(d, 2)
             prod = (1 - erfc(alpha * d)) / d
@@ -217,51 +192,26 @@ class Ewald(object):
             prod2[np.nonzero(np.isnan(prod2))] = 0.
 
             exclusion_charges = np.concatenate((qm_charges, mm_charges[np.asarray(exclusion)]))
-            t[:, 0] -= prod @ exclusion_charges
-            t[:, 1:] -= exclusion_charges @ (prod2[:, :, np.newaxis] * r)
+            recip_esp[:, 0] -= prod @ exclusion_charges
+            recip_esp[:, 1:] -= exclusion_charges @ (prod2[:, :, np.newaxis] * r)
 
         # Self energy correction
-        t[:, 0] -= 2 * qm_charges * alpha / SQRTPI
+        recip_esp[:, 0] -= 2 * qm_charges * alpha / SQRTPI
 
         # Net charge correction
-        t[:, 0] -= (PI / np.linalg.det(cell_basis) / alpha**2) * charges.sum()
+        recip_esp[:, 0] -= (PI / np.linalg.det(cell_basis) / alpha**2) * grid_charges.sum()
 
-        return t.T * COULOMB_CONSTANT
+        return recip_esp.T * COULOMB_CONSTANT
 
     def _get_total_espc_gradient(self, qm_esp_charges):
 
-        pmeD = pme.PMEInstanceD()
-        pmeD.setup(
-            1,np.asscalar(self.alpha),
-            self.order,
-            *self.nfft.tolist(),
-            1.,
-            1,
-        )
-        pmeD.set_lattice_vectors(
-            *np.diag(self.cell_basis).tolist(),
-            *[90., 90., 90.],
-            pmeD.LatticeType.XAligned,
-        )
+        positions = np.ascontiguousarray(np.concatenate((self.qm_positions, self.mm_positions), axis=1))
+        grid_positions = self.qm_positions
+        grid_charges = qm_esp_charges
 
-        ri = self.qm_positions.T
-        rj = self.mm_positions.T
-        t = np.zeros((len(ri) + len(rj), 4))
+        recip_esp = self.pme.compute_recip_esp(positions, grid_positions, grid_charges)
 
-        charges = np.ascontiguousarray(qm_esp_charges)[:, np.newaxis]
-        coord1 = np.ascontiguousarray(ri)
-        coord2 = np.ascontiguousarray(np.concatenate((ri, rj)))
-        mat = pme.MatrixD
-        pmeD.compute_P_rec(
-            0,
-            mat(charges),
-            mat(coord1),
-            mat(coord2),
-            1,
-            mat(t),
-        )
-
-        grad = t.T[1:] * COULOMB_CONSTANT
+        grad = recip_esp.T[1:] * COULOMB_CONSTANT
 
         r = self.qm_positions[:, np.newaxis, :] - self.qm_positions[:, :, np.newaxis]
         d = np.linalg.norm(r, axis=0)
@@ -271,7 +221,7 @@ class Ewald(object):
         prod[np.nonzero(np.isnan(prod))] = 0.
         prod2[np.nonzero(np.isnan(prod2))] = 0.
  
-        grad[:, np.arange(len(ri))] += qm_esp_charges @(prod2[np.newaxis] * r) * COULOMB_CONSTANT
+        grad[:, np.arange(self.qm_positions.shape[1])] += qm_esp_charges @(prod2[np.newaxis] * r) * COULOMB_CONSTANT
 
         if self.exclusion is not None:
             r = self.mm_positions[:, np.newaxis, np.asarray(self.exclusion)] - self.qm_positions[:, :, np.newaxis]
@@ -280,9 +230,9 @@ class Ewald(object):
             prod = (1 - erfc(self.alpha * d)) / d
             prod2 = prod / d2 - 2 * self.alpha * np.exp(-1 * self.alpha**2 * d2) / SQRTPI / d2
 
-            grad[:, np.asarray(self.exclusion + len(ri))] += qm_esp_charges @(prod2[np.newaxis] * r) * COULOMB_CONSTANT
+            grad[:, np.asarray(self.exclusion + self.qm_positions.shape[1])] += qm_esp_charges @(prod2[np.newaxis] * r) * COULOMB_CONSTANT
 
-        grad[:, len(ri):] += qm_esp_charges @ -self.ewald_real_tensor[1:]
+        grad[:, self.qm_positions.shape[1]:] += qm_esp_charges @ -self.ewald_real_tensor[1:]
 
         charges = np.concatenate((self.qm_charges, self.mm_charges))
 

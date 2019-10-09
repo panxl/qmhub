@@ -107,7 +107,7 @@ class Ewald(object):
 
         # Ewald
         self.ewald_real_tensor_qmmm = DependArray(
-            name="ewald_real_tensor",
+            name="ewald_real_tensor_qmmm",
             func=Ewald._get_ewald_real_tensor,
             kwargs={
                 'alpha': self.alpha,
@@ -120,7 +120,7 @@ class Ewald(object):
             ],
         )
         self.ewald_real_tensor_qmqm = DependArray(
-            name="ewald_real_tensor",
+            name="ewald_real_tensor_qmqm",
             func=Ewald._get_ewald_real_tensor,
             kwargs={
                 'alpha': self.alpha,
@@ -133,7 +133,7 @@ class Ewald(object):
             ],
         )
         self.ewald_recip_tensor_qmmm = DependArray(
-            name="ewald_recip_tensor",
+            name="ewald_recip_tensor_qmmm",
             func=Ewald._get_ewald_recip_tensor,
             kwargs={
                 'alpha': self.alpha,
@@ -147,7 +147,7 @@ class Ewald(object):
             ],
         )
         self.ewald_recip_tensor_qmqm = DependArray(
-            name="ewald_recip_tensor",
+            name="ewald_recip_tensor_qmqm",
             func=Ewald._get_ewald_recip_tensor,
             kwargs={
                 'alpha': self.alpha,
