@@ -9,28 +9,16 @@ from numpy.lib.user_array import container
 def cache_update(method):
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
-        update_cache(self)
+        self.update_cache()
         return method(self, *args, **kwargs)
     return wrapper
 
 
-def update_cache(darray):
-    if not darray._cache_valid:
-        if darray._func is update_cache:
-            update_cache(*darray._dependencies)
-        elif darray._func is not None:
-            if darray.array is not None:
-                darray.array[:] = np.asarray(darray._func(*darray._dependencies, **darray._kwargs))
-            else:
-                darray.array = np.ascontiguousarray(darray._func(*darray._dependencies, **darray._kwargs))
-        darray._cache_valid = True
+def invalidate_cache(dobject):
+    if dobject._func is not None:
+        dobject._cache_valid = False
 
-
-def invalidate_cache(darray):
-    if darray._func is not None:
-        darray._cache_valid = False
-
-    for item in darray._dependants:
+    for item in dobject._dependants:
         if item() is not None:
             invalidate_cache(item())
 
@@ -71,7 +59,6 @@ class DependArray(container):
         if self._func is not None:
             darray = self.__class__(
                 self.array[index],
-                func=update_cache,
                 dependencies=[self],
             )
         else:
@@ -88,6 +75,19 @@ class DependArray(container):
 
     def add_dependant(self, dependant):
         self._dependants.append(weakref.ref(dependant))
+
+    def update_cache(self):
+        if not self._cache_valid:
+            if self._func is None:
+                if self._dependencies:
+                    for dobject in self._dependencies:
+                        dobject.update_cache()
+            else:
+                if self.array is not None:
+                    self.array[:] = np.asarray(self._func(*self._dependencies, **self._kwargs))
+                else:
+                    self.array = np.ascontiguousarray(self._func(*self._dependencies, **self._kwargs))
+            self._cache_valid = True
 
     # Wrap methods from parent class
     for method_name in dir(container):
