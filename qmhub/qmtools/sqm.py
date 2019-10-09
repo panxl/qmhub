@@ -2,7 +2,7 @@ from pathlib import Path
 import numpy as np
 
 from ..units import AMBER_AU_TO_KCAL, AMBER_FORCE_AU_TO_IU
-from ..utils import get_nproc
+from ..utils.sys import get_nproc
 
 from .templates.sqm import get_qm_template, Elements
 from .qmbase import QMBase

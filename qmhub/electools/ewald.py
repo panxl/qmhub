@@ -2,8 +2,9 @@ import math
 import numpy as np
 from scipy.special import erfc
 
-from ..utils import DependArray
+from ..utils.darray import DependArray
 from ..units import COULOMB_CONSTANT
+
 
 PI = math.pi
 SQRTPI = math.sqrt(math.pi)

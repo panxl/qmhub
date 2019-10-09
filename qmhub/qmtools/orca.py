@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 
 from ..units import BOHR_IN_ANGSTROM
-from ..utils import get_nproc, run_cmdline
+from ..utils.sys import get_nproc, run_cmdline
 from .templates.orca import get_qm_template
 from .qmbase import QMBase
 

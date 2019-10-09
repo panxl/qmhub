@@ -1,7 +1,7 @@
 from pathlib import Path
 import numpy as np
 
-from ..utils import get_nproc
+from ..utils.sys import get_nproc
 from .templates.qchem import get_qm_template
 from .qmbase import QMBase
 

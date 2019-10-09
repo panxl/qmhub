@@ -1,6 +1,6 @@
 import numpy as np
 
-from ..utils import DependArray
+from ..utils.darray import DependArray
 from ..units import COULOMB_CONSTANT
 from .switching import get_scaling_factor, get_scaling_factor_gradient
 

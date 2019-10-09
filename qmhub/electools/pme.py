@@ -4,7 +4,7 @@ from scipy.special import erfc
 
 import qmhub.helpmelib as pme
 
-from ..utils import DependArray
+from ..utils.darray import DependArray
 from ..units import COULOMB_CONSTANT
 
 

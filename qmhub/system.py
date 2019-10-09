@@ -1,6 +1,6 @@
 import numpy as np
 
-from .utils import DependArray
+from .utils.darray import DependArray
 from .atoms import Atoms
 
 

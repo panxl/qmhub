@@ -1,7 +1,8 @@
 import os
 import numpy as np
 
-from ..utils import DependArray, invalidate_cache, run_cmdline
+from ..utils.darray import DependArray, invalidate_cache
+from ..utils.sys import run_cmdline
 
 
 class QMBase(object):

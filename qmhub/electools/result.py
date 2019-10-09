@@ -1,6 +1,6 @@
 import numpy as np
 
-from ..utils import DependArray
+from ..utils.darray import DependArray
 from ..units import COULOMB_CONSTANT, HARTREE_IN_KCAL_PER_MOLE, FORCE_AU_IN_IU
 
 

@@ -1,7 +1,7 @@
 import math
 import numpy as np
 
-from ..utils import DependArray
+from ..utils.darray import DependArray
 from ..units import COULOMB_CONSTANT
 from .distance import *
 from .elec_near import ElecNear

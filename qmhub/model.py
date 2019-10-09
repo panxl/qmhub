@@ -2,7 +2,7 @@ import numpy as np
 
 from .electools import Elec, Result
 from .engine import Engine
-from .utils import DependArray
+from .utils.darray import DependArray
 
 
 class Model(object):
