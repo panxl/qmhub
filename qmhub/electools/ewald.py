@@ -24,6 +24,8 @@ class Ewald(object):
         **kwargs
         ):
 
+        self.qm_charges = qm_charges
+        self.mm_charges = mm_charges
         self.cell_basis = cell_basis
         self.tol = tol
         self.order = order
@@ -169,15 +171,6 @@ class Ewald(object):
                 mm_charges,
             ],
         )
-        self.qm_total_esp_gradient = DependArray(
-            name="qm_total_esp_gradient",
-            func=Ewald._get_qm_total_esp_gradient,
-            dependencies=[
-                self.ewald_real_tensor_qmmm,
-                self.ewald_recip_tensor_qmmm,
-                mm_charges,
-            ],
-        )
 
     @property
     def volume(self):
@@ -293,15 +286,10 @@ class Ewald(object):
 
         return esp
 
-    @staticmethod
-    def _get_qm_total_esp_gradient(
-        ewald_real_tensor_qmmm,
-        ewald_recip_tensor_qmmm,
-        mm_charges
-        ):
+    def _get_total_espc_gradient(self, qm_esp_charges):
+        ewald_tensor_grad_qmqm = self.ewald_real_tensor_qmqm[1:] + self.ewald_recip_tensor_qmqm[1:]
+        ewald_tensor_grad_qmmm = self.ewald_real_tensor_qmmm[1:] + self.ewald_recip_tensor_qmmm[1:]
+        ewald_tensor_grad = -np.concatenate((ewald_tensor_grad_qmqm, ewald_tensor_grad_qmmm), axis=2)
 
-        return (ewald_real_tensor_qmmm[1:] + ewald_recip_tensor_qmmm[1:]) * mm_charges
-
-    def _get_mm_total_espc_gradient(self, qm_esp_charges):
-
-        return qm_esp_charges @ -self.qm_total_esp_gradient
+        charges = np.concatenate((self.qm_charges, self.mm_charges))
+        return qm_esp_charges @ ewald_tensor_grad * charges

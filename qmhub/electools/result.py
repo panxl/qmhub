@@ -22,8 +22,8 @@ class Result(object):
         elec,
         ):
 
-        self.qm_energy = DependArray(
-            name="qm_energy",
+        self.energy = DependArray(
+            name="energy",
             func=(lambda x: x * HARTREE_IN_KCAL_PER_MOLE),
             dependencies=[qm_energy],
         )
@@ -39,6 +39,13 @@ class Result(object):
                 self.mm_esp,
                 scaling_factor,
                 weighted_qmmm_coulomb_tensor_inv,
+            ],
+        )
+        self.total_espc_gradient = DependArray(
+            name="total_espc_gradient",
+            func=elec.full._get_total_espc_gradient,
+            dependencies=[
+                self.qm_esp_charges,
             ],
         )
 
@@ -88,6 +95,13 @@ class Result(object):
                 self.qm_esp_charges,
             ],
         )
+        self._qm_energy_gradient_term5 = DependArray(
+            name="qm_energy_gradient_term5",
+            func=(lambda x: x[:, :len(self.qm_esp_charges)]),
+            dependencies=[
+                self.total_espc_gradient,
+            ],
+        )
         self.qm_energy_gradient = DependArray(
             name="qm_energy_gradient",
             func=Result._get_qm_energy_gradient,
@@ -96,6 +110,7 @@ class Result(object):
                 self._qm_energy_gradient_term2,
                 self._qm_energy_gradient_term3,
                 self._qm_energy_gradient_term4,
+                self._qm_energy_gradient_term5,
             ],
         )
 
@@ -149,10 +164,10 @@ class Result(object):
             ],
         )
         self._mm_energy_gradient_term5 = DependArray(
-            name="mm_total_esp_gradient",
-            func=elec.full._get_mm_total_espc_gradient,
+            name="mm_energy_gradient_term5",
+            func=(lambda x: x[:, len(self.qm_esp_charges):]),
             dependencies=[
-                self.qm_esp_charges,
+                self.total_espc_gradient,
             ],
         )
         self.mm_energy_gradient = DependArray(

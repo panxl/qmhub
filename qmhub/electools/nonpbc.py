@@ -7,6 +7,8 @@ from ..units import COULOMB_CONSTANT
 class NonPBC(object):
     def __init__(self, rij, mm_charges, cell_basis=None, exclusion=None, *, dij_inverse=None, dij_inverse_gradient=None):
 
+        self.mm_charges = mm_charges
+
         self.qmmm_coulomb_tensor = DependArray(
             name="qmmm_coulomb_tensor",
             func=NonPBC._get_qmmm_coulomb_tensor,
@@ -26,14 +28,6 @@ class NonPBC(object):
                 mm_charges,
             ],
         )
-        self.qm_total_esp_gradient = DependArray(
-             name="qm_total_esp_gradient",
-             func=NonPBC._get_qm_total_esp_gradient,
-             dependencies=[
-                 self.qmmm_coulomb_tensor_gradient,
-                 mm_charges,
-             ],
-         )
 
     @staticmethod
     def _get_qmmm_coulomb_tensor(dij_inverse, exclusion=None):
@@ -62,11 +56,8 @@ class NonPBC(object):
 
         return coulomb_tensor @ mm_charges
 
-    @staticmethod
-    def _get_qm_total_esp_gradient(t_grad, mm_charges):
- 
-        return t_grad * mm_charges
+    def _get_total_espc_gradient(self, qm_esp_charges):
 
-    def _get_mm_total_espc_gradient(self, qm_esp_charges):
-
-        return qm_esp_charges @ self.qm_total_esp_gradient
+        grad = np.zeros((3, len(qm_esp_charges) + len(self.mm_charges)))
+        grad[:, len(qm_esp_charges):] = qm_esp_charges @ self.qmmm_coulomb_tensor_gradient * self.mm_charges
+        return grad
