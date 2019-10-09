@@ -27,9 +27,9 @@ class QMMM(object):
 
         self.model = Model(
             self.system.qm.atoms.positions,
-            self.system.mm.atoms.positions,
+            self.system.atoms.positions,
             self.system.qm.atoms.charges,
-            self.system.mm.atoms.charges,
+            self.system.atoms.charges,
             self.system.cell_basis,
             switching_type=switching_type,
             cutoff=cutoff,

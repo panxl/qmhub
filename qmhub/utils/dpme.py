@@ -50,7 +50,7 @@ class DependPME(pme.PMEInstanceD):
             mat(recip_esp),
         )
 
-        return np.ascontiguousarray(recip_esp)
+        return np.ascontiguousarray(recip_esp.T)
 
     def add_dependant(self, dependant):
         self._dependants.append(weakref.ref(dependant))

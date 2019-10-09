@@ -17,9 +17,9 @@ class Elec(object):
     def __init__(
         self,
         qm_positions,
-        mm_positions,
+        positions,
         qm_charges,
-        mm_charges,
+        charges,
         cell_basis,
         switching_type=None,
         cutoff=None,
@@ -30,7 +30,7 @@ class Elec(object):
         self.rij = DependArray(
             name="rij",
             func=get_rij,
-            dependencies=[qm_positions, mm_positions],
+            dependencies=[qm_positions, positions],
         )
         self.dij = DependArray(
             name="dij",
@@ -71,9 +71,8 @@ class Elec(object):
         if pbc:
             self.full = Ewald(
                 qm_positions=qm_positions,
-                mm_positions=mm_positions,
-                qm_charges=qm_charges,
-                mm_charges=mm_charges,
+                positions=positions,
+                charges=charges,
                 cell_basis=cell_basis,
                 exclusion=self.coulomb_exclusion,
                 cutoff=cutoff,
@@ -84,7 +83,7 @@ class Elec(object):
 
             self.full = NonPBC(
                 rij=self.rij,
-                mm_charges=mm_charges,
+                charges=charges,
                 cell_basis=cell_basis,
                 dij_inverse=self.dij_inverse,
                 dij_inverse_gradient=self.dij_inverse_gradient,
@@ -96,7 +95,7 @@ class Elec(object):
             dij_min_gradient=self.dij_min_gradient, 
             dij_inverse=self.dij_inverse,
             dij_inverse_gradient=self.dij_inverse_gradient,
-            charges=mm_charges,
+            charges=charges,
             switching_type=switching_type,
             cutoff=cutoff,
             swdist=swdist,
@@ -140,7 +139,7 @@ class Elec(object):
             name="embedding_mm_positions",
             func=Elec._get_embedding_mm_positions,
             dependencies=[
-                mm_positions,
+                positions,
                 self.near_field.near_field_mask,
             ],
         )
@@ -162,5 +161,5 @@ class Elec(object):
         return (wt_inv @ qm_esp[0] + charges) * w
 
     @staticmethod
-    def _get_embedding_mm_positions(mm_positions, near_field_mask):
-        return mm_positions[:, near_field_mask]
+    def _get_embedding_mm_positions(positions, near_field_mask):
+        return positions[:, near_field_mask]

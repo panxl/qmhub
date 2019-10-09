@@ -15,9 +15,8 @@ class Ewald(object):
     def __init__(
         self,
         qm_positions,
-        mm_positions,
-        qm_charges,
-        mm_charges,
+        positions,
+        charges,
         cell_basis,
         exclusion=None,
         tol=1e-10,
@@ -28,9 +27,8 @@ class Ewald(object):
         ):
 
         self.qm_positions = qm_positions
-        self.mm_positions = mm_positions
-        self.qm_charges = qm_charges
-        self.mm_charges = mm_charges
+        self.positions = positions
+        self.charges = charges
         self.cell_basis = cell_basis
         self.exclusion = exclusion
         self.tol = tol
@@ -63,7 +61,7 @@ class Ewald(object):
             },
             dependencies=[
                 qm_positions,
-                mm_positions,
+                positions,
             ],
         )
         self.ewald_real = DependArray(
@@ -71,7 +69,19 @@ class Ewald(object):
             func=(lambda x, y: x @ y),
             dependencies=[
                 self.ewald_real_tensor,
-                mm_charges,
+                charges,
+            ],
+        )
+        self.ewald_recip_exclusion_tensor = DependArray(
+            name="ewald_recip_exclusion_tensor",
+            func=Ewald._get_ewald_recip_exclusion_tensor,
+            kwargs={
+                'alpha': self.alpha,
+                'exclusion': exclusion,
+            },
+            dependencies=[
+                qm_positions,
+                positions,
             ],
         )
         self.ewald_recip = DependArray(
@@ -84,10 +94,10 @@ class Ewald(object):
             dependencies=[
                 self.pme,
                 qm_positions,
-                mm_positions,
-                qm_charges,
-                mm_charges,
+                positions,
+                charges,
                 cell_basis,
+                self.ewald_recip_exclusion_tensor,
             ],
         )
         self.qm_total_esp = DependArray(
@@ -138,15 +148,15 @@ class Ewald(object):
     @staticmethod
     def _get_ewald_real_tensor(
         qm_positions,
-        mm_positions,
+        positions,
         cutoff,
         alpha,
         exclusion=None
         ):
 
-        t = np.zeros((4, qm_positions.shape[1], mm_positions.shape[1]))
+        t = np.zeros((4, qm_positions.shape[1], positions.shape[1]))
 
-        rij = mm_positions[:, np.newaxis, :] - qm_positions[:, :, np.newaxis]
+        rij = positions[:, np.newaxis, :] - qm_positions[:, :, np.newaxis]
         d = np.linalg.norm(rij, axis=0)
         d2 = np.power(d, 2)
         mask = (d < cutoff)
@@ -165,75 +175,55 @@ class Ewald(object):
         return t * COULOMB_CONSTANT
 
     @staticmethod
-    def _get_ewald_recip(
-        pme,
+    def _get_ewald_recip_exclusion_tensor(
         qm_positions,
-        mm_positions,
-        qm_charges,
-        mm_charges,
-        cell_basis,
+        positions,
         alpha=None,
         exclusion=None,
         ):
 
-        positions = np.ascontiguousarray(qm_positions)
-        grid_positions = np.ascontiguousarray(np.concatenate((qm_positions, mm_positions), axis=1))
-        grid_charges = np.concatenate((qm_charges, mm_charges))
+        r = positions[:, np.newaxis, np.asarray(exclusion)] - qm_positions[:, :, np.newaxis]
+        d = np.linalg.norm(r, axis=0)
+        d2 = np.power(d, 2)
+        prod = (1 - erfc(alpha * d)) / d
+        prod2 = prod / d2 - 2 * alpha * np.exp(-1 * alpha**2 * d2) / SQRTPI / d2
+        np.nan_to_num(prod, copy=False)
+        np.nan_to_num(prod2, copy=False)
 
-        recip_esp = pme.compute_recip_esp(positions, grid_positions, grid_charges)
+        return np.concatenate((prod[np.newaxis], prod2 * r)) * COULOMB_CONSTANT
 
-        if exclusion is not None:
-            r = np.concatenate((qm_positions.T, mm_positions.T[np.asarray(exclusion)]))[np.newaxis:, ] - qm_positions.T[:, np.newaxis]
-            d = np.linalg.norm(r, axis=-1)
-            d2 = np.power(d, 2)
-            prod = (1 - erfc(alpha * d)) / d
-            prod2 = prod / d2 - 2 * alpha * np.exp(-1 * alpha**2 * d2) / SQRTPI / d2
-            prod[np.nonzero(np.isnan(prod))] = 0.
-            prod2[np.nonzero(np.isnan(prod2))] = 0.
+    @staticmethod
+    def _get_ewald_recip(
+        pme,
+        qm_positions,
+        positions,
+        charges,
+        cell_basis,
+        recip_exclusion_tensor,
+        alpha=None,
+        exclusion=None,
+        ):
 
-            exclusion_charges = np.concatenate((qm_charges, mm_charges[np.asarray(exclusion)]))
-            recip_esp[:, 0] -= prod @ exclusion_charges
-            recip_esp[:, 1:] -= exclusion_charges @ (prod2[:, :, np.newaxis] * r)
+        recip_esp = pme.compute_recip_esp(qm_positions, positions, charges) * COULOMB_CONSTANT
+
+        recip_esp[0] -= recip_exclusion_tensor[0] @ charges[np.asarray(exclusion)]
+        recip_esp[1:] -= recip_exclusion_tensor[1:] @ charges[np.asarray(exclusion)]
 
         # Self energy correction
-        recip_esp[:, 0] -= 2 * qm_charges * alpha / SQRTPI
+        recip_esp[0] -= 2 * charges[:qm_positions.shape[1]] * alpha / SQRTPI * COULOMB_CONSTANT
 
         # Net charge correction
-        recip_esp[:, 0] -= (PI / np.linalg.det(cell_basis) / alpha**2) * grid_charges.sum()
+        recip_esp[0] -= (PI / np.linalg.det(cell_basis) / alpha**2) * charges.sum() * COULOMB_CONSTANT
 
-        return recip_esp.T * COULOMB_CONSTANT
+        return recip_esp
 
     def _get_total_espc_gradient(self, qm_esp_charges):
 
-        positions = np.ascontiguousarray(np.concatenate((self.qm_positions, self.mm_positions), axis=1))
-        grid_positions = self.qm_positions
-        grid_charges = qm_esp_charges
+        recip_esp = self.pme.compute_recip_esp(self.positions, self.qm_positions, qm_esp_charges)
 
-        recip_esp = self.pme.compute_recip_esp(positions, grid_positions, grid_charges)
+        recip_grad = recip_esp[1:] * COULOMB_CONSTANT
+        recip_grad[:, np.asarray(self.exclusion)] += qm_esp_charges @ self.ewald_recip_exclusion_tensor[1:]
 
-        grad = recip_esp.T[1:] * COULOMB_CONSTANT
+        real_grad = qm_esp_charges @ -self.ewald_real_tensor[1:]
 
-        r = self.qm_positions[:, np.newaxis, :] - self.qm_positions[:, :, np.newaxis]
-        d = np.linalg.norm(r, axis=0)
-        d2 = np.power(d, 2)
-        prod = (1 - erfc(self.alpha * d)) / d
-        prod2 = prod / d2 - 2 * self.alpha * np.exp(-1 * self.alpha**2 * d2) / SQRTPI / d2
-        prod[np.nonzero(np.isnan(prod))] = 0.
-        prod2[np.nonzero(np.isnan(prod2))] = 0.
- 
-        grad[:, np.arange(self.qm_positions.shape[1])] += qm_esp_charges @(prod2[np.newaxis] * r) * COULOMB_CONSTANT
-
-        if self.exclusion is not None:
-            r = self.mm_positions[:, np.newaxis, np.asarray(self.exclusion)] - self.qm_positions[:, :, np.newaxis]
-            d = np.linalg.norm(r, axis=0)
-            d2 = np.power(d, 2)
-            prod = (1 - erfc(self.alpha * d)) / d
-            prod2 = prod / d2 - 2 * self.alpha * np.exp(-1 * self.alpha**2 * d2) / SQRTPI / d2
-
-            grad[:, np.asarray(self.exclusion + self.qm_positions.shape[1])] += qm_esp_charges @(prod2[np.newaxis] * r) * COULOMB_CONSTANT
-
-        grad[:, self.qm_positions.shape[1]:] += qm_esp_charges @ -self.ewald_real_tensor[1:]
-
-        charges = np.concatenate((self.qm_charges, self.mm_charges))
-
-        return grad * charges
+        return (real_grad + recip_grad) * self.charges
