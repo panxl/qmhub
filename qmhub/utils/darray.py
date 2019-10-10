@@ -17,6 +17,8 @@ def cache_update(method):
 def invalidate_cache(dobject):
     if dobject._func is not None:
         dobject._cache_valid = False
+    elif dobject._dependencies:
+        dobject._cache_valid = False
 
     for item in dobject._dependants:
         if item() is not None:
@@ -82,11 +84,10 @@ class DependArray(container):
                 if self._dependencies:
                     for dobject in self._dependencies:
                         dobject.update_cache()
+            elif self.array is not None:
+                self.array[:] = np.asarray(self._func(*self._dependencies, **self._kwargs))
             else:
-                if self.array is not None:
-                    self.array[:] = np.asarray(self._func(*self._dependencies, **self._kwargs))
-                else:
-                    self.array = np.ascontiguousarray(self._func(*self._dependencies, **self._kwargs))
+                self.array = np.ascontiguousarray(self._func(*self._dependencies, **self._kwargs))
             self._cache_valid = True
 
     # Wrap methods from parent class
