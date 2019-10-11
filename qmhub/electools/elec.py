@@ -24,7 +24,7 @@ class Elec(object):
         switching_type=None,
         cutoff=None,
         swdist=None,
-        pbc=False
+        pbc=False,
         ):
 
         self.rij = DependArray(
