@@ -13,6 +13,7 @@ class Model(object):
         qm_charges,
         charges,
         cell_basis,
+        qm_total_charge,
         switching_type=None,
         cutoff=None,
         swdist=None,
@@ -26,6 +27,7 @@ class Model(object):
         self.positions = positions
         self.qm_charges = qm_charges
         self.charges = charges
+        self.qm_total_charge = qm_total_charge
         self.cell_basis = cell_basis
 
         self.switching_type = switching_type
@@ -52,6 +54,7 @@ class Model(object):
             self.positions,
             self.qm_charges,
             self.charges,
+            self.qm_total_charge,
             self.cell_basis,
             switching_type=self.switching_type,
             cutoff=self.cutoff,

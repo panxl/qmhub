@@ -31,6 +31,7 @@ class QMMM(object):
             self.system.qm.atoms.charges,
             self.system.atoms.charges,
             self.system.cell_basis,
+            self.system.qm_charge,
             switching_type=switching_type,
             cutoff=cutoff,
             swdist=swdist,

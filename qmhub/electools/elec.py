@@ -20,6 +20,7 @@ class Elec(object):
         positions,
         qm_charges,
         charges,
+        qm_total_charge,
         cell_basis,
         switching_type=None,
         cutoff=None,
@@ -66,6 +67,20 @@ class Elec(object):
             name="coulomb_exclusion",
             func=(lambda x: np.nonzero(x < .8)[0]),
             dependencies=[self.dij_min],
+        )
+        self.mm1_index = DependArray(
+            name="mm1_index",
+            func=(lambda x: np.nonzero(np.logical_and(x > 0., x < .8))[0]),
+            dependencies=[self.dij_min],
+        )
+        self.mm2_index = DependArray(
+            name="mm2_index",
+            func=get_mm2_index,
+            dependencies=[
+                positions,
+                self.mm1_index,
+                self.dij,
+            ]
         )
 
         if pbc:

@@ -9,6 +9,7 @@ __all__ = [
     "get_dij_inverse_gradient",
     "get_dij_min",
     "get_dij_min_gradient",
+    "get_mm2_index",
 ]
 
 
@@ -70,3 +71,18 @@ def get_dij_min_gradient(dij_min=None, dij_inverse=None, dij_inverse_gradient=No
     dij_min_gradient = -1 * dij_min**2 * np.exp(beta * dij_inverse - beta / dij_min) * dij_inverse_gradient
 
     return np.nan_to_num(dij_min_gradient)
+
+
+def get_mm2_index(positions, mm1_index, dij):
+    link_atom_index = dij[:, np.asarray(mm1_index)].argmin(axis=0)
+    index = (np.argsort((dij[link_atom_index, len(dij):])) + len(dij))[:, 1:6]
+
+    mm_rij = positions[:, mm1_index, np.newaxis] - positions[:, index]
+    mm_dij = np.linalg.norm(mm_rij, axis=0)
+    mask = mm_dij < 1.8
+
+    mm2_index = []
+    for i , m in zip(index, mask):
+        mm2_index.append(i[m])
+
+    return mm2_index
