@@ -188,7 +188,7 @@ class Elec(object):
 
     @staticmethod
     def _get_embedding_mm_charges(w, wt_inv, qm_esp, charges, excessive_charge):
-        return (wt_inv @ qm_esp[0] + charges) * w + excessive_charge / len(charges)
+        return (wt_inv @ qm_esp[0] + charges + excessive_charge / w.sum()) * w
 
     @staticmethod
     def _get_embedding_mm_positions(positions, near_field_mask):
