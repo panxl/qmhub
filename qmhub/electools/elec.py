@@ -82,7 +82,16 @@ class Elec(object):
                 self.dij,
             ]
         )
-
+        self.excessive_charge = DependArray(
+            name="excessive_charge",
+            func=Elec._get_excessive_charge,
+            kwargs={'qm_total_charge': qm_total_charge},
+            dependencies=[
+                charges,
+                self.coulomb_exclusion,
+            ]
+        )
+    
         if pbc:
             self.full = Ewald(
                 qm_positions=qm_positions,
@@ -148,7 +157,9 @@ class Elec(object):
                 self.near_field.scaling_factor,
                 self.near_field.weighted_qmmm_coulomb_tensor_inv,
                 self.qm_residual_esp,
-                self.near_field.charges,            ],
+                self.near_field.charges,
+                self.excessive_charge,
+            ],
         )
         self.embedding_mm_positions = DependArray(
             name="embedding_mm_positions",
@@ -158,6 +169,10 @@ class Elec(object):
                 self.near_field.near_field_mask,
             ],
         )
+
+    @staticmethod
+    def _get_excessive_charge(charges, exclusion, qm_total_charge):
+        return charges[np.asarray(exclusion)].sum() - qm_total_charge
 
     @staticmethod
     def _get_qm_residual_esp(qm_total_esp, qm_scaled_esp):
@@ -172,8 +187,8 @@ class Elec(object):
         return (wt_inv @ qm_esp[0]) * w
 
     @staticmethod
-    def _get_embedding_mm_charges(w, wt_inv, qm_esp, charges):
-        return (wt_inv @ qm_esp[0] + charges) * w
+    def _get_embedding_mm_charges(w, wt_inv, qm_esp, charges, excessive_charge):
+        return (wt_inv @ qm_esp[0] + charges) * w + excessive_charge / len(charges)
 
     @staticmethod
     def _get_embedding_mm_positions(positions, near_field_mask):

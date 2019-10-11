@@ -101,11 +101,8 @@ class Result(object):
             name="mm_energy_gradient_term1",
             func=Result._get_mm_energy_gradient_term1,
             dependencies=[
-                scaling_factor,
-                weighted_qmmm_coulomb_tensor_inv,
-                elec.qm_residual_esp,
                 self.mm_esp,
-                mm_charges,
+                elec.embedding_mm_charges,
             ],
         )
         self._mm_energy_gradient_term2 = DependArray(
@@ -207,8 +204,8 @@ class Result(object):
         return grad
 
     @staticmethod
-    def _get_mm_energy_gradient_term1(w, wt_inv, qm_esp, mm_esp, mm_charges):
-        return  w * (wt_inv @ qm_esp[0] + mm_charges) * mm_esp[1:]
+    def _get_mm_energy_gradient_term1(mm_esp, embedding_mm_charges):
+        return embedding_mm_charges * mm_esp[1:]
 
     @staticmethod
     def _get_mm_energy_gradient_term2(w_grad, wt_inv, qm_esp, mm_esp, mm_charges):
