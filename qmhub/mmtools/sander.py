@@ -60,8 +60,9 @@ def load_from_file(fin, system=None, simulation=None):
     # Force charge neutrality
     total_charge = qm_atoms.charge.sum() + mm_atoms.charge.sum()
     assert total_charge < 1e-2
-    qm_atoms.charge -= total_charge / n_atoms
-    mm_atoms.charge -= total_charge / n_atoms
+    delta_charge = total_charge / (n_atoms - np.count_nonzero(qm_atoms.idx == -1))
+    qm_atoms.charge[np.nonzero(qm_atoms.idx != -1)] -= delta_charge
+    mm_atoms.charge -= delta_charge
 
     # Initialize System
     if system is None:
