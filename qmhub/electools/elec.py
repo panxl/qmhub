@@ -11,6 +11,8 @@ try:
 except ImportError:
     from .ewald import Ewald
 
+from .ewald import Ewald as EwaldQMQM
+
 
 class Elec(object):
 
@@ -100,6 +102,13 @@ class Elec(object):
                 cell_basis=cell_basis,
                 exclusion=self.coulomb_exclusion,
                 cutoff=cutoff,
+            )
+            self.qmqm = EwaldQMQM(
+                qm_positions=qm_positions,
+                positions=qm_positions,
+                charges=qm_charges,
+                cell_basis=cell_basis,
+                exclusion=np.arange(len(qm_charges)),
             )
         else:
             import importlib

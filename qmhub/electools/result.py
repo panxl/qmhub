@@ -11,6 +11,7 @@ class Result(object):
         qm_energy,
         qm_energy_gradient,
         mm_esp,
+        qm_charges,
         mm_charges,
         near_field_mask,
         scaling_factor,
@@ -22,11 +23,6 @@ class Result(object):
         elec,
         ):
 
-        self.energy = DependArray(
-            name="energy",
-            func=(lambda x: x * HARTREE_IN_KCAL_PER_MOLE),
-            dependencies=[qm_energy],
-        )
         self.mm_esp = DependArray(
             name="mm_esp",
             func=(lambda x: x * np.repeat([[HARTREE_IN_KCAL_PER_MOLE], [FORCE_AU_IN_IU]], [1, 3], axis=0)),
@@ -146,6 +142,33 @@ class Result(object):
                 self.qm_esp_charges,
             ],
         )
+
+        # QM-QM energy and gradient correction
+        self.qmqm_energy = DependArray(
+            name="qmqm_energy",
+            func=(lambda x, y: x[0] @ y / 2.),
+            dependencies=[
+                elec.qmqm.qm_total_esp,
+                qm_charges,
+            ],
+        )
+        self.qmqm_energy_gradient = DependArray(
+            name="qmqm_energy_gradient",
+            func=(lambda x, y: x[1:] * y),
+            dependencies=[
+                elec.qmqm.qm_total_esp,
+                qm_charges,
+            ],
+        )
+
+        # Total QM/MM energy and gradient
+        self.energy = DependArray(
+            name="energy",
+            func=(lambda x, y: x * HARTREE_IN_KCAL_PER_MOLE - y),
+            dependencies=[
+                qm_energy,
+                self.qmqm_energy],
+        )
         self.energy_gradient = DependArray(
             name="energy_gradient",
             func=Result._get_energy_gradient,
@@ -160,6 +183,7 @@ class Result(object):
                 self._mm_energy_gradient_term4,
                 self.total_espc_gradient,
                 near_field_mask,
+                self.qmqm_energy_gradient,
             ],
         )
 
@@ -260,9 +284,10 @@ class Result(object):
         mm_term4,
         total_espc_gradient,
         near_field_mask,
+        qmqm_energy_gradient,
         ):
 
         grad = np.copy(total_espc_gradient)
-        grad[:, :qm_term1.shape[1]] += qm_term1 + qm_term2 + qm_term3 + qm_term4
+        grad[:, :qm_term1.shape[1]] += qm_term1 + qm_term2 + qm_term3 + qm_term4 - qmqm_energy_gradient 
         grad[:, near_field_mask] += mm_term1 + mm_term2 + mm_term3 + mm_term4
         return grad

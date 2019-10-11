@@ -74,6 +74,7 @@ class Model(object):
             qm_energy=qm_energy,
             qm_energy_gradient=qm_energy_gradient,
             mm_esp=mm_esp,
+            qm_charges=self.qm_charges,
             mm_charges=self.elec.near_field.charges,
             near_field_mask=self.elec.near_field.near_field_mask,
             scaling_factor=self.elec.near_field.scaling_factor,
