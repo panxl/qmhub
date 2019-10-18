@@ -122,6 +122,7 @@ class Elec(object):
                 dij_inverse_gradient=self.dij_inverse_gradient,
                 exclusion=self.coulomb_exclusion,
             )
+            self.qmqm = None
 
         self.near_field = ElecNear(
             dij_min=self.dij_min,

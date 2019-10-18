@@ -144,22 +144,32 @@ class Result(object):
         )
 
         # QM-QM energy and gradient correction
-        self.qmqm_energy = DependArray(
-            name="qmqm_energy",
-            func=(lambda x, y: x[0] @ y / 2.),
-            dependencies=[
-                elec.qmqm.qm_total_esp,
-                qm_charges,
-            ],
-        )
-        self.qmqm_energy_gradient = DependArray(
-            name="qmqm_energy_gradient",
-            func=(lambda x, y: x[1:] * y),
-            dependencies=[
-                elec.qmqm.qm_total_esp,
-                qm_charges,
-            ],
-        )
+        if elec.qmqm is not None:
+            self.qmqm_energy = DependArray(
+                name="qmqm_energy",
+                func=(lambda x, y: x[0] @ y / 2.),
+                dependencies=[
+                    elec.qmqm.qm_total_esp,
+                    qm_charges,
+                ],
+            )
+            self.qmqm_energy_gradient = DependArray(
+                name="qmqm_energy_gradient",
+                func=(lambda x, y: x[1:] * y),
+                dependencies=[
+                    elec.qmqm.qm_total_esp,
+                    qm_charges,
+                ],
+            )
+        else:
+            self.qmqm_energy = DependArray(
+                data=0,
+                name="qmqm_energy",
+            )
+            self.qmqm_energy_gradient = DependArray(
+                data=np.zeros((3, len(qm_charges))),
+                name="qmqm_energy_gradient",
+            )
 
         # Total QM/MM energy and gradient
         self.energy = DependArray(
