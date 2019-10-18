@@ -95,3 +95,8 @@ def load_from_file(fin, system=None, simulation=None):
         simulation.n_steps = n_steps
 
     return system
+
+def write_to_file(fout, energy, force):
+    with open(fout, 'w') as f:
+        f.write("%22.14e\n" % np.asscalar(energy))
+        np.savetxt(f, force.T, fmt='%22.14e')

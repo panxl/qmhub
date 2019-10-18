@@ -61,3 +61,10 @@ class QMMM(object):
             qm_energy_gradient=engine_obj.qm_energy_gradient,
             mm_esp=engine_obj.mm_esp,
         )
+
+    def return_results(self, fout):
+        if self.driver == "sander":
+            from .mmtools.sander import write_to_file
+
+        engine = self.model.sqm
+        write_to_file(fout, engine.energy, engine.energy_gradient)
