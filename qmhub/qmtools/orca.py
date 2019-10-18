@@ -58,7 +58,7 @@ class ORCA(QMBase):
     def gen_cmdline(self):
         """Generate commandline for QM calculation."""
 
-        cmdline = "cd " + self.basedir + "; "
+        cmdline = "cd " + str(self.basedir) + "; "
         cmdline += shutil.which("orca") + " orca.inp > orca.out; "
         cmdline += shutil.which("orca_vpot") + " orca.gbw orca.scfp orca.vpot.xyz orca.vpot.out >> orca.out"
 

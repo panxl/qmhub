@@ -53,7 +53,7 @@ class SQM(QMBase):
     def gen_cmdline(self):
         """Generate commandline for QM calculation."""
 
-        cmdline = "cd " + self.basedir + "; "
+        cmdline = "cd " + str(self.basedir) + "; "
         cmdline += "sqm -O -i sqm.inp -o sqm.out"
 
         return cmdline

@@ -57,7 +57,7 @@ class QChem(QMBase):
         """Generate commandline for QM calculation."""
 
         nproc = get_nproc()
-        cmdline = "cd " + self.basedir + "; "
+        cmdline = "cd " + str(self.basedir) + "; "
         cmdline += "qchem -nt %d qchem.inp qchem.out save > qchem_run.log" % nproc
 
         return cmdline
