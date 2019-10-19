@@ -57,12 +57,18 @@ def load_from_file(fin, system=None, simulation=None):
     else:
         qm_element = np.char.capitalize(qm_atoms.element.astype(str))
 
+    # Load unit cell information
+    start = 1 + n_qm_atoms + n_mm_atoms
+    stop = start + 3
+    cell_basis = np.loadtxt(lines[start:stop], dtype=float)
+
     # Force charge neutrality
-    total_charge = qm_atoms.charge.sum() + mm_atoms.charge.sum()
-    assert total_charge < 1e-2
-    delta_charge = total_charge / (n_atoms - np.count_nonzero(qm_atoms.idx == -1))
-    qm_atoms.charge[np.nonzero(qm_atoms.idx != -1)] -= delta_charge
-    mm_atoms.charge -= delta_charge
+    if not np.all(cell_basis == 0.0):
+        total_charge = qm_atoms.charge.sum() + mm_atoms.charge.sum()
+        assert abs(total_charge) < 1e-2
+        delta_charge = total_charge / (n_atoms - np.count_nonzero(qm_atoms.idx == -1))
+        qm_atoms.charge[np.nonzero(qm_atoms.idx != -1)] -= delta_charge
+        mm_atoms.charge -= delta_charge
 
     # Initialize System
     if system is None:
@@ -73,16 +79,10 @@ def load_from_file(fin, system=None, simulation=None):
     system.qm.atoms.indices[:] = qm_atoms.idx
     system.qm.atoms.elements[:] = qm_element
 
-    # Process MM atoms
     if n_mm_atoms > 0:
         system.mm.atoms.positions[:] = np.vstack((mm_atoms.pos_x, mm_atoms.pos_y, mm_atoms.pos_z))
         system.mm.atoms.charges[:] = mm_atoms.charge
         system.mm.atoms.indices[:] = mm_atoms.idx
-
-    # Load unit cell information
-    start = 1 + n_qm_atoms + n_mm_atoms
-    stop = start + 3
-    cell_basis = np.loadtxt(lines[start:stop], dtype=float)
 
     if not np.all(cell_basis == 0.0):
         system.cell_basis[:] = cell_basis
