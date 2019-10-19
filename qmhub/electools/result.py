@@ -57,13 +57,11 @@ class Result(object):
             name="qm_energy_gradient_term2",
             func=Result._get_qm_energy_gradient_term2,
             dependencies=[
-                scaling_factor,
                 scaling_factor_gradient,
                 weighted_qmmm_coulomb_tensor_inv,
                 elec.qm_residual_esp,
                 self.mm_esp,
                 mm_charges,
-                elec.excessive_charge,
             ],
         )
         self._qm_energy_gradient_term3 = DependArray(
@@ -107,13 +105,11 @@ class Result(object):
             name="mm_energy_gradient_term2",
             func=Result._get_mm_energy_gradient_term2,
             dependencies=[
-                scaling_factor,
                 scaling_factor_gradient,
                 weighted_qmmm_coulomb_tensor_inv,
                 elec.qm_residual_esp,
                 self.mm_esp,
                 mm_charges,
-                elec.excessive_charge,
             ],
         )
         self._mm_energy_gradient_term3 = DependArray(
@@ -202,11 +198,8 @@ class Result(object):
         return (mm_esp[0] * scaling_factor) @ weighted_qmmm_coulomb_tensor_inv
 
     @staticmethod
-    def _get_qm_energy_gradient_term2(w, w_grad, wt_inv, qm_esp, mm_esp, mm_charges, excessive_charge):
-        return (
-            mm_esp[0] * -w_grad @ (wt_inv @ qm_esp[0] + mm_charges + excessive_charge / w.sum())
-            + mm_esp[0] @ w * excessive_charge / w.sum()**2 * w_grad.sum(axis=2)
-        )
+    def _get_qm_energy_gradient_term2(w_grad, wt_inv, qm_esp, mm_esp, mm_charges):
+        return mm_esp[0] * -w_grad @ (wt_inv @ qm_esp[0] + mm_charges)
 
     @staticmethod
     def _get_qm_energy_gradient_term3(t, t_grad, w, w_grad, wt, wt_inv, qm_esp, mm_esp):
@@ -246,11 +239,8 @@ class Result(object):
         return embedding_mm_charges * mm_esp[1:]
 
     @staticmethod
-    def _get_mm_energy_gradient_term2(w, w_grad, wt_inv, qm_esp, mm_esp, mm_charges, excessive_charge):
-        return (
-            mm_esp[0] * w_grad.sum(axis=1) * (wt_inv @ qm_esp[0] + mm_charges + excessive_charge / w.sum())
-            - mm_esp[0] @ w * excessive_charge / w.sum()**2 * w_grad.sum(axis=1) 
-        )
+    def _get_mm_energy_gradient_term2(w_grad, wt_inv, qm_esp, mm_esp, mm_charges):
+        return  mm_esp[0] * w_grad.sum(axis=1) * (wt_inv @ qm_esp[0] + mm_charges)
 
     @staticmethod
     def _get_mm_energy_gradient_term3(t, t_grad, w, w_grad, wt, wt_inv, qm_esp, mm_esp):
