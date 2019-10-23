@@ -4,6 +4,7 @@ import copy
 import numpy as np
 import pandas as pd
 
+from ..units import HARTREE_IN_KCAL_PER_MOLE, FORCE_AU_IN_IU, AMBER_AU_TO_KCAL, AMBER_FORCE_AU_TO_IU
 from ..system import System
 
 
@@ -62,13 +63,13 @@ def load_from_file(fin, system=None, simulation=None):
     stop = start + 3
     cell_basis = np.loadtxt(lines[start:stop], dtype=float)
 
-    # # Force charge neutrality
-    # if not np.all(cell_basis == 0.0):
-    #     total_charge = qm_atoms.charge.sum() + mm_atoms.charge.sum()
-    #     assert abs(total_charge) < 1e-2
-    #     delta_charge = total_charge / (n_atoms - np.count_nonzero(qm_atoms.idx == -1))
-    #     qm_atoms.charge[np.nonzero(qm_atoms.idx != -1)] -= delta_charge
-    #     mm_atoms.charge -= delta_charge
+    # Force charge neutrality
+    if not np.all(cell_basis == 0.0):
+        total_charge = qm_atoms.charge.sum() + mm_atoms.charge.sum()
+        assert abs(total_charge) < 1e-2
+        delta_charge = total_charge / (n_atoms - np.count_nonzero(qm_atoms.idx == -1))
+        qm_atoms.charge[np.nonzero(qm_atoms.idx != -1)] -= delta_charge
+        mm_atoms.charge -= delta_charge
 
     # Initialize System
     if system is None:
@@ -98,5 +99,5 @@ def load_from_file(fin, system=None, simulation=None):
 
 def write_to_file(fout, energy, force):
     with open(fout, 'w') as f:
-        f.write("%22.14e\n" % np.asscalar(energy))
-        np.savetxt(f, force.T, fmt='%22.14e')
+        f.write("%22.14e\n" % (np.asscalar(energy) / HARTREE_IN_KCAL_PER_MOLE * AMBER_AU_TO_KCAL))
+        np.savetxt(f, force.T / FORCE_AU_IN_IU * AMBER_FORCE_AU_TO_IU, fmt='%22.14e')
