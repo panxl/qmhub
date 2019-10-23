@@ -32,10 +32,6 @@ def load_from_file(fin, system=None, simulation=None):
         mm_atoms = pd.read_csv(f, delimiter=' ', header=None, nrows=n_mm_atoms,
                                names=['pos_x', 'pos_y', 'pos_z', 'charge']).to_records()
 
-    # Move charges from MM1 atoms to Link atoms
-    qm_atoms.charge[-n_link_atoms:] = mm_atoms.charge[-n_link_atoms:]
-    mm_atoms.charge[-n_link_atoms:] = 0.
-
     # Process QM atoms
     if np.any(qm_atoms.element.astype(str) == 'nan'):
         qm_element = np.empty(n_qm_atoms, dtype=str)
