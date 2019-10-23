@@ -36,6 +36,8 @@ setup(
     # subpackage(s) from being added, if needed
     packages=find_packages(),
 
+    entry_points={'console_scripts': ['qmhub = qmhub.__main__:main']},
+
     # Optional include package data to ship with your package
     # Customize MANIFEST.in if the general case does not suit your needs
     # Comment out this line to prevent the files from being packaged with your software
