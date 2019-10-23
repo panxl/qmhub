@@ -18,9 +18,7 @@ class Atoms(object):
         kwargs = {
             'positions': positions,
             'charges': charges,
-            # 'indices': indices,
             'elements': elements,
-            # '_real_mask': _real_mask,
         }
 
         return cls(**kwargs)
