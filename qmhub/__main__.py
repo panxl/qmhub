@@ -1,7 +1,7 @@
 from pathlib import Path
 import argparse
 import configparser
-
+from IPython import embed
 
 from qmhub import QMMM
 
@@ -11,6 +11,7 @@ def main():
     parser.add_argument("config", help="QMHub config file")
     parser.add_argument("driver", help="Driver")
     parser.add_argument("file", help="Path of the exchange file")
+    parser.add_argument("-i", "--interactive", action="store_true", help="Interactive mode")
     args = parser.parse_args()
 
     config = configparser.ConfigParser(allow_no_value=True)
@@ -37,6 +38,8 @@ def main():
 
     qmmm.return_results(fin.with_suffix('.out'))
 
+    if args.interactive:
+        embed()
 
 if __name__ == "__main__":
     main()
