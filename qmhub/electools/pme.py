@@ -19,7 +19,7 @@ class Ewald(object):
         charges,
         cell_basis,
         exclusion=None,
-        tol=1e-10,
+        tol=1e-6,
         *,
         cutoff=None,
         order=6,
