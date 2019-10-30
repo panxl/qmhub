@@ -9,8 +9,12 @@ from qmhub import QMMM
 def main():
     parser = argparse.ArgumentParser(description='QMHub: A QM/MM interface.')
     parser.add_argument("config", help="QMHub config file")
-    parser.add_argument("driver", help="Driver")
-    parser.add_argument("file", help="Path of the exchange file")
+
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("-b", "--binfile", help="Path of the binary exchange file")
+    group.add_argument("-f", "--file", help="Path of the text exchange file")
+
+    parser.add_argument("-d", "--driver", help="Driver")
     parser.add_argument("-i", "--interactive", action="store_true", help="Interactive mode")
     args = parser.parse_args()
 
@@ -20,8 +24,12 @@ def main():
     qmmm = QMMM(args.driver)
     qmmm.setup_simulation()
 
-    fin = Path(args.file)
-    qmmm.load_system(fin)
+    if args.binfile is not None:
+        fin = Path(args.binfile)
+        qmmm.load_system(fin, mode="binfile")
+    elif args.file is not None:
+        fin = Path(args.file)
+        qmmm.load_system(fin, mode="file")
 
     qmmm.build_model(
         switching_type=config.get('model', 'switching_function', fallback='lrec'),
@@ -36,10 +44,14 @@ def main():
         else:
             qmmm.add_engine(engine, keywords={}, basedir=fin.parent)
 
-    qmmm.return_results(fin.with_suffix('.out'))
+    if args.binfile is not None:
+        qmmm.return_results(fin.with_suffix('.out'), mode="binfile")
+    elif args.file is not None:
+        qmmm.return_results(fin.with_suffix('.out'), mode="file")
 
     if args.interactive:
         embed()
+
 
 if __name__ == "__main__":
     main()

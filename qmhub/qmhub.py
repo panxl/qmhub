@@ -10,16 +10,20 @@ from .engine import Engine
 
 class QMMM(object):
     def __init__(self, driver=None):
-        self.driver = driver.lower()
+        self.driver = driver
 
     def setup_simulation(self, protocol="md", n_steps=None):
         self.simulation = Simulation(protocol, n_steps)
 
-    def load_system(self, input):
-        if self.driver == "sander":
-            from .mmtools.sander import load_from_file
-
-            self.system = load_from_file(input, simulation=self.simulation)
+    def load_system(self, input, mode):
+        if mode.lower() == "binfile":
+            from .iotools.file import load_from_file
+            self.system = load_from_file(input, binary=True, simulation=self.simulation)
+        elif mode.lower() == "file":
+            from .iotools.file import load_from_file
+            self.system = load_from_file(input, binary=False, simulation=self.simulation)
+        else:
+            raise ValueError("Only 'binfile' (default) and 'file' modes are supported.")
 
     def build_model(self, switching_type=None, cutoff=None, swdist=None, pbc=None):
         if not hasattr(self, 'system'):
@@ -62,9 +66,14 @@ class QMMM(object):
             mm_esp=engine_obj.mm_esp,
         )
 
-    def return_results(self, fout):
-        if self.driver == "sander":
-            from .mmtools.sander import write_to_file
+    def return_results(self, fout, mode):
+        engine = getattr(self.model, [*self.engine._engines][0])
 
-        engine = self.model.sqm
-        write_to_file(fout, engine.energy, engine.energy_gradient)
+        if mode.lower() == "binfile":
+            from .iotools.file import write_to_file
+            write_to_file(fout, engine.energy, engine.energy_gradient, binary=True)
+        elif mode.lower() == "file":
+            from .iotools.file import write_to_file
+            write_to_file(fout, engine.energy, engine.energy_gradient, binary=False)
+        else:
+            raise ValueError("Only 'binfile' (default) and 'file' modes are supported.")
