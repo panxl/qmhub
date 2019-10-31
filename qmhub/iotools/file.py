@@ -1,7 +1,6 @@
 import numpy as np
 from numpy.lib.recfunctions import structured_to_unstructured
 
-from ..units import HARTREE_IN_KCAL_PER_MOLE, FORCE_AU_IN_IU, AMBER_AU_TO_KCAL, AMBER_FORCE_AU_TO_IU
 from ..system import System
 
 
@@ -75,9 +74,9 @@ def load_from_file(fin, system=None, simulation=None, binary=True):
 def write_to_file(fout, energy, force, binary=True):
     if binary:
         with open(fout, 'wb') as f:
-            (energy / (HARTREE_IN_KCAL_PER_MOLE / AMBER_AU_TO_KCAL)).tofile(f)
-            (force.T / (FORCE_AU_IN_IU / AMBER_FORCE_AU_TO_IU)).tofile(f)
+            energy.tofile(f)
+            force.T.tofile(f)
     else:
         with open(fout, 'w') as f:
-            f.write("%22.14e\n" % (np.asscalar(energy) / HARTREE_IN_KCAL_PER_MOLE * AMBER_AU_TO_KCAL))
-            np.savetxt(f, force.T / FORCE_AU_IN_IU * AMBER_FORCE_AU_TO_IU, fmt='%22.14e')
+            f.write("%22.14e\n" % np.asscalar(energy))
+            np.savetxt(f, force.T, fmt='%22.14e')

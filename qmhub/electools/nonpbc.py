@@ -1,7 +1,6 @@
 import numpy as np
 
 from ..utils.darray import DependArray
-from ..units import COULOMB_CONSTANT
 
 
 class NonPBC(object):
@@ -36,7 +35,7 @@ class NonPBC(object):
             dij_inverse = np.copy(dij_inverse)
             dij_inverse[:, np.asarray(exclusion)] = 0.
 
-        return dij_inverse * COULOMB_CONSTANT
+        return dij_inverse
 
     @staticmethod
     def _get_qmmm_coulomb_tensor_gradient(dij_inverse_gradient, exclusion=None):
@@ -45,7 +44,7 @@ class NonPBC(object):
             dij_inverse_gradient = np.copy(dij_inverse_gradient)
             dij_inverse_gradient[:, :, np.asarray(exclusion)] = 0.
 
-        return dij_inverse_gradient * COULOMB_CONSTANT
+        return dij_inverse_gradient
 
     @staticmethod
     def _get_qm_total_esp(t, t_grad, charges):

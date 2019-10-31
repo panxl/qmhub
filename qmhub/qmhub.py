@@ -59,11 +59,20 @@ class QMMM(object):
         self.engine.add_engine(engine, name=name, basedir=basedir, keywords=keywords)
 
         engine_obj = getattr(self.engine, name)
+
+        if self.driver is None:
+            from .units import CODATA18_HARTREE_TO_KCAL, CODATA18_BOHR_TO_A
+            units = (CODATA18_HARTREE_TO_KCAL, CODATA18_BOHR_TO_A)
+        elif self.driver.lower() == "sander":
+            from .units import AMBER_HARTREE_TO_KCAL, AMBER_BOHR_TO_A
+            units = (AMBER_HARTREE_TO_KCAL, AMBER_BOHR_TO_A)
+
         self.model.get_result(
             name=name,
             qm_energy=engine_obj.qm_energy,
             qm_energy_gradient=engine_obj.qm_energy_gradient,
             mm_esp=engine_obj.mm_esp,
+            units=units,
         )
 
     def return_results(self, fout, mode):

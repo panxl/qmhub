@@ -4,7 +4,6 @@ from scipy.special import erfc
 
 from ..utils.darray import DependArray
 from ..utils.dpme import DependPME
-from ..units import COULOMB_CONSTANT
 
 
 PI = math.pi
@@ -172,7 +171,7 @@ class Ewald(object):
         prod2[mask] = prod[mask] / d2 + 2 * alpha * np.exp(-1 * alpha**2 * d2) / SQRTPI / d2
         t[1:] = (prod2 * rij)
 
-        return t * COULOMB_CONSTANT
+        return t
 
     @staticmethod
     def _get_ewald_recip_exclusion_tensor(
@@ -190,7 +189,7 @@ class Ewald(object):
         np.nan_to_num(prod, copy=False)
         np.nan_to_num(prod2, copy=False)
 
-        return np.concatenate((prod[np.newaxis], prod2 * r)) * COULOMB_CONSTANT
+        return np.concatenate((prod[np.newaxis], prod2 * r))
 
     @staticmethod
     def _get_ewald_recip(
@@ -204,24 +203,22 @@ class Ewald(object):
         exclusion=None,
         ):
 
-        recip_esp = pme.compute_recip_esp(qm_positions, positions, charges) * COULOMB_CONSTANT
+        recip_esp = pme.compute_recip_esp(qm_positions, positions, charges)
 
         recip_esp[0] -= recip_exclusion_tensor[0] @ charges[np.asarray(exclusion)]
         recip_esp[1:] -= recip_exclusion_tensor[1:] @ charges[np.asarray(exclusion)]
 
         # Self energy correction
-        recip_esp[0] -= 2 * charges[:qm_positions.shape[1]] * alpha / SQRTPI * COULOMB_CONSTANT
+        recip_esp[0] -= 2 * charges[:qm_positions.shape[1]] * alpha / SQRTPI
 
         # Net charge correction
-        recip_esp[0] -= (PI / np.linalg.det(cell_basis) / alpha**2) * charges.sum() * COULOMB_CONSTANT
+        recip_esp[0] -= (PI / np.linalg.det(cell_basis) / alpha**2) * charges.sum()
 
         return recip_esp
 
     def _get_total_espc_gradient(self, qm_esp_charges):
 
-        recip_esp = self.pme.compute_recip_esp(self.positions, self.qm_positions, qm_esp_charges)
-
-        recip_grad = recip_esp[1:] * COULOMB_CONSTANT
+        recip_grad = self.pme.compute_recip_esp(self.positions, self.qm_positions, qm_esp_charges)[1:]
         recip_grad[:, np.asarray(self.exclusion)] += qm_esp_charges @ self.ewald_recip_exclusion_tensor[1:]
 
         real_grad = qm_esp_charges @ -self.ewald_real_tensor[1:]

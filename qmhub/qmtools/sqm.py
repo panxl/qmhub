@@ -1,7 +1,7 @@
 from pathlib import Path
 import numpy as np
 
-from ..units import AMBER_AU_TO_KCAL, AMBER_FORCE_AU_TO_IU
+from ..units import AMBER_HARTREE_TO_KCAL, AMBER_BOHR_TO_A
 from ..utils.sys import get_nproc
 
 from .templates.sqm import get_qm_template, Elements
@@ -70,7 +70,7 @@ class SQM(QMBase):
             line = line.strip().expandtabs()
 
             if "QMMM: SCF Energy" in line:
-                return float(line.split()[4]) / AMBER_AU_TO_KCAL
+                return float(line.split()[4]) / AMBER_HARTREE_TO_KCAL
 
     def _get_qm_energy_gradient(self, qm_cache=None):
         """Get QM energy gradient from output of QM calculation."""
@@ -88,7 +88,7 @@ class SQM(QMBase):
                     gradient[0, j] = float(line[18:38])
                     gradient[1, j] = float(line[38:58])
                     gradient[2, j] = float(line[58:78])
-                return gradient / AMBER_FORCE_AU_TO_IU
+                return gradient / (AMBER_HARTREE_TO_KCAL / AMBER_BOHR_TO_A)
 
     def _get_mm_esp(self, qm_cache=None):
         """Get electrostatic potential at MM atoms in the near field from QM density."""
@@ -114,8 +114,8 @@ class SQM(QMBase):
                     mm_esp[1:, j] = [float(n) / self.mm_charges[j] for n in line.split()[-3:]]
                 break
 
-        mm_esp[0] /= AMBER_AU_TO_KCAL
-        mm_esp[1:] /= AMBER_FORCE_AU_TO_IU
+        mm_esp[0] /= AMBER_HARTREE_TO_KCAL
+        mm_esp[1:] /= (AMBER_HARTREE_TO_KCAL / AMBER_BOHR_TO_A)
         return mm_esp
 
     def _get_mulliken_charges(self, qm_cache=None):

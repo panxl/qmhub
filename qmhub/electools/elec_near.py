@@ -1,7 +1,6 @@
 import numpy as np
 
 from ..utils.darray import DependArray
-from ..units import COULOMB_CONSTANT
 from .switching import get_scaling_factor, get_scaling_factor_gradient
 
 
@@ -35,12 +34,12 @@ class ElecNear(object):
             func=ElecNear._get_masked_array,
             dependencies=[dij_min_gradient, self.near_field_mask],
         )
-        self.dij_inverse = DependArray(
+        self.qmmm_coulomb_tensor = DependArray(
             name="dij_inverse",
             func=ElecNear._get_masked_array,
             dependencies=[dij_inverse, self.near_field_mask],
         )
-        self.dij_inverse_gradient = DependArray(
+        self.qmmm_coulomb_tensor_gradient = DependArray(
             name="dij_inverse_gradient",
             func=ElecNear._get_masked_array,
             dependencies=[dij_inverse_gradient, self.near_field_mask],
@@ -62,32 +61,18 @@ class ElecNear(object):
             kwargs={'cutoff': self.cutoff, 'swdist': self.swdist},
             dependencies=[self.dij_min, self.dij_min_gradient],
         )
-        self.qmmm_coulomb_tensor = DependArray(
-            name="qmmm_coulomb_tensor",
-            func=(lambda x: x * COULOMB_CONSTANT),
-            dependencies=[
-                self.dij_inverse,
-            ],
-        )
-        self.qmmm_coulomb_tensor_gradient = DependArray(
-            name="qmmm_coulomb_tensor_gradient",
-            func=(lambda x: x * COULOMB_CONSTANT),
-            dependencies=[
-                self.dij_inverse_gradient,
-            ],
-        )
         self.weighted_qmmm_coulomb_tensor = DependArray(
             name="weighted_qmmm_coulomb_tensor",
             func=ElecNear._get_weighted_qmmm_coulomb_tensor,
             dependencies=[
-                self.dij_inverse,
+                self.qmmm_coulomb_tensor,
                 self.scaling_factor,
             ],
         )
         self.weighted_qmmm_coulomb_tensor_inv = DependArray(
             name="weighted_qmmm_coulomb_tensor_inv",
             func=np.linalg.pinv,
-            kwargs={"rcond": 1e-5},
+            kwargs={"rcond": 1e-8},
             dependencies=[
                 self.weighted_qmmm_coulomb_tensor,
             ],
@@ -114,7 +99,7 @@ class ElecNear(object):
 
     @staticmethod
     def _get_weighted_qmmm_coulomb_tensor(dij_inverse, weights):
-        return COULOMB_CONSTANT * weights * dij_inverse
+        return weights * dij_inverse
 
     @staticmethod
     def _get_tensor_inverse_gradient(t, t_grad, t_inv):

@@ -2,7 +2,7 @@ import shutil
 from pathlib import Path
 import numpy as np
 
-from ..units import BOHR_IN_ANGSTROM
+from ..units import ORCA_BOHR_TO_A
 from ..utils.sys import get_nproc, run_cmdline
 from .templates.orca import get_qm_template
 from .qmbase import QMBase
@@ -51,9 +51,9 @@ class ORCA(QMBase):
         with open(Path(self.basedir).joinpath("orca.vpot.xyz"), 'w') as f:
             f.write("%d\n" % len(mm_charges))
             for i in range(len(mm_charges)):
-                f.write("".join(["%22.14e" % (mm_positions[0, i] / BOHR_IN_ANGSTROM),
-                                 "%22.14e" % (mm_positions[1, i] / BOHR_IN_ANGSTROM),
-                                 "%22.14e" % (mm_positions[2, i] / BOHR_IN_ANGSTROM), "\n"]))
+                f.write("".join(["%22.14e" % (mm_positions[0, i] / ORCA_BOHR_TO_A),
+                                 "%22.14e" % (mm_positions[1, i] / ORCA_BOHR_TO_A),
+                                 "%22.14e" % (mm_positions[2, i] / ORCA_BOHR_TO_A), "\n"]))
 
     def gen_cmdline(self):
         """Generate commandline for QM calculation."""

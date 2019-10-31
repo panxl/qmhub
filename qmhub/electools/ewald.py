@@ -3,7 +3,6 @@ import numpy as np
 from scipy.special import erfc
 
 from ..utils.darray import DependArray
-from ..units import COULOMB_CONSTANT
 
 
 PI = math.pi
@@ -203,7 +202,7 @@ class Ewald(object):
         t[0] = prod.sum(axis=0)
         t[1:] = (prod2[np.newaxis] * r).sum(axis=1)
 
-        return t * COULOMB_CONSTANT
+        return t
 
     @staticmethod
     def _get_ewald_recip_tensor(ri, rj, lattice, cell_basis, alpha, exclusion=None):
@@ -236,7 +235,7 @@ class Ewald(object):
         # Self energy correction
         t[0] -= np.all(rij == 0., axis=0) * 2 * alpha / SQRTPI
 
-        return t * COULOMB_CONSTANT
+        return t
 
     @staticmethod
     def _get_qm_total_esp(ewald_real_tensor, ewald_recip_tensor, charges):
