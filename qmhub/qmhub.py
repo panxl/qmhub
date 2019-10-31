@@ -12,8 +12,8 @@ class QMMM(object):
     def __init__(self, driver=None):
         self.driver = driver
 
-    def setup_simulation(self, protocol="md", n_steps=None):
-        self.simulation = Simulation(protocol, n_steps)
+    def setup_simulation(self, protocol="md"):
+        self.simulation = Simulation(protocol)
 
     def load_system(self, input, mode):
         if mode.lower() == "binfile":
