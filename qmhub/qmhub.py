@@ -85,7 +85,6 @@ class QMMM(object):
 
     def return_results(self, fout, mode):
         energy, energy_gradient = self.simulation.return_results()
-        # engine = getattr(self.model, [*self.engine.engines][0])
 
         if mode.lower() == "binfile":
             from .iotools.file import write_to_file

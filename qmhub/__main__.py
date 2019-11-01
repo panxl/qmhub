@@ -24,7 +24,7 @@ def main():
     qmmm = QMMM(args.driver)
 
     protocol=config.get('simulation', 'protocol', fallback='md')
-    nrespa=config.get('simulation', 'nrespa', fallback=None)
+    nrespa=config.getint('simulation', 'nrespa', fallback=None)
     qmmm.setup_simulation(protocol, nrespa=nrespa)
 
     if args.binfile is not None:

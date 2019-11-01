@@ -41,7 +41,7 @@ class Simulation(object):
             if not hasattr(self, self.engine2_name):
                 raise AttributeError("Please add engine2 first.")
 
-            if self.step % self.nrespa == 0:
+            if (self.step + 1) >= self.nrespa and ((self.step + 1) % self.nrespa) == 0:
                 engine = getattr(self, self.engine_name)
                 engine2 = getattr(self, self.engine2_name)
                 return (
@@ -53,6 +53,6 @@ class Simulation(object):
                 )
             else:
                 engine2 = getattr(self, self.engine2_name)
-                return 0., engine2.energy_gradient
+                return np.array([0.]), engine2.energy_gradient
         else:
             raise ValueError("Only 'md' and 'mts' are supported.")
