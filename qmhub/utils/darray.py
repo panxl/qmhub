@@ -75,6 +75,10 @@ class DependArray(container):
         self.array[index] = np.asarray(value, self.dtype)
         invalidate_cache(self)
 
+    def add_dependency(self, dependency):
+        self._dependencies.append(dependency)
+        invalidate_cache(self)
+
     def add_dependant(self, dependant):
         self._dependants.append(weakref.ref(dependant))
 
