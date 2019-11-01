@@ -22,7 +22,10 @@ def main():
     config.read(args.config)
 
     qmmm = QMMM(args.driver)
-    qmmm.setup_simulation()
+
+    protocol=config.get('simulation', 'protocol', fallback='md')
+    nrespa=config.get('simulation', 'nrespa', fallback=None)
+    qmmm.setup_simulation(protocol, nrespa=nrespa)
 
     if args.binfile is not None:
         fin = Path(args.binfile)
@@ -38,11 +41,40 @@ def main():
         pbc=config.getboolean('model', 'pbc', fallback=True),
     )
 
-    for engine in config['engine'].keys():
+    for name, engine in config['engine'].items():
+        if engine is None:
+            engine = name
+
         if engine in config:
-            qmmm.add_engine(engine, keywords=config[engine], basedir=fin.parent)
+            keywords = config[engine]
         else:
-            qmmm.add_engine(engine, keywords={}, basedir=fin.parent)
+            keywords = {}
+
+        qmmm.add_engine(
+            engine,
+            name=name,
+            group_name="engine",
+            basedir=fin.parent,
+            keywords=keywords,
+        )
+
+    if 'engine2' in config:
+        for name, engine in config['engine2'].items():
+            if engine is None:
+                engine = name
+
+            if engine in config:
+                keywords = config[engine]
+            else:
+                keywords = {}
+
+            qmmm.add_engine(
+                engine,
+                name=name,
+                group_name="engine2",
+                basedir=fin.parent,
+                keywords=keywords,
+            )
 
     if args.binfile is not None:
         qmmm.return_results(fin.with_suffix('.out'), mode="binfile")

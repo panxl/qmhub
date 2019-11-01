@@ -3,6 +3,7 @@ import subprocess as sp
 import numpy as np
 
 from .qmtools import choose_qmtool
+from .utils.darray import DependArray
 
 
 class Engine(object):
@@ -34,7 +35,23 @@ class Engine(object):
         else:
             self.mult = 1
 
-        self._engines = {}
+        self.engines = {}
+
+        self.qm_energy = DependArray(
+            name="qm_energy",
+            func=(lambda *args: sum(args)),
+            dependencies=[],
+        )
+        self.qm_energy_gradient = DependArray(
+            name="qm_energy_gradient",
+            func=(lambda *args: sum(args)),
+            dependencies=[],
+        )
+        self.mm_esp = DependArray(
+            name="mm_esp",
+            func=(lambda *args: sum(args)),
+            dependencies=[],
+        )
 
     def add_engine(self, engine, name=None, basedir=None, keywords=None):
         if name is None:
@@ -52,4 +69,8 @@ class Engine(object):
         )
 
         setattr(self, name, engine_obj)
-        self._engines[name] = engine_obj
+        self.engines[name] = engine_obj
+
+        self.qm_energy.add_dependency(engine_obj.qm_energy)
+        self.qm_energy_gradient.add_dependency(engine_obj.qm_energy_gradient)
+        self.mm_esp.add_dependency(engine_obj.mm_esp)
