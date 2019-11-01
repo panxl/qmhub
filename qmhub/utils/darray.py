@@ -77,6 +77,7 @@ class DependArray(container):
 
     def add_dependency(self, dependency):
         self._dependencies.append(dependency)
+        dependency.add_dependant(self)
         invalidate_cache(self)
 
     def add_dependant(self, dependant):
