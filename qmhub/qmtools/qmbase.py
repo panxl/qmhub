@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import numpy as np
 
 from ..utils.darray import DependArray, invalidate_cache
@@ -8,6 +9,7 @@ from ..utils.sys import run_cmdline
 class QMBase(object):
 
     QMTOOL = None
+    OUTPUT = None
 
     def __init__(
         self,
@@ -51,6 +53,7 @@ class QMBase(object):
         self._qm_cache = DependArray(
             name="qm_updated",
             func=self._get_qm_cache,
+            kwargs={"output": self.OUTPUT},
             dependencies=[
                 self.qm_positions,
                 self.qm_elements,
@@ -79,11 +82,12 @@ class QMBase(object):
             dependencies=[self._qm_cache],
         )
 
-    def _get_qm_cache(self, *args):
+    def _get_qm_cache(self, *args, output=None):
         self.gen_input()
         run_cmdline(self.gen_cmdline())
-
-        return True
+        if output is not None:
+            output = Path(self.basedir).joinpath(output).read_text().split("\n")
+        return output
 
     def update_keywords(self, keywords):
         self.keywords.update(keywords)

@@ -3,14 +3,15 @@ from pathlib import Path
 import numpy as np
 
 from ..units import ORCA_BOHR_TO_A
-from ..utils.sys import get_nproc, run_cmdline
+from ..utils.sys import get_nproc
 from .templates.orca import get_qm_template
 from .qmbase import QMBase
 
 
 class ORCA(QMBase):
 
-    QMTOOL = 'ORCA'
+    QMTOOL = "ORCA"
+    OUTPUT = "orca.out"
 
     def gen_input(self):
         """Generate input file for QM software."""
@@ -64,55 +65,58 @@ class ORCA(QMBase):
 
         return cmdline
 
-    def _get_qm_energy(self, qm_cache=None):
+    def _get_qm_energy(self, qm_cache=None, output=None):
         """Get QM energy from output of QM calculation."""
 
         if qm_cache is not None:
-            assert np.asscalar(qm_cache) == True
-
-        output = Path(self.basedir).joinpath("orca.out").read_text().split("\n")
+            qm_cache.update_cache()
+            output = qm_cache.array
+        else:
+            if output is None:
+                output=self.OUTPUT
+            output = Path(self.basedir).joinpath(output).read_text().split("\n")
 
         for line in output:
-            line = line.strip().expandtabs()
-
             if "FINAL SINGLE POINT ENERGY" in line:
                 return float(line.split()[-1])
 
-    def _get_qm_energy_gradient(self, qm_cache=None):
+    def _get_qm_energy_gradient(self, qm_cache=None, output=None):
         """Get QM energy gradient from output of QM calculation."""
 
         if qm_cache is not None:
-            assert np.asscalar(qm_cache) == True
+            qm_cache.update_cache()
+        
+        if output is None:
+            output = "orca.engrad"
 
-        return np.loadtxt(Path(self.basedir).joinpath("orca.engrad"), skiprows=11, max_rows=len(self.qm_elements) * 3).reshape(len(self.qm_elements), 3).T
+        return np.loadtxt(Path(self.basedir).joinpath(output), skiprows=11, max_rows=len(self.qm_elements) * 3).reshape(len(self.qm_elements), 3).T
 
     def _get_mm_esp(self, qm_cache=None, output=None):
         """Get electrostatic potential at MM atoms in the near field from QM density."""
 
         if qm_cache is not None:
-            assert np.asscalar(qm_cache) == True
+            qm_cache.update_cache()
 
         if output is None:
-            output = Path(self.basedir).joinpath("orca.vpot.out")
-        else:
-            output = Path(output)
-    
-        output = output.read_text().split("\n")
+            output = ("orca.vpot.out", "orca.pcgrad")
 
         mm_esp = np.zeros((4, len(self.mm_charges)))
 
-        mm_esp[0] = np.loadtxt(Path(self.basedir).joinpath("orca.vpot.out"), skiprows=1, max_rows=len(self.mm_charges), usecols=3)
-        mm_esp[1:] = np.loadtxt(Path(self.basedir).joinpath("orca.pcgrad"), skiprows=1, max_rows=len(self.mm_charges)).T / self.mm_charges
+        mm_esp[0] = np.loadtxt(Path(self.basedir).joinpath(output[0]), skiprows=1, max_rows=len(self.mm_charges), usecols=3)
+        mm_esp[1:] = np.loadtxt(Path(self.basedir).joinpath(output[1]), skiprows=1, max_rows=len(self.mm_charges)).T / self.mm_charges
 
         return mm_esp
 
-    def _get_mulliken_charges(self, qm_cache=None):
+    def _get_mulliken_charges(self, qm_cache=None, output=None):
         """Get Mulliken charges from output of QM calculation."""
 
         if qm_cache is not None:
-            assert np.asscalar(qm_cache) == True
-
-        output = Path(self.basedir).joinpath("orca.out").read_text().split("\n")
+            qm_cache.update_cache()
+            output = qm_cache.array
+        else:
+            if output is None:
+                output=self.OUTPUT
+            output = Path(self.basedir).joinpath(output).read_text().split("\n")
 
         for i in range(len(output)):
             if "MULLIKEN ATOMIC CHARGES" in output[i]:
