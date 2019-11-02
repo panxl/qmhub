@@ -25,7 +25,7 @@ def get_qm_template(keywords_dict=None):
         "spin": "1",
         "maxcyc": "0",
         "qmmm_int": "1",
-        "verbosity": "4",
+        "verbosity": "6",
     }
 
     if keywords_dict is not None:

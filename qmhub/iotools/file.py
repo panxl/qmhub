@@ -10,9 +10,7 @@ def load_from_file(fin, system=None, simulation=None, binary=True):
 
     if binary:
         # Load system information
-        n_qm_atoms, n_mm_atoms, n_link_atoms, \
-            qm_charge, qm_mult, step = \
-            np.fromfile(f, dtype="i4", count=6)
+        n_qm_atoms, n_mm_atoms, qm_charge, qm_mult, step = np.fromfile(f, dtype="i4", count=5)
 
         # Load QM information
         dtype = [('pos_x', "f8"), ('pos_y', "f8"), ('pos_z', "f8"), ('charge', "f8"), ('element', "S2")]
@@ -27,9 +25,7 @@ def load_from_file(fin, system=None, simulation=None, binary=True):
         cell_basis[np.isclose(cell_basis, 0.0)] = 0.0
     else:
         # Load system information
-        n_qm_atoms, n_mm_atoms, n_link_atoms, \
-            qm_charge, qm_mult, step = \
-            np.fromfile(f, dtype="i4", count=6, sep=" ")
+        n_qm_atoms, n_mm_atoms, qm_charge, qm_mult, step = np.fromfile(f, dtype="i4", count=5, sep=" ")
 
         # Load QM information
         dtype = [('pos_x', "f8"), ('pos_y', "f8"), ('pos_z', "f8"), ('charge', "f8"), ('element', "S2")]

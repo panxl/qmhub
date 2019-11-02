@@ -108,7 +108,7 @@ class SQM(QMBase):
                 break
 
         for i in range(len(output)):
-            if "Forces on MM atoms from SCF calculation" in output[i]:
+            if output[i].strip() == "QMMM: Forces on MM atoms from SCF calculation":
                 for j in range(len(self.mm_charges)):
                     line = output[i + 1 + j]
                     mm_esp[1:, j] = [float(n) / self.mm_charges[j] for n in line.split()[-3:]]
