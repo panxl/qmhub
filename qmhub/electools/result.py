@@ -1,6 +1,7 @@
 import numpy as np
 
 from ..utils.darray import DependArray
+from ..units import CODATA08_BOHR_TO_A
 
 
 class Result(object):
@@ -20,25 +21,16 @@ class Result(object):
         weighted_qmmm_coulomb_tensor,
         weighted_qmmm_coulomb_tensor_inv,
         elec,
-        units=None,
         ):
-
-        if units is None:
-            from ..units import CODATA18_HARTREE_TO_KCAL, CODATA18_BOHR_TO_A
-            units = (CODATA18_HARTREE_TO_KCAL, CODATA18_BOHR_TO_A)
-
-        HARTREE_TO_KCAL = units[0]
-        BOHR_TO_ANGSTROM = units[1]
-        COULOMB_CONSTANT = HARTREE_TO_KCAL * BOHR_TO_ANGSTROM
 
         self.mm_esp = DependArray(
             name="mm_esp",
-            func=(lambda x: x / np.repeat([[BOHR_TO_ANGSTROM], [BOHR_TO_ANGSTROM**2]], [1, 3], axis=0)),
+            func=(lambda x: x / np.repeat([[CODATA08_BOHR_TO_A], [CODATA08_BOHR_TO_A**2]], [1, 3], axis=0)),
             dependencies=[mm_esp],
         )
         self._qm_energy_gradient = DependArray(
             name="qm_energy_gradient",
-            func=(lambda x: x / BOHR_TO_ANGSTROM**2),
+            func=(lambda x: x / CODATA08_BOHR_TO_A**2),
             dependencies=[
                 qm_energy_gradient,
             ],
@@ -52,7 +44,7 @@ class Result(object):
                 self.mm_esp,
             ],
         )
-        self.total_espc_gradient = DependArray(
+        self._total_espc_gradient = DependArray(
             name="total_espc_gradient",
             func=elec.full._get_total_espc_gradient,
             dependencies=[
@@ -98,7 +90,7 @@ class Result(object):
 
         # QM-QM energy and gradient correction
         if elec.qmqm is not None:
-            self.qmqm_energy = DependArray(
+            self._qmqm_energy = DependArray(
                 name="qmqm_energy",
                 func=(lambda x, y: x[0] @ y / 2.),
                 dependencies=[
@@ -106,7 +98,7 @@ class Result(object):
                     qm_charges,
                 ],
             )
-            self.qmqm_energy_gradient = DependArray(
+            self._qmqm_energy_gradient = DependArray(
                 name="qmqm_energy_gradient",
                 func=(lambda x, y: x[1:] * y),
                 dependencies=[
@@ -115,11 +107,11 @@ class Result(object):
                 ],
             )
         else:
-            self.qmqm_energy = DependArray(
+            self._qmqm_energy = DependArray(
                 data=0,
                 name="qmqm_energy",
             )
-            self.qmqm_energy_gradient = DependArray(
+            self._qmqm_energy_gradient = DependArray(
                 data=np.zeros((3, len(qm_charges))),
                 name="qmqm_energy_gradient",
             )
@@ -127,21 +119,21 @@ class Result(object):
         # Total QM/MM energy and gradient
         self.energy = DependArray(
             name="energy",
-            func=(lambda x, y: x * HARTREE_TO_KCAL - y * COULOMB_CONSTANT),
+            func=(lambda x, y: x - y * CODATA08_BOHR_TO_A),
             dependencies=[
                 qm_energy,
-                self.qmqm_energy],
+                self._qmqm_energy],
         )
         self.energy_gradient = DependArray(
             name="energy_gradient",
             func=Result._get_energy_gradient,
-            kwargs={"coulomb_constant": COULOMB_CONSTANT},
+            kwargs={"scale": CODATA08_BOHR_TO_A**2},
             dependencies=[
                 self._energy_gradient_qm,
                 self._energy_gradient_mm,
-                self.total_espc_gradient,
+                self._total_espc_gradient,
                 near_field_mask,
-                self.qmqm_energy_gradient,
+                self._qmqm_energy_gradient,
             ],
         )
 
@@ -195,10 +187,10 @@ class Result(object):
         total_espc_gradient,
         near_field_mask,
         qmqm_energy_gradient,
-        coulomb_constant,
+        scale,
         ):
 
         grad = np.copy(total_espc_gradient)
         grad[:, :energy_gradient_qm.shape[1]] += energy_gradient_qm - qmqm_energy_gradient 
         grad[:, near_field_mask] += energy_gradient_mm
-        return grad * coulomb_constant
+        return grad * scale

@@ -44,10 +44,10 @@ class SQM(QMBase):
                 f.write("#EXCHARGES\n")
                 for i in range(len(mm_charges)):
                     f.write("".join(["   1   H ",
-                                        "%22.14e" % mm_positions[0, i],
-                                        "%22.14e" % mm_positions[1, i],
-                                        "%22.14e" % mm_positions[2, i],
-                                        " %22.14e" % mm_charges[i], "\n"]))
+                                     "%22.14e" % mm_positions[0, i],
+                                     "%22.14e" % mm_positions[1, i],
+                                     "%22.14e" % mm_positions[2, i],
+                                     " %22.14e" % mm_charges[i], "\n"]))
                 f.write("#END" + "\n")
 
     def gen_cmdline(self):

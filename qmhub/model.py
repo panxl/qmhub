@@ -68,7 +68,6 @@ class Model(object):
         qm_energy,
         qm_energy_gradient,
         mm_esp,
-        units=None,
         ):
 
         result_obj = Result(
@@ -85,7 +84,6 @@ class Model(object):
             weighted_qmmm_coulomb_tensor=self.elec.near_field.weighted_qmmm_coulomb_tensor,
             weighted_qmmm_coulomb_tensor_inv=self.elec.near_field.weighted_qmmm_coulomb_tensor_inv,
             elec=self.elec,
-            units=units,
         )
 
         setattr(self, name, result_obj)

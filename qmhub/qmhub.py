@@ -62,19 +62,11 @@ class QMMM(object):
             setattr(self, group_name, group_obj)
             self.engine_groups[group_name] = group_obj
 
-            if self.driver is None:
-                from .units import CODATA18_HARTREE_TO_KCAL, CODATA18_BOHR_TO_A
-                units = (CODATA18_HARTREE_TO_KCAL, CODATA18_BOHR_TO_A)
-            elif self.driver.lower() == "sander":
-                from .units import AMBER_HARTREE_TO_KCAL, AMBER_BOHR_TO_A
-                units = (AMBER_HARTREE_TO_KCAL, AMBER_BOHR_TO_A)
-
             self.model.get_result(
                 name=group_name,
                 qm_energy=group_obj.qm_energy,
                 qm_energy_gradient=group_obj.qm_energy_gradient,
                 mm_esp=group_obj.mm_esp,
-                units=units,
             )
 
             result_obj = getattr(self.model, group_name)
