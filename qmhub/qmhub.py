@@ -6,6 +6,7 @@ A universal QM/MM interface.
 from .simulation import Simulation
 from .model import Model
 from .engine import Engine
+from .iotools import load_system, return_results
 
 
 class QMMM(object):
@@ -17,14 +18,7 @@ class QMMM(object):
         self.simulation = Simulation(protocol, **kwargs)
 
     def load_system(self, input, mode):
-        if mode.lower() == "binfile":
-            from .iotools.file import load_from_file
-            self.system = load_from_file(input, binary=True, simulation=self.simulation)
-        elif mode.lower() == "file":
-            from .iotools.file import load_from_file
-            self.system = load_from_file(input, binary=False, simulation=self.simulation)
-        else:
-            raise ValueError("Only 'binfile' (default) and 'file' modes are supported.")
+        self.system = load_system(mode)(input, simulation=self.simulation)
 
     def build_model(self, switching_type=None, cutoff=None, swdist=None, pbc=None):
         if not hasattr(self, 'system'):
@@ -75,14 +69,6 @@ class QMMM(object):
         group_obj = self.engine_groups[group_name]
         group_obj.add_engine(engine, name=name, basedir=basedir, keywords=keywords)
 
-    def return_results(self, fout, mode):
+    def return_results(self, output, mode):
         energy, energy_gradient = self.simulation.return_results()
-
-        if mode.lower() == "binfile":
-            from .iotools.file import write_to_file
-            write_to_file(fout, energy, energy_gradient, binary=True)
-        elif mode.lower() == "file":
-            from .iotools.file import write_to_file
-            write_to_file(fout, energy, energy_gradient, binary=False)
-        else:
-            raise ValueError("Only 'binfile' (default) and 'file' modes are supported.")
+        return_results(mode)(output, energy, energy_gradient)

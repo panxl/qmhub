@@ -4,23 +4,23 @@ from numpy.lib.recfunctions import structured_to_unstructured
 from ..system import System
 
 
-def load_from_file(input, system=None, simulation=None):
+def load_from_bin(input, system=None, simulation=None):
 
-    f = open(input, "r")
+    f = open(input, "rb")
 
     # Load system information
-    n_qm_atoms, n_mm_atoms, qm_charge, qm_mult, step = np.fromfile(f, dtype="i4", count=5, sep=" ")
+    n_qm_atoms, n_mm_atoms, qm_charge, qm_mult, step = np.fromfile(f, dtype="i4", count=5)
 
     # Load QM information
     dtype = [('pos_x', "f8"), ('pos_y', "f8"), ('pos_z', "f8"), ('charge', "f8"), ('element', "S2")]
-    qm_atoms = np.loadtxt(f, dtype=dtype, max_rows=n_qm_atoms)
+    qm_atoms = np.fromfile(f, dtype=dtype, count=n_qm_atoms)
 
     if n_mm_atoms > 0:
         dtype = [('pos_x', "f8"), ('pos_y', "f8"), ('pos_z', "f8"), ('charge', "f8")]
-        mm_atoms = np.loadtxt(f, dtype=dtype, max_rows=n_mm_atoms)
+        mm_atoms = np.fromfile(f, dtype=dtype, count=n_mm_atoms)
 
     # Load unit cell information
-    cell_basis = np.loadtxt(f, max_rows=3)
+    cell_basis = np.fromfile(f, dtype="f8", count=9).reshape(3, 3)
     cell_basis[np.isclose(cell_basis, 0.0)] = 0.0
 
     f.close()
@@ -51,7 +51,7 @@ def load_from_file(input, system=None, simulation=None):
     return system
 
 
-def write_to_file(output, energy, force):
-    with open(output, 'w') as f:
-        f.write("%22.14e\n" % np.asscalar(energy))
-        np.savetxt(f, force.T, fmt='%22.14e')
+def write_to_bin(output, energy, force):
+    with open(output, 'wb') as f:
+        energy.tofile(f)
+        force.T.tofile(f)
