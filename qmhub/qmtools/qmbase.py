@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 
 from ..utils.darray import DependArray, invalidate_cache
+from ..utils.elements import get_element_symbols
 from ..utils.sys import run_cmdline
 
 
@@ -49,6 +50,14 @@ class QMBase(object):
             self.keywords = keywords
         else:
             self.keywords = {}
+
+        self.qm_element_symbols = DependArray(
+            name="qm_element_symbols",
+            func=get_element_symbols,
+            dependencies=[
+                self.qm_elements,
+            ]
+        )
 
         self._qm_cache = DependArray(
             name="qm_updated",

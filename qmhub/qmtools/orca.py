@@ -1,4 +1,3 @@
-import shutil
 from pathlib import Path
 import numpy as np
 
@@ -16,7 +15,7 @@ class ORCA(QMBase):
     def gen_input(self):
         """Generate input file for QM software."""
 
-        qm_elements = np.asarray(self.qm_elements, dtype=self.qm_elements.dtype)
+        qm_element_symbols = np.asarray(self.qm_element_symbols, dtype=self.qm_element_symbols.dtype)
         qm_positions = np.asarray(self.qm_positions, dtype=self.qm_positions.dtype)
         mm_charges = np.asarray(self.mm_charges, dtype=self.mm_charges.dtype)
         mm_positions = np.asarray(self.mm_positions, dtype=self.mm_positions.dtype)
@@ -33,8 +32,8 @@ class ORCA(QMBase):
             f.write("  Units Angs\n")
             f.write("  coords\n")
 
-            for i in range(len(qm_elements)):
-                f.write(" ".join(["%6s" % qm_elements[i],
+            for i in range(len(qm_element_symbols)):
+                f.write(" ".join(["%6s" % qm_element_symbols[i],
                                   "%22.14e" % qm_positions[0, i],
                                   "%22.14e" % qm_positions[1, i],
                                   "%22.14e" % qm_positions[2, i], "\n"]))
@@ -60,8 +59,8 @@ class ORCA(QMBase):
         """Generate commandline for QM calculation."""
 
         cmdline = "cd " + str(self.cwd) + "; "
-        cmdline += shutil.which("orca") + " orca.inp > orca.out; "
-        cmdline += shutil.which("orca_vpot") + " orca.gbw orca.scfp orca.vpot.xyz orca.vpot.out >> orca.out"
+        cmdline += "orca orca.inp > orca.out; "
+        cmdline += "orca_vpot orca.gbw orca.scfp orca.vpot.xyz orca.vpot.out >> orca.out"
 
         return cmdline
 

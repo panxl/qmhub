@@ -18,7 +18,10 @@ class IOBin(object):
         if self.cwd is None:
             self.cwd = self.input.parent
         
-        self._step = step
+        if step is None:
+            step = 0
+
+        self._step = np.asarray(step)
 
         f = open(self.input, "rb")
 
@@ -26,7 +29,7 @@ class IOBin(object):
         n_qm_atoms, n_mm_atoms, qm_charge, qm_mult, _step = np.fromfile(f, dtype="i4", count=5)
 
         # Load QM information
-        dtype = [('pos_x', "f8"), ('pos_y', "f8"), ('pos_z', "f8"), ('charge', "f8"), ('element', "S2")]
+        dtype = [('pos_x', "f8"), ('pos_y', "f8"), ('pos_z', "f8"), ('charge', "f8"), ('element', "i4")]
         qm_atoms = np.fromfile(f, dtype=dtype, count=n_qm_atoms)
 
         # Load MM information
@@ -47,7 +50,7 @@ class IOBin(object):
 
         system.qm.atoms.positions[:] = structured_to_unstructured(qm_atoms[['pos_x', 'pos_y', 'pos_z']]).T
         system.qm.atoms.charges[:] = qm_atoms['charge']
-        system.qm.atoms.elements[:] = [e.decode("ascii").strip() for e in qm_atoms['element']]
+        system.qm.atoms.elements[:] = qm_atoms['element']
 
         if n_mm_atoms > 0:
             system.mm.atoms.positions[:] = structured_to_unstructured(mm_atoms[['pos_x', 'pos_y', 'pos_z']]).T
@@ -56,10 +59,7 @@ class IOBin(object):
         if not np.all(cell_basis == 0.0):
             system.cell_basis[:] = cell_basis
 
-        try:
-            self._step[()] = _step
-        except TypeError:
-            self._step = np.asarray(_step)
+        self._step[()] = _step
 
         return system
 

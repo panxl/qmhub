@@ -13,7 +13,7 @@ class Atoms(object):
     def new(cls, n_atoms):
         positions = DependArray(np.zeros((3, n_atoms)))
         charges = DependArray(np.zeros(n_atoms))
-        elements = DependArray(np.zeros(n_atoms, dtype=str))
+        elements = DependArray(np.zeros(n_atoms, dtype=int))
 
         kwargs = {
             'positions': positions,

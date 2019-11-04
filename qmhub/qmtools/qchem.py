@@ -28,7 +28,7 @@ class QChem(QMBase):
                 f.write(
                     "".join(
                         [
-                            "%3s" % qm_elements[i],
+                            "%3d " % qm_elements[i],
                             "%22.14e" % qm_positions[0, i],
                             "%22.14e" % qm_positions[1, i],
                             "%22.14e" % qm_positions[2, i],

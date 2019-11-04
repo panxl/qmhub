@@ -3,7 +3,7 @@ import numpy as np
 
 from ..units import AMBER_HARTREE_TO_KCAL, AMBER_BOHR_TO_A
 from ..utils.sys import get_nproc
-from .templates.sqm import get_qm_template, Elements
+from .templates.sqm import get_qm_template
 from .qmbase import QMBase
 
 
@@ -19,10 +19,7 @@ class SQM(QMBase):
         qm_elements = np.asarray(self.qm_elements, dtype=self.qm_elements.dtype)
         mm_positions = np.asarray(self.mm_positions, dtype=self.mm_positions.dtype)
         mm_charges = np.asarray(self.mm_charges, dtype=self.mm_charges.dtype)
-
-        qm_element_num = []
-        for element in qm_elements:
-            qm_element_num.append(Elements.index(element))
+        qm_element_symbols = np.asarray(self.qm_element_symbols, dtype=self.qm_element_symbols.dtype)
 
         if not "qmcharge" in self.keywords:
             self.keywords["qmcharge"] = str(self.charge)
@@ -34,8 +31,8 @@ class SQM(QMBase):
             f.write(get_qm_template(self.keywords))
 
             for i in range(len(qm_elements)):
-                f.write("".join(["%4d" % qm_element_num[i],
-                                 "%4s " % qm_elements[i],
+                f.write("".join(["%4d" % qm_elements[i],
+                                 "%4s " % qm_element_symbols[i],
                                  "%22.14e" % qm_positions[0, i],
                                  "%22.14e" % qm_positions[1, i],
                                  "%22.14e" % qm_positions[2, i], "\n"]))
