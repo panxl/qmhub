@@ -1,17 +1,20 @@
 import importlib
 
 
-QMCLASS = {'qchem': "QChem", 'orca': "ORCA", 'sqm': "SQM"}
-QMMODULE = {'QChem': ".qchem", 'ORCA': ".orca", 'SQM': ".sqm"}
+QM_TO_CLASS_MAP = {
+    'qchem': "QChem",
+    'orca': "ORCA",
+    'sqm': "SQM",
+}
 
 
-def choose_qmtool(qmSoftware):
-    try:
-        qm_class = QMCLASS[qmSoftware.lower()]
-        qm_module = QMMODULE[qm_class]
-    except:
-        raise ValueError("Please choose 'qchem', 'orca', or 'sqm' for qmSoftware.")
+class QM(object):
+    @classmethod
+    def create(cls, qm_name, *args, **kwargs):
+        if qm_name not in QM_TO_CLASS_MAP:
+            raise ValueError("Please choose 'qchem', 'orca', or 'sqm' for QM engine.")
 
-    qmtool = importlib.import_module(qm_module, package='qmhub.qmtools').__getattribute__(qm_class)
+        qm_module = importlib.import_module("qmhub.qmtools." + qm_name)
+        qm_cls = qm_module.__getattribute__(QM_TO_CLASS_MAP[qm_name])
 
-    return qmtool
+        return qm_cls(*args, **kwargs)

@@ -2,7 +2,7 @@ import os
 import subprocess as sp
 import numpy as np
 
-from .qmtools import choose_qmtool
+from .qmtools import QM
 from .utils.darray import DependArray
 
 
@@ -57,7 +57,8 @@ class Engine(object):
         if name is None:
             name = engine
 
-        engine_obj = choose_qmtool(engine)(
+        engine_obj = QM.create(
+            engine.lower(),
             qm_positions = self.qm_positions,
             qm_elements = self.qm_elements,
             mm_positions = self.mm_positions,
