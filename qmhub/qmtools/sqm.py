@@ -9,7 +9,6 @@ from .qmbase import QMBase
 
 class SQM(QMBase):
 
-    QMTOOL = "SQM"
     OUTPUT = "sqm.out"
 
     def gen_input(self):

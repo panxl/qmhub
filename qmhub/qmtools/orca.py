@@ -9,7 +9,6 @@ from .qmbase import QMBase
 
 class ORCA(QMBase):
 
-    QMTOOL = "ORCA"
     OUTPUT = "orca.out"
 
     def gen_input(self):

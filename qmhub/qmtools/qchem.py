@@ -8,7 +8,6 @@ from .qmbase import QMBase
 
 class QChem(QMBase):
 
-    QMTOOL = "Q-Chem"
     OUTPUT = "qchem.out"
 
     def gen_input(self):

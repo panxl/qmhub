@@ -9,7 +9,6 @@ from ..utils.sys import run_cmdline
 
 class QMBase(object):
 
-    QMTOOL = None
     OUTPUT = None
 
     def __init__(
