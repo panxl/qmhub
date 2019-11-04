@@ -18,7 +18,7 @@ class IOFile(object):
         if self.cwd is None:
             self.cwd = self.input.parent
 
-        self.step = step
+        self._step = step
 
         f = open(self.input, "r")
 
@@ -57,16 +57,16 @@ class IOFile(object):
             system.cell_basis[:] = cell_basis
 
         try:
-            self.step[()] = _step
+            self._step[()] = _step
         except TypeError:
-            self.step = np.asarray(_step)
+            self._step = np.asarray(_step)
 
         return system
 
-    def return_results(self, energy, force, output=None):
+    def return_results(self, energy, forces, output=None):
         if output is None:
             output = self.input.with_suffix('.out')
 
         with open(output, 'w') as f:
             f.write("%22.14e\n" % np.asscalar(energy))
-            np.savetxt(f, force.T, fmt='%22.14e')
+            np.savetxt(f, forces.T, fmt='%22.14e')

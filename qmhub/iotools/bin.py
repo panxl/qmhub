@@ -18,7 +18,7 @@ class IOBin(object):
         if self.cwd is None:
             self.cwd = self.input.parent
         
-        self.step = step
+        self._step = step
 
         f = open(self.input, "rb")
 
@@ -57,16 +57,16 @@ class IOBin(object):
             system.cell_basis[:] = cell_basis
 
         try:
-            self.step[()] = _step
+            self._step[()] = _step
         except TypeError:
-            self.step = np.asarray(_step)
+            self._step = np.asarray(_step)
 
         return system
 
-    def return_results(self, energy, force, output=None):
+    def return_results(self, energy, forces, output=None):
         if output is None:
             output = self.input.with_suffix('.out')
 
         with open(output, 'wb') as f:
             energy.tofile(f)
-            force.T.tofile(f)
+            forces.T.tofile(f)
