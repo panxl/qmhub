@@ -1,57 +1,72 @@
+from pathlib import Path
+
 import numpy as np
 from numpy.lib.recfunctions import structured_to_unstructured
 
 from ..system import System
 
 
-def load_from_bin(input, system=None, simulation=None):
+class IOBin(object):
+    def __init__(self, cwd=None):
+        self.mode = "bin"
+        self.cwd = cwd
 
-    f = open(input, "rb")
+    def load_system(self, input, system=None, step=None):
 
-    # Load system information
-    n_qm_atoms, n_mm_atoms, qm_charge, qm_mult, step = np.fromfile(f, dtype="i4", count=5)
+        self.input = Path(input)
 
-    # Load QM information
-    dtype = [('pos_x', "f8"), ('pos_y', "f8"), ('pos_z', "f8"), ('charge', "f8"), ('element', "S2")]
-    qm_atoms = np.fromfile(f, dtype=dtype, count=n_qm_atoms)
+        if self.cwd is None:
+            self.cwd = self.input.parent
+        
+        self.step = step
 
-    if n_mm_atoms > 0:
-        dtype = [('pos_x', "f8"), ('pos_y', "f8"), ('pos_z', "f8"), ('charge', "f8")]
-        mm_atoms = np.fromfile(f, dtype=dtype, count=n_mm_atoms)
+        f = open(self.input, "rb")
 
-    # Load unit cell information
-    cell_basis = np.fromfile(f, dtype="f8", count=9).reshape(3, 3)
-    cell_basis[np.isclose(cell_basis, 0.0)] = 0.0
+        # Load system information
+        n_qm_atoms, n_mm_atoms, qm_charge, qm_mult, _step = np.fromfile(f, dtype="i4", count=5)
 
-    f.close()
+        # Load QM information
+        dtype = [('pos_x', "f8"), ('pos_y', "f8"), ('pos_z', "f8"), ('charge', "f8"), ('element', "S2")]
+        qm_atoms = np.fromfile(f, dtype=dtype, count=n_qm_atoms)
 
-    # Initialize System
-    n_atoms = n_qm_atoms + n_mm_atoms
+        # Load MM information
+        if n_mm_atoms > 0:
+            dtype = [('pos_x', "f8"), ('pos_y', "f8"), ('pos_z', "f8"), ('charge', "f8")]
+            mm_atoms = np.fromfile(f, dtype=dtype, count=n_mm_atoms)
 
-    if system is None:
-        system = System(n_atoms, n_qm_atoms, qm_charge=qm_charge, qm_mult=qm_charge)
+        # Load unit cell information
+        cell_basis = np.fromfile(f, dtype="f8", count=9).reshape(3, 3)
+        cell_basis[np.isclose(cell_basis, 0.0)] = 0.0
 
-    system.qm.atoms.positions[:] = structured_to_unstructured(qm_atoms[['pos_x', 'pos_y', 'pos_z']]).T
-    system.qm.atoms.charges[:] = qm_atoms['charge']
-    system.qm.atoms.elements[:] = [e.decode("ascii").strip() for e in qm_atoms['element']]
+        f.close()
 
-    if n_mm_atoms > 0:
-        system.mm.atoms.positions[:] = structured_to_unstructured(mm_atoms[['pos_x', 'pos_y', 'pos_z']]).T
-        system.mm.atoms.charges[:] = mm_atoms['charge']
+        # Initialize System
+        if system is None:
+            n_atoms = n_qm_atoms + n_mm_atoms
+            system = System(n_atoms, n_qm_atoms, qm_charge=qm_charge, qm_mult=qm_mult)
 
-    if not np.all(cell_basis == 0.0):
-        system.cell_basis[:] = cell_basis
+        system.qm.atoms.positions[:] = structured_to_unstructured(qm_atoms[['pos_x', 'pos_y', 'pos_z']]).T
+        system.qm.atoms.charges[:] = qm_atoms['charge']
+        system.qm.atoms.elements[:] = [e.decode("ascii").strip() for e in qm_atoms['element']]
 
-    system.qm_charge = qm_charge
-    system.qm_mult = qm_mult
+        if n_mm_atoms > 0:
+            system.mm.atoms.positions[:] = structured_to_unstructured(mm_atoms[['pos_x', 'pos_y', 'pos_z']]).T
+            system.mm.atoms.charges[:] = mm_atoms['charge']
 
-    if simulation is not None:
-        simulation.step = step
+        if not np.all(cell_basis == 0.0):
+            system.cell_basis[:] = cell_basis
 
-    return system
+        try:
+            self.step[()] = _step
+        except TypeError:
+            self.step = np.asarray(_step)
 
+        return system
 
-def write_to_bin(output, energy, force):
-    with open(output, 'wb') as f:
-        energy.tofile(f)
-        force.T.tofile(f)
+    def return_results(self, energy, force, output=None):
+        if output is None:
+            output = self.input.with_suffix('.out')
+
+        with open(output, 'wb') as f:
+            energy.tofile(f)
+            force.T.tofile(f)

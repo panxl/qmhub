@@ -1,34 +1,20 @@
-from .mdi import load_from_mdi, write_to_mdi
-from .bin import load_from_bin, write_to_bin
-from .file import load_from_file, write_to_file
+import importlib
 
 
-__all__ = ["load_system", "return_results"]
+IO_TYPE_TO_CLASS_MAP = {
+    'mdi': "IOMDI",
+    'bin': "IOBin",
+    'file': "IOFile",
+}
 
 
-def load_system(mode=None):
-    if mode is None:
-        mode = "file"
+class IO(object):
+    @classmethod
+    def create(cls, io_type, *args, **kwargs):
+        if io_type not in IO_TYPE_TO_CLASS_MAP:
+            raise ValueError("Only 'file', 'bin', and 'mdi' modes are supported.")
 
-    if mode.lower() == "mdi":
-        return load_from_mdi
-    elif mode.lower() == "bin":
-        return load_from_bin
-    elif mode.lower() == "file":
-        return load_from_file
-    else:
-        raise ValueError("Only 'file' (default), 'bin', and 'mdi' modes are supported.")
+        io_module = importlib.import_module("qmhub.iotools." + io_type)
+        io_cls = io_module.__getattribute__(IO_TYPE_TO_CLASS_MAP[io_type])
 
-
-def return_results(mode=None):
-    if mode is None:
-        mode = "file"
-
-    if mode.lower() == "mdi":
-        return write_to_mdi
-    elif mode.lower() == "bin":
-        return write_to_bin
-    elif mode.lower() == "file":
-        return write_to_file
-    else:
-        raise ValueError("Only 'file' (default), 'bin', and 'mdi' modes are supported.")
+        return io_cls(*args, **kwargs)

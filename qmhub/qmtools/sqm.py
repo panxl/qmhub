@@ -30,7 +30,7 @@ class SQM(QMBase):
         if not "spin" in self.keywords:
             self.keywords["spin"] = str(self.mult)
 
-        with open(Path(self.basedir).joinpath("sqm.inp"), 'w') as f:
+        with open(Path(self.cwd).joinpath("sqm.inp"), 'w') as f:
             f.write(get_qm_template(self.keywords))
 
             for i in range(len(qm_elements)):
@@ -53,7 +53,7 @@ class SQM(QMBase):
     def gen_cmdline(self):
         """Generate commandline for QM calculation."""
 
-        cmdline = "cd " + str(self.basedir) + "; "
+        cmdline = "cd " + str(self.cwd) + "; "
         cmdline += "sqm -O -i sqm.inp -o sqm.out"
 
         return cmdline
@@ -67,7 +67,7 @@ class SQM(QMBase):
         else:
             if output is None:
                 output=self.OUTPUT
-            output = Path(self.basedir).joinpath(output).read_text().split("\n")
+            output = Path(self.cwd).joinpath(output).read_text().split("\n")
 
         for line in output:
             if "QMMM: SCF Energy" in line:
@@ -82,7 +82,7 @@ class SQM(QMBase):
         else:
             if output is None:
                 output=self.OUTPUT
-            output = Path(self.basedir).joinpath(output).read_text().split("\n")
+            output = Path(self.cwd).joinpath(output).read_text().split("\n")
 
         for i in range(len(output)):
             if "Forces on QM atoms from SCF calculation" in output[i]:
@@ -103,7 +103,7 @@ class SQM(QMBase):
         else:
             if output is None:
                 output=self.OUTPUT
-            output = Path(self.basedir).joinpath(output).read_text().split("\n")
+            output = Path(self.cwd).joinpath(output).read_text().split("\n")
 
         mm_esp = np.zeros((4, len(self.mm_charges)))
 
@@ -135,7 +135,7 @@ class SQM(QMBase):
         else:
             if output is None:
                 output=self.OUTPUT
-            output = Path(self.basedir).joinpath(output).read_text().split("\n")
+            output = Path(self.cwd).joinpath(output).read_text().split("\n")
 
         for i in range(len(output)):
             if "Atomic Charges" in output[i]:

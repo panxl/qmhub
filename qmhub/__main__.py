@@ -11,32 +11,35 @@ def main():
     parser.add_argument("config", help="QMHub config file")
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("-f", "--file", help="Path to the text exchange file")
-    group.add_argument("-b", "--bin", help="Path to the binary exchange file")
-    group.add_argument("-m", "--mdi", help="Port for TCP mode of MolSSI Driver Interface (0 for MPI mode)")
+    group.add_argument("-f", "--file", help="Path to text exchange file")
+    group.add_argument("-b", "--bin", help="Path to binary exchange file")
+    group.add_argument("-m", "--mdi", help="Port for MolSSI Driver Interface")
 
     parser.add_argument("-d", "--driver", help="Driver")
+    parser.add_argument("-c", "--cwd", help="Working directory for engine calculations")
     parser.add_argument("-i", "--interactive", action="store_true", help="Interactive mode")
     args = parser.parse_args()
 
     config = configparser.ConfigParser(allow_no_value=True)
     config.read(args.config)
 
-    qmmm = QMMM(args.driver)
+    if args.mdi is not None:
+        mode = "mdi"
+        input = int(args.mdi)
+    elif args.bin is not None:
+        mode = "bin"
+        input = Path(args.bin)
+    elif args.file is not None:
+        mode = "file"
+        input = Path(args.file)
+
+    qmmm = QMMM(mode, args.driver, args.cwd)
 
     protocol=config.get('simulation', 'protocol', fallback='md')
     nrespa=config.getint('simulation', 'nrespa', fallback=None)
     qmmm.setup_simulation(protocol, nrespa=nrespa)
 
-    if args.mdi is not None:
-        port = int(args.mdi)
-        qmmm.load_system(port, mode="mdi")
-    if args.bin is not None:
-        fin = Path(args.bin)
-        qmmm.load_system(fin, mode="bin")
-    elif args.file is not None:
-        fin = Path(args.file)
-        qmmm.load_system(fin, mode="file")
+    qmmm.load_system(input)
 
     qmmm.build_model(
         switching_type=config.get('model', 'switching_function', fallback='lrec'),
@@ -58,7 +61,6 @@ def main():
             engine,
             name=name,
             group_name="engine",
-            basedir=fin.parent,
             keywords=keywords,
         )
 
@@ -76,16 +78,10 @@ def main():
                 engine,
                 name=name,
                 group_name="engine2",
-                basedir=fin.parent,
                 keywords=keywords,
             )
 
-    if args.mdi is not None:
-        qmmm.return_results(port, mode="mdi")
-    elif args.bin is not None:
-        qmmm.return_results(fin.with_suffix('.out'), mode="bin")
-    elif args.file is not None:
-        qmmm.return_results(fin.with_suffix('.out'), mode="file")
+    qmmm.return_results()
 
     if args.interactive:
         embed()

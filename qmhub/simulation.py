@@ -24,7 +24,7 @@ class Simulation(object):
             else:
                 raise ValueError("Please set 'nrespa' for 'mts' protocol.")
 
-        self.step = 0
+        self.step = np.array(0)
 
     def add_engine(self, name, engine):
         if name in [self.engine_name, self.engine2_name]:
@@ -41,7 +41,7 @@ class Simulation(object):
             if not hasattr(self, self.engine2_name):
                 raise AttributeError("Please add engine2 first.")
 
-            if (self.step + 1) >= self.nrespa and ((self.step + 1) % self.nrespa) == 0:
+            if ((self.step + 1) % self.nrespa) == 0:
                 engine = getattr(self, self.engine_name)
                 engine2 = getattr(self, self.engine2_name)
                 return (

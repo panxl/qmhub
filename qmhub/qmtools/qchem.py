@@ -19,7 +19,7 @@ class QChem(QMBase):
         mm_charges = np.asarray(self.mm_charges, dtype=self.mm_charges.dtype)
         mm_positions = np.asarray(self.mm_positions, dtype=self.mm_positions.dtype)
 
-        with open(Path(self.basedir).joinpath("qchem.inp"), "w") as f:
+        with open(Path(self.cwd).joinpath("qchem.inp"), "w") as f:
             f.write(get_qm_template(self.keywords))
             f.write("$molecule\n")
             f.write("%d %d\n" % (self.charge, self.mult))
@@ -58,7 +58,7 @@ class QChem(QMBase):
         """Generate commandline for QM calculation."""
 
         nproc = get_nproc()
-        cmdline = "cd " + str(self.basedir) + "; "
+        cmdline = "cd " + str(self.cwd) + "; "
         cmdline += "qchem -nt %d qchem.inp qchem.out save > qchem_run.log" % nproc
 
         return cmdline
@@ -72,7 +72,7 @@ class QChem(QMBase):
         else:
             if output is None:
                 output=self.OUTPUT
-            output = Path(self.basedir).joinpath(output).read_text().split("\n")
+            output = Path(self.cwd).joinpath(output).read_text().split("\n")
 
         cc_energy = 0.0
         for line in output:
@@ -94,7 +94,7 @@ class QChem(QMBase):
         if output is None:
             output = "efield.dat"
 
-        return np.loadtxt(Path(self.basedir).joinpath("efield.dat"), skiprows=len(self.mm_charges), dtype=float).T
+        return np.loadtxt(Path(self.cwd).joinpath("efield.dat"), skiprows=len(self.mm_charges), dtype=float).T
 
     def _get_mm_esp(self, qm_cache=None, output=None):
         """Get electrostatic potential  at MM atoms in the near field from QM density."""
@@ -107,8 +107,8 @@ class QChem(QMBase):
 
         mm_esp = np.zeros((4, len(self.mm_charges)))
 
-        mm_esp[0] = np.loadtxt(Path(self.basedir).joinpath(output[0]), dtype=float)
-        mm_esp[1:] = -np.loadtxt(Path(self.basedir).joinpath(output[1]), max_rows=len(self.mm_charges), dtype=float).T
+        mm_esp[0] = np.loadtxt(Path(self.cwd).joinpath(output[0]), dtype=float)
+        mm_esp[1:] = -np.loadtxt(Path(self.cwd).joinpath(output[1]), max_rows=len(self.mm_charges), dtype=float).T
 
         return mm_esp
 
@@ -121,7 +121,7 @@ class QChem(QMBase):
         else:
             if output is None:
                 output=self.OUTPUT
-            output = Path(self.basedir).joinpath(output).read_text().split("\n")
+            output = Path(self.cwd).joinpath(output).read_text().split("\n")
 
         for i in range(len(output)):
             if "Ground-State Mulliken Net Atomic Charges" in output[i]:

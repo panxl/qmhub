@@ -6,19 +6,20 @@ A universal QM/MM interface.
 from .simulation import Simulation
 from .model import Model
 from .engine import Engine
-from .iotools import load_system, return_results
+from .iotools import IO
 
 
 class QMMM(object):
-    def __init__(self, driver=None):
+    def __init__(self, mode, driver=None, cwd=None):
+        self.io = IO.create(mode, cwd)
         self.driver = driver
         self.engine_groups = {}
 
     def setup_simulation(self, protocol="md", **kwargs):
         self.simulation = Simulation(protocol, **kwargs)
 
-    def load_system(self, input, mode):
-        self.system = load_system(mode)(input, simulation=self.simulation)
+    def load_system(self, inp):
+        self.system = self.io.load_system(inp, step=self.simulation.step)
 
     def build_model(self, switching_type=None, cutoff=None, swdist=None, pbc=None):
         if not hasattr(self, 'system'):
@@ -37,12 +38,15 @@ class QMMM(object):
             pbc=pbc
         )
 
-    def add_engine(self, engine, name=None, group_name=None, basedir=None, keywords=None):
+    def add_engine(self, engine, name=None, group_name=None, cwd=None, keywords=None):
         if name is None:
             name = engine
 
         if group_name is None:
             group_name = "engine"
+
+        if cwd is None:
+            cwd = self.io.cwd
 
         if not hasattr(self, group_name):
             group_obj = Engine(
@@ -67,8 +71,8 @@ class QMMM(object):
             self.simulation.add_engine(group_name, result_obj)
 
         group_obj = self.engine_groups[group_name]
-        group_obj.add_engine(engine, name=name, basedir=basedir, keywords=keywords)
+        group_obj.add_engine(engine, name=name, cwd=cwd, keywords=keywords)
 
-    def return_results(self, output, mode):
+    def return_results(self, output=None):
         energy, energy_gradient = self.simulation.return_results()
-        return_results(mode)(output, energy, energy_gradient)
+        self.io.return_results(energy, energy_gradient, output)

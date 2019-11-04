@@ -19,7 +19,7 @@ class QMBase(object):
         mm_charges,
         charge=None,
         mult=None,
-        basedir=None,
+        cwd=None,
         keywords=None,
         ):
         """
@@ -40,10 +40,10 @@ class QMBase(object):
         else:
             self.mult = 1
 
-        if basedir is not None:
-            self.basedir = basedir
+        if cwd is not None:
+            self.cwd = cwd
         else:
-            self.basedir = os.getcwd()
+            self.cwd = os.getcwd()
 
         if keywords is not None:
             self.keywords = keywords
@@ -86,7 +86,7 @@ class QMBase(object):
         self.gen_input()
         run_cmdline(self.gen_cmdline())
         if output is not None:
-            output = Path(self.basedir).joinpath(output).read_text().split("\n")
+            output = Path(self.cwd).joinpath(output).read_text().split("\n")
         return output
 
     def update_keywords(self, keywords):
