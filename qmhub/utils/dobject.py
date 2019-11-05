@@ -17,8 +17,10 @@ def invalidate_cache(dobject):
         dobject._cache_valid = False
 
     for item in dobject._dependants:
-        if item() is not None:
-            invalidate_cache(item())
+        try:
+            invalidate_cache(item)
+        except ReferenceError:
+            pass
 
 
 class DependObject(object):
@@ -52,4 +54,4 @@ class DependObject(object):
         invalidate_cache(self)
 
     def add_dependant(self, dependant):
-        self._dependants.append(weakref.ref(dependant))
+        self._dependants.append(weakref.proxy(dependant))

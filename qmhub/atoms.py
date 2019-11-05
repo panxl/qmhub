@@ -26,9 +26,9 @@ class Atoms(object):
     @classmethod
     def from_atoms(cls, atoms, index=None):
         kwargs = {
-            'positions': atoms.positions[:, index],
-            'charges': atoms.charges[index],
-            'elements': atoms.elements[index],
+            'positions': atoms.positions.subarray(np.s_[:, index]),
+            'charges': atoms.charges.subarray(index),
+            'elements': atoms.elements.subarray(index),
         }
 
         return cls(**kwargs)

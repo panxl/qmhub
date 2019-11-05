@@ -18,22 +18,24 @@ class DependArray(DependObject, container):
 
     @cache_update
     def __getitem__(self, index):
-        if self._func is not None:
-            darray = self.__class__(
-                self.array[index],
-                dependencies=[self],
-            )
-        else:
-            darray = self._rc(self.array[index])
-            if isinstance(darray, DependArray):
-                darray._dependants = self._dependants
-        return darray
+        return self.array[index]
 
     def __setitem__(self, index, value):
         if self._func is not None:
             raise NameError(f"Cannot set the value of <{self._name}> directly")
         self.array[index] = np.asarray(value, self.dtype)
         invalidate_cache(self)
+
+    def subarray(self, index, depend=True):
+        darray = self._rc(self.array[index])
+
+        if depend and isinstance(darray, DependArray):
+            if self._func is not None:
+                darray.add_dependency(self)
+            else:
+                darray._dependants = self._dependants
+
+        return darray
 
     def update_cache(self):
         if not self._cache_valid:
