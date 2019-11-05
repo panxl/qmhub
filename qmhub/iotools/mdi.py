@@ -87,11 +87,11 @@ class IOMDI(object):
 
             elif command.strip() == "<QM_FORCES":
                 n_qm_atoms = len(self._system.qm.atoms)
-                MDI_Send(forces[:, :n_qm_atoms].flatten(), 3 * n_qm_atoms, MDI_DOUBLE_NUMPY, self.comm)
+                MDI_Send(forces[:, :n_qm_atoms].flatten(order="F"), 3 * n_qm_atoms, MDI_DOUBLE_NUMPY, self.comm)
 
             elif command.strip() == "<MM_FORCES":
                 n_mm_atoms = len(self._system.mm.atoms)
-                MDI_Send(forces[:, -n_mm_atoms:].flatten(), 3 * n_mm_atoms, MDI_DOUBLE_NUMPY, self.comm)
+                MDI_Send(forces[:, -n_mm_atoms:].flatten(order="F"), 3 * n_mm_atoms, MDI_DOUBLE_NUMPY, self.comm)
 
             elif command.strip() == ">QM_COORDS":
                 n_qm_atoms = len(self._system.qm.atoms)
