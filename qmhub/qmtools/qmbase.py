@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 
 from ..utils.darray import DependArray, invalidate_cache
+from ..utils.dlist import DependList
 from ..utils.elements import get_element_symbols
 from ..utils.sys import run_cmdline
 
@@ -58,8 +59,8 @@ class QMBase(object):
             ]
         )
 
-        self._qm_cache = DependArray(
-            name="qm_updated",
+        self._qm_cache = DependList(
+            name="qm_cache",
             func=self._get_qm_cache,
             kwargs={"output": self.OUTPUT},
             dependencies=[

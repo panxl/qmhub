@@ -67,11 +67,10 @@ class ORCA(QMBase):
         """Get QM energy from output of QM calculation."""
 
         if qm_cache is not None:
-            qm_cache.update_cache()
-            output = qm_cache.array
+            output = qm_cache.data
         else:
             if output is None:
-                output=self.OUTPUT
+                output = self.OUTPUT
             output = Path(self.cwd).joinpath(output).read_text().split("\n")
 
         for line in output:
@@ -109,11 +108,10 @@ class ORCA(QMBase):
         """Get Mulliken charges from output of QM calculation."""
 
         if qm_cache is not None:
-            qm_cache.update_cache()
-            output = qm_cache.array
+            output = qm_cache.data
         else:
             if output is None:
-                output=self.OUTPUT
+                output = self.OUTPUT
             output = Path(self.cwd).joinpath(output).read_text().split("\n")
 
         for i in range(len(output)):

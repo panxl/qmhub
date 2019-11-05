@@ -58,11 +58,10 @@ class SQM(QMBase):
         """Get QM energy from output of QM calculation."""
 
         if qm_cache is not None:
-            qm_cache.update_cache()
-            output = qm_cache.array
+            output = qm_cache.data
         else:
             if output is None:
-                output=self.OUTPUT
+                output = self.OUTPUT
             output = Path(self.cwd).joinpath(output).read_text().split("\n")
 
         for line in output:
@@ -73,11 +72,10 @@ class SQM(QMBase):
         """Get QM energy gradient from output of QM calculation."""
 
         if qm_cache is not None:
-            qm_cache.update_cache()
-            output = qm_cache.array
+            output = qm_cache.data
         else:
             if output is None:
-                output=self.OUTPUT
+                output = self.OUTPUT
             output = Path(self.cwd).joinpath(output).read_text().split("\n")
 
         for i in range(len(output)):
@@ -94,11 +92,10 @@ class SQM(QMBase):
         """Get electrostatic potential at MM atoms in the near field from QM density."""
 
         if qm_cache is not None:
-            qm_cache.update_cache()
-            output = qm_cache.array
+            output = qm_cache.data
         else:
             if output is None:
-                output=self.OUTPUT
+                output = self.OUTPUT
             output = Path(self.cwd).joinpath(output).read_text().split("\n")
 
         mm_esp = np.zeros((4, len(self.mm_charges)))
@@ -126,11 +123,10 @@ class SQM(QMBase):
         """Get Mulliken charges from output of QM calculation."""
 
         if qm_cache is not None:
-            qm_cache.update_cache()
-            output = qm_cache.array
+            output = qm_cache.data
         else:
             if output is None:
-                output=self.OUTPUT
+                output = self.OUTPUT
             output = Path(self.cwd).joinpath(output).read_text().split("\n")
 
         for i in range(len(output)):
