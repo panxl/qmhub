@@ -13,9 +13,7 @@ class DependPME(pme.PMEInstanceD):
         self._kwargs = {"alpha": alpha, "order": order, "nfft": nfft}
         self._dependencies = [cell_basis]
         self._dependants = []
-        self._cache_valid = True
-
-        self._func(*self._dependencies, **self._kwargs)
+        self._cache_valid = False
 
     def _func(self, cell_basis, alpha, order, nfft):
         super().setup(
