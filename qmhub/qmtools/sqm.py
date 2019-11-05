@@ -14,11 +14,11 @@ class SQM(QMBase):
     def gen_input(self):
         """Generate input file for QM software."""
 
-        qm_positions = np.asarray(self.qm_positions, dtype=self.qm_positions.dtype)
-        qm_elements = np.asarray(self.qm_elements, dtype=self.qm_elements.dtype)
-        mm_positions = np.asarray(self.mm_positions, dtype=self.mm_positions.dtype)
-        mm_charges = np.asarray(self.mm_charges, dtype=self.mm_charges.dtype)
-        qm_element_symbols = np.asarray(self.qm_element_symbols, dtype=self.qm_element_symbols.dtype)
+        qm_positions = self.qm_positions.view()
+        qm_elements = self.qm_elements.view()
+        mm_positions = self.mm_positions.view()
+        mm_charges = self.mm_charges.view()
+        qm_element_symbols = self.qm_element_symbols.view()
 
         if not "qmcharge" in self.keywords:
             self.keywords["qmcharge"] = str(self.charge)

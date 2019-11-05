@@ -13,10 +13,10 @@ class QChem(QMBase):
     def gen_input(self):
         """Generate input file for QM software."""
 
-        qm_elements = np.asarray(self.qm_elements, dtype=self.qm_elements.dtype)
-        qm_positions = np.asarray(self.qm_positions, dtype=self.qm_positions.dtype)
-        mm_charges = np.asarray(self.mm_charges, dtype=self.mm_charges.dtype)
-        mm_positions = np.asarray(self.mm_positions, dtype=self.mm_positions.dtype)
+        qm_elements = self.qm_elements.view()
+        qm_positions = self.qm_positions.view()
+        mm_charges = self.mm_charges.view()
+        mm_positions = self.mm_positions.view()
 
         with open(Path(self.cwd).joinpath("qchem.inp"), "w") as f:
             f.write(get_qm_template(self.keywords))

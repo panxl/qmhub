@@ -14,10 +14,10 @@ class ORCA(QMBase):
     def gen_input(self):
         """Generate input file for QM software."""
 
-        qm_element_symbols = np.asarray(self.qm_element_symbols, dtype=self.qm_element_symbols.dtype)
-        qm_positions = np.asarray(self.qm_positions, dtype=self.qm_positions.dtype)
-        mm_charges = np.asarray(self.mm_charges, dtype=self.mm_charges.dtype)
-        mm_positions = np.asarray(self.mm_positions, dtype=self.mm_positions.dtype)
+        qm_element_symbols = self.qm_element_symbols.view()
+        qm_positions = self.qm_positions.view()
+        mm_charges = self.mm_charges.view()
+        mm_positions = self.mm_positions.view()
 
         nproc = get_nproc()
 
