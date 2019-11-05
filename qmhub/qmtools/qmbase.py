@@ -2,7 +2,8 @@ import os
 from pathlib import Path
 import numpy as np
 
-from ..utils.darray import DependArray, invalidate_cache
+from ..utils.dobject import invalidate_cache
+from ..utils.darray import DependArray
 from ..utils.dlist import DependList
 from ..utils.elements import get_element_symbols
 from ..utils.sys import run_cmdline

@@ -1,60 +1,20 @@
 import types
-import functools
-import weakref
 
 import numpy as np
 from numpy.lib.user_array import container
 
-
-def cache_update(method):
-    @functools.wraps(method)
-    def wrapper(self, *args, **kwargs):
-        self.update_cache()
-        return method(self, *args, **kwargs)
-    return wrapper
+from .dobject import DependObject, cache_update, invalidate_cache
 
 
-def invalidate_cache(dobject):
-    if dobject._func is not None:
-        dobject._cache_valid = False
-    elif dobject._dependencies:
-        dobject._cache_valid = False
+class DependArray(DependObject, container):
 
-    for item in dobject._dependants:
-        if item() is not None:
-            invalidate_cache(item())
-
-
-class DependArray(container):
-
-    def __init__(self, data=None, name=None, func=None, kwargs=None, dependencies=None, dependants=None, cache_valid=None):
+    def __init__(self, data=None, *, name=None, func=None, kwargs=None, dependencies=None, dependants=None):
         if data is not None:
             self.array = np.asarray(data)
         else:
             self.array = None
 
-        if dependencies is None:
-            dependencies = []
-        if dependants is None:
-            dependants = []
-
-        if func is None:
-            cache_valid = True
-        else:
-            cache_valid = False
-
-        if kwargs is None:
-            kwargs = {}
-
-        for item in dependencies:
-            item.add_dependant(self)
-
-        self._name = name
-        self._func = func
-        self._kwargs = kwargs
-        self._dependencies = dependencies
-        self._dependants = dependants
-        self._cache_valid = cache_valid
+        super().__init__(name=name, func=func, kwargs=kwargs, dependencies=dependencies, dependants=dependants)
 
     @cache_update
     def __getitem__(self, index):
@@ -71,17 +31,9 @@ class DependArray(container):
 
     def __setitem__(self, index, value):
         if self._func is not None:
-            raise NameError("Cannot set the value of <" + self._name + "> directly")
+            raise NameError(f"Cannot set the value of <{self._name}> directly")
         self.array[index] = np.asarray(value, self.dtype)
         invalidate_cache(self)
-
-    def add_dependency(self, dependency):
-        self._dependencies.append(dependency)
-        dependency.add_dependant(self)
-        invalidate_cache(self)
-
-    def add_dependant(self, dependant):
-        self._dependants.append(weakref.ref(dependant))
 
     def update_cache(self):
         if not self._cache_valid:

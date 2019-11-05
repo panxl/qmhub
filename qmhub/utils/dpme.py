@@ -2,7 +2,7 @@ import weakref
 import numpy as np
 
 import qmhub.helpmelib as pme
-from .darray import cache_update
+from .dobject import cache_update
 
 
 class DependPME(pme.PMEInstanceD):
