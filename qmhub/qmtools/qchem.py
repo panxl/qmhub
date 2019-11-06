@@ -13,52 +13,37 @@ class QChem(QMBase):
     def gen_input(self):
         """Generate input file for QM software."""
 
-        qm_elements = self.qm_elements.view()
-        qm_positions = self.qm_positions.view()
-        mm_charges = self.mm_charges.view()
-        mm_positions = self.mm_positions.view()
-
         with open(Path(self.cwd).joinpath("qchem.inp"), "w") as f:
             f.write(get_qm_template(self.keywords))
-            f.write("$molecule\n")
-            f.write("%d %d\n" % (self.charge, self.mult))
 
-            for i in range(len(qm_elements)):
-                f.write(
-                    "".join(
-                        [
-                            "%3d " % qm_elements[i],
-                            "%22.14e" % qm_positions[0, i],
-                            "%22.14e" % qm_positions[1, i],
-                            "%22.14e" % qm_positions[2, i],
-                            "\n",
-                        ]
-                    )
-                )
+            f.write("$molecule\n")
+            f.write(f"{self.charge} {self.mult}\n")
+            for e, x, y, z, in zip(
+                self.qm_elements,
+                self.qm_positions[0],
+                self.qm_positions[1],
+                self.qm_positions[2],
+            ):
+                f.write(f"{e:3} {x:21.14e} {y:21.14e} {z:21.14e}\n")
             f.write("$end" + "\n\n")
 
             f.write("$external_charges\n")
-            if mm_charges is not None:
-                for i in range(len(mm_charges)):
-                    f.write(
-                        "".join(
-                            [
-                                "%22.14e" % mm_positions[0, i],
-                                "%22.14e" % mm_positions[1, i],
-                                "%22.14e" % mm_positions[2, i],
-                                " %22.14e" % mm_charges[i],
-                                "\n",
-                            ]
-                        )
-                    )
+            if self.mm_charges is not None:
+                for x, y, z, c in zip(
+                    self.mm_positions[0],
+                    self.mm_positions[1],
+                    self.mm_positions[2],
+                    self.mm_charges,
+                ):
+                    f.write(f"{x:21.14e} {y:21.14e} {z:21.14e} {c:21.14e}\n")
             f.write("$end" + "\n")
 
     def gen_cmdline(self):
         """Generate commandline for QM calculation."""
 
         nproc = get_nproc()
-        cmdline = "cd " + str(self.cwd) + "; "
-        cmdline += "qchem -nt %d qchem.inp qchem.out save > qchem_run.log" % nproc
+        cmdline = f"cd {self.cwd}; "
+        cmdline += f"qchem -nt {nproc} qchem.inp qchem.out save > qchem_run.log"
 
         return cmdline
 

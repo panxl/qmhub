@@ -14,11 +14,6 @@ class ORCA(QMBase):
     def gen_input(self):
         """Generate input file for QM software."""
 
-        qm_element_symbols = self.qm_element_symbols.view()
-        qm_positions = self.qm_positions.view()
-        mm_charges = self.mm_charges.view()
-        mm_positions = self.mm_positions.view()
-
         nproc = get_nproc()
 
         with open(Path(self.cwd).joinpath("orca.inp"), 'w') as f:
@@ -26,38 +21,46 @@ class ORCA(QMBase):
 
             f.write("%coords\n")
             f.write("  CTyp xyz\n")
-            f.write("  Charge %d\n" % self.charge)
-            f.write("  Mult %d\n" % self.mult)
+            f.write(f"  Charge {self.charge}\n")
+            f.write(f"  Mult {self.mult}\n")
             f.write("  Units Angs\n")
             f.write("  coords\n")
 
-            for i in range(len(qm_element_symbols)):
-                f.write(" ".join(["%6s" % qm_element_symbols[i],
-                                  "%22.14e" % qm_positions[0, i],
-                                  "%22.14e" % qm_positions[1, i],
-                                  "%22.14e" % qm_positions[2, i], "\n"]))
+            for s, x, y, z, in zip(
+                self.qm_element_symbols,
+                self.qm_positions[0],
+                self.qm_positions[1],
+                self.qm_positions[2],
+            ):
+                f.write(f"    {s:2} {x:21.14e} {y:21.14e} {z:21.14e}\n")
+
             f.write("  end\n")
             f.write("end\n")
 
-        with open(Path(self.cwd).joinpath("orca.pc"), 'w') as f:
-            f.write("%d\n" % len(mm_charges))
-            for i in range(len(mm_charges)):
-                f.write("".join(["%22.14e " % mm_charges[i],
-                                 "%22.14e" % mm_positions[0, i],
-                                 "%22.14e" % mm_positions[1, i],
-                                 "%22.14e" % mm_positions[2, i], "\n"]))
+        if self.mm_charges is not None:
+            with open(Path(self.cwd).joinpath("orca.pc"), 'w') as f:
+                f.write(f"{len(self.mm_charges)}\n")
+                for c, x, y, z in zip(
+                    self.mm_charges,
+                    self.mm_positions[0],
+                    self.mm_positions[1],
+                    self.mm_positions[2],
+                ):
+                    f.write(f"{c:21.14e} {x:21.14e} {y:21.14e} {z:21.14e}\n")
 
-        with open(Path(self.cwd).joinpath("orca.vpot.xyz"), 'w') as f:
-            f.write("%d\n" % len(mm_charges))
-            for i in range(len(mm_charges)):
-                f.write("".join(["%22.14e" % (mm_positions[0, i] / ORCA_BOHR_TO_A),
-                                 "%22.14e" % (mm_positions[1, i] / ORCA_BOHR_TO_A),
-                                 "%22.14e" % (mm_positions[2, i] / ORCA_BOHR_TO_A), "\n"]))
+            with open(Path(self.cwd).joinpath("orca.vpot.xyz"), 'w') as f:
+                f.write(f"{len(self.mm_charges)}\n")
+                for x, y, z in zip(
+                    self.mm_positions[0] / ORCA_BOHR_TO_A,
+                    self.mm_positions[1] / ORCA_BOHR_TO_A,
+                    self.mm_positions[2] / ORCA_BOHR_TO_A,
+                ):
+                    f.write(f"{x:21.14e} {y:21.14e} {z:21.14e}\n")
 
     def gen_cmdline(self):
         """Generate commandline for QM calculation."""
 
-        cmdline = "cd " + str(self.cwd) + "; "
+        cmdline = f"cd {self.cwd}; "
         cmdline += "orca orca.inp > orca.out; "
         cmdline += "orca_vpot orca.gbw orca.scfp orca.vpot.xyz orca.vpot.out >> orca.out"
 

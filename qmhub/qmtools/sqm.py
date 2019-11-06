@@ -14,12 +14,6 @@ class SQM(QMBase):
     def gen_input(self):
         """Generate input file for QM software."""
 
-        qm_positions = self.qm_positions.view()
-        qm_elements = self.qm_elements.view()
-        mm_positions = self.mm_positions.view()
-        mm_charges = self.mm_charges.view()
-        qm_element_symbols = self.qm_element_symbols.view()
-
         if not "qmcharge" in self.keywords:
             self.keywords["qmcharge"] = str(self.charge)
         
@@ -29,27 +23,30 @@ class SQM(QMBase):
         with open(Path(self.cwd).joinpath("sqm.inp"), 'w') as f:
             f.write(get_qm_template(self.keywords))
 
-            for i in range(len(qm_elements)):
-                f.write("".join(["%4d" % qm_elements[i],
-                                 "%4s " % qm_element_symbols[i],
-                                 "%22.14e" % qm_positions[0, i],
-                                 "%22.14e" % qm_positions[1, i],
-                                 "%22.14e" % qm_positions[2, i], "\n"]))
+            for e, s, x, y, z, in zip(
+                self.qm_elements,
+                self.qm_element_symbols,
+                self.qm_positions[0],
+                self.qm_positions[1],
+                self.qm_positions[2],
+            ):
+                f.write(f"{e:3} {s:>2} {x:21.14e} {y:21.14e} {z:21.14e}\n")
 
-            if mm_charges is not None:
+            if self.mm_charges is not None:
                 f.write("#EXCHARGES\n")
-                for i in range(len(mm_charges)):
-                    f.write("".join(["   1   H ",
-                                     "%22.14e" % mm_positions[0, i],
-                                     "%22.14e" % mm_positions[1, i],
-                                     "%22.14e" % mm_positions[2, i],
-                                     " %22.14e" % mm_charges[i], "\n"]))
-                f.write("#END" + "\n")
+                for x, y, z, c in zip(
+                    self.mm_positions[0],
+                    self.mm_positions[1],
+                    self.mm_positions[2],
+                    self.mm_charges,
+                ):
+                    f.write(f"  1  H {x:21.14e} {y:21.14e} {z:21.14e} {c:21.14e}\n")
+                f.write("#END\n")
 
     def gen_cmdline(self):
         """Generate commandline for QM calculation."""
 
-        cmdline = "cd " + str(self.cwd) + "; "
+        cmdline = f"cd {self.cwd}; "
         cmdline += "sqm -O -i sqm.inp -o sqm.out"
 
         return cmdline

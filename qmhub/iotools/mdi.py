@@ -31,7 +31,7 @@ class IOMDI(object):
 
         while True:
             command = MDI_Recv_Command(self.comm)
-            # print("Got a command from driver: %s" % command)
+            # print(f"Got a command from driver: {command}")
 
             if command.strip() == '<NAME':
                 MDI_Send("QMHub", 1, MDI_CHAR, self.comm)
@@ -66,7 +66,7 @@ class IOMDI(object):
 
         while True:
             command = MDI_Recv_Command(self.comm)
-            # print("Got a command from driver: %s" % command)
+            # print(f"Got a command from driver: {command}")
 
             if command.strip() == "<ENERGY":
                 MDI_Send(np.asscalar(energy), 1, MDI_DOUBLE, self.comm)

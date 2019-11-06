@@ -68,5 +68,5 @@ class IOFile(object):
             output = self.input.with_suffix('.out')
 
         with open(output, 'w') as f:
-            f.write("%22.14e\n" % np.asscalar(energy))
+            f.write(f"{np.asscalar(energy):22.14e}\n")
             np.savetxt(f, forces.T, fmt='%22.14e')
