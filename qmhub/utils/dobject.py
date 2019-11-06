@@ -54,4 +54,6 @@ class DependObject(object):
         invalidate_cache(self)
 
     def add_dependant(self, dependant):
-        self._dependants.append(weakref.proxy(dependant))
+        proxy = weakref.proxy(dependant)
+        if id(proxy) not in [id(p) for p in self._dependants]:
+            self._dependants.append(proxy)
