@@ -38,15 +38,15 @@ class DependObject(object):
         else:
             cache_valid = False
 
-        for item in dependencies:
-            item.add_dependant(self)
-
         self._name = name
         self._func = func
         self._kwargs = kwargs
         self._dependencies = dependencies
         self._dependants = dependants
         self._cache_valid = cache_valid
+
+        for item in dependencies:
+            item.add_dependant(self)
 
     def add_dependency(self, dependency):
         self._dependencies.append(dependency)

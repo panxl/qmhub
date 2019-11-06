@@ -51,8 +51,6 @@ class DependArray(DependObject, container):
                 if self._dependencies:
                     for dobject in self._dependencies:
                         dobject.update_cache()
-            elif self.array is not None:
-                self.array[:] = np.asarray(self._func(*self._dependencies, **self._kwargs))
             else:
                 self.array = np.ascontiguousarray(self._func(*self._dependencies, **self._kwargs))
             self._cache_valid = True

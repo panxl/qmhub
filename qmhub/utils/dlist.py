@@ -44,5 +44,5 @@ class DependList(DependObject, MutableSequence):
 
     def update_cache(self):
         if not self._cache_valid:
-            self._data[:] = list(self._func(*self._dependencies, **self._kwargs))
+            self._data = list(self._func(*self._dependencies, **self._kwargs))
             self._cache_valid = True
