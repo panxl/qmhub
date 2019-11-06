@@ -9,7 +9,7 @@ class ElecNear(object):
                  dij_inverse, dij_inverse_gradient,
                  charges, switching_type=None,
                  cutoff=None, swdist=None):
-        
+
         if switching_type is None:
             self.switching_type = 'shift'
         else:
@@ -35,12 +35,12 @@ class ElecNear(object):
             dependencies=[dij_min_gradient, self.near_field_mask],
         )
         self.qmmm_coulomb_tensor = DependArray(
-            name="dij_inverse",
+            name="qmmm_coulomb_tensor",
             func=ElecNear._get_masked_array,
             dependencies=[dij_inverse, self.near_field_mask],
         )
         self.qmmm_coulomb_tensor_gradient = DependArray(
-            name="dij_inverse_gradient",
+            name="qmmm_coulomb_tensor_gradient",
             func=ElecNear._get_masked_array,
             dependencies=[dij_inverse_gradient, self.near_field_mask],
         )
@@ -63,10 +63,10 @@ class ElecNear(object):
         )
         self.weighted_qmmm_coulomb_tensor = DependArray(
             name="weighted_qmmm_coulomb_tensor",
-            func=ElecNear._get_weighted_qmmm_coulomb_tensor,
+            func=(lambda x, y: x * y),
             dependencies=[
-                self.qmmm_coulomb_tensor,
                 self.scaling_factor,
+                self.qmmm_coulomb_tensor,
             ],
         )
         self.weighted_qmmm_coulomb_tensor_inv = DependArray(
@@ -96,10 +96,6 @@ class ElecNear(object):
     @staticmethod
     def _get_masked_array(array, mask):
         return array[..., mask]
-
-    @staticmethod
-    def _get_weighted_qmmm_coulomb_tensor(dij_inverse, weights):
-        return weights * dij_inverse
 
     @staticmethod
     def _get_tensor_inverse_gradient(t, t_grad, t_inv):
