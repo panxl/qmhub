@@ -67,11 +67,14 @@ class ORCA(QMBase):
         """Get QM energy from output of QM calculation."""
 
         if qm_cache is not None:
-            output = qm_cache.data
+            output = qm_cache
         else:
-            if output is None:
-                output = self.OUTPUT
-            output = Path(self.cwd).joinpath(output).read_text().split("\n")
+            try:
+                output = Path(output).read_text().split("\n")
+            except:
+                output = Path(self.cwd).joinpath(self.OUTPUT).read_text().split("\n")
+            else:
+                raise ValueError("Can not open output.")
 
         for line in output:
             if "FINAL SINGLE POINT ENERGY" in line:
@@ -108,11 +111,14 @@ class ORCA(QMBase):
         """Get Mulliken charges from output of QM calculation."""
 
         if qm_cache is not None:
-            output = qm_cache.data
+            output = qm_cache
         else:
-            if output is None:
-                output = self.OUTPUT
-            output = Path(self.cwd).joinpath(output).read_text().split("\n")
+            try:
+                output = Path(output).read_text().split("\n")
+            except:
+                output = Path(self.cwd).joinpath(self.OUTPUT).read_text().split("\n")
+            else:
+                raise ValueError("Can not open output.")
 
         for i in range(len(output)):
             if "MULLIKEN ATOMIC CHARGES" in output[i]:

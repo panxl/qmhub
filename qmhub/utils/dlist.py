@@ -4,13 +4,13 @@ from .dobject import DependObject, cache_update, invalidate_cache
 
 
 class DependList(DependObject, MutableSequence):
-    def __init__(self, data=None, *, name=None, func=None, kwargs=None, dependencies=None, dependants=None):
+    def __init__(self, data=None, **kwargs):
         if data is not None:
             self._data = list(data)
         else:
             self._data = []
 
-        super().__init__(name=name, func=func, kwargs=kwargs, dependencies=dependencies, dependants=dependants)
+        super().__init__(**kwargs)
 
     @cache_update
     def __len__(self):
@@ -34,10 +34,13 @@ class DependList(DependObject, MutableSequence):
     def insert(self, index, value):
         self._data.insert(index, value)
 
-    @property
     @cache_update
-    def data(self):
-        return self._data
+    def __iter__(self):
+        return iter(self._data)
+
+    @cache_update
+    def __reversed__(self):
+        return reversed(self._data)
 
     def update_cache(self):
         if not self._cache_valid:

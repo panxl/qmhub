@@ -58,11 +58,14 @@ class SQM(QMBase):
         """Get QM energy from output of QM calculation."""
 
         if qm_cache is not None:
-            output = qm_cache.data
+            output = qm_cache
         else:
-            if output is None:
-                output = self.OUTPUT
-            output = Path(self.cwd).joinpath(output).read_text().split("\n")
+            try:
+                output = Path(output).read_text().split("\n")
+            except:
+                output = Path(self.cwd).joinpath(self.OUTPUT).read_text().split("\n")
+            else:
+                raise ValueError("Can not open output.")
 
         for line in output:
             if "QMMM: SCF Energy" in line:
@@ -72,11 +75,14 @@ class SQM(QMBase):
         """Get QM energy gradient from output of QM calculation."""
 
         if qm_cache is not None:
-            output = qm_cache.data
+            output = qm_cache
         else:
-            if output is None:
-                output = self.OUTPUT
-            output = Path(self.cwd).joinpath(output).read_text().split("\n")
+            try:
+                output = Path(output).read_text().split("\n")
+            except:
+                output = Path(self.cwd).joinpath(self.OUTPUT).read_text().split("\n")
+            else:
+                raise ValueError("Can not open output.")
 
         for i in range(len(output)):
             if "Forces on QM atoms from SCF calculation" in output[i]:
@@ -92,11 +98,14 @@ class SQM(QMBase):
         """Get electrostatic potential at MM atoms in the near field from QM density."""
 
         if qm_cache is not None:
-            output = qm_cache.data
+            output = qm_cache
         else:
-            if output is None:
-                output = self.OUTPUT
-            output = Path(self.cwd).joinpath(output).read_text().split("\n")
+            try:
+                output = Path(output).read_text().split("\n")
+            except:
+                output = Path(self.cwd).joinpath(self.OUTPUT).read_text().split("\n")
+            else:
+                raise ValueError("Can not open output.")
 
         mm_esp = np.zeros((4, len(self.mm_charges)))
 
@@ -123,11 +132,14 @@ class SQM(QMBase):
         """Get Mulliken charges from output of QM calculation."""
 
         if qm_cache is not None:
-            output = qm_cache.data
+            output = qm_cache
         else:
-            if output is None:
-                output = self.OUTPUT
-            output = Path(self.cwd).joinpath(output).read_text().split("\n")
+            try:
+                output = Path(output).read_text().split("\n")
+            except:
+                output = Path(self.cwd).joinpath(self.OUTPUT).read_text().split("\n")
+            else:
+                raise ValueError("Can not open output.")
 
         for i in range(len(output)):
             if "Atomic Charges" in output[i]:

@@ -1,9 +1,11 @@
+from collections.abc import Sequence
+
 import numpy as np
 
 from .utils.darray import DependArray
 
 
-class Atoms(object):
+class Atoms(Sequence):
     def __init__(self, positions=None, charges=None, elements=None):
         self.positions = positions
         self.charges = charges
@@ -11,14 +13,10 @@ class Atoms(object):
 
     @classmethod
     def new(cls, n_atoms):
-        positions = DependArray(np.zeros((3, n_atoms)))
-        charges = DependArray(np.zeros(n_atoms))
-        elements = DependArray(np.zeros(n_atoms, dtype=int))
-
         kwargs = {
-            'positions': positions,
-            'charges': charges,
-            'elements': elements,
+            'positions': DependArray(np.zeros((3, n_atoms))),
+            'charges': DependArray(np.zeros(n_atoms)),
+            'elements': DependArray(np.zeros(n_atoms, dtype=int)),
         }
 
         return cls(**kwargs)
@@ -26,9 +24,9 @@ class Atoms(object):
     @classmethod
     def from_atoms(cls, atoms, index=None):
         kwargs = {
-            'positions': atoms.positions.subarray(np.s_[:, index]),
-            'charges': atoms.charges.subarray(index),
-            'elements': atoms.elements.subarray(index),
+            'positions': DependArray.from_darray(atoms.positions, np.s_[:, index]),
+            'charges': DependArray.from_darray(atoms.charges, index),
+            'elements': DependArray.from_darray(atoms.elements, index),
         }
 
         return cls(**kwargs)
@@ -36,15 +34,5 @@ class Atoms(object):
     def __len__(self):
         return len(self.charges)
 
-    def __iter__(self):
-        for index in range(len(self)):
-            yield self.from_atoms(self, index)
-
     def __getitem__(self, index):
         return self.from_atoms(self, index)
-
-    def __setitem__(self, index, value):
-        atoms = self.from_atoms(self, index)
-        atoms.positions[:] = value.positions
-        atoms.charges[:] = value.charges
-        atoms.elements[:] = value.elements

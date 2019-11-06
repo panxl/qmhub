@@ -66,7 +66,7 @@ class QChem(QMBase):
         """Get QM energy from output of QM calculation."""
 
         if qm_cache is not None:
-            output = qm_cache.data
+            output = qm_cache
         else:
             if output is None:
                 output = self.OUTPUT
@@ -114,11 +114,14 @@ class QChem(QMBase):
         """Get Mulliken charges from output of QM calculation."""
 
         if qm_cache is not None:
-            output = qm_cache.data
+            output = qm_cache
         else:
-            if output is None:
-                output = self.OUTPUT
-            output = Path(self.cwd).joinpath(output).read_text().split("\n")
+            try:
+                output = Path(output).read_text().split("\n")
+            except:
+                output = Path(self.cwd).joinpath(self.OUTPUT).read_text().split("\n")
+            else:
+                raise ValueError("Can not open output.")
 
         for i in range(len(output)):
             if "Ground-State Mulliken Net Atomic Charges" in output[i]:

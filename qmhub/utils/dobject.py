@@ -24,8 +24,8 @@ def invalidate_cache(dobject):
 
 
 class DependObject(object):
-    def __init__(self, name=None, func=None, kwargs=None, dependencies=None, dependants=None):
- 
+    def __init__(self, *, name=None, func=None, kwargs=None, dependencies=None, dependants=None):
+
         if kwargs is None:
             kwargs = {}
         if dependencies is None:

@@ -8,13 +8,24 @@ from .dobject import DependObject, cache_update, invalidate_cache
 
 class DependArray(DependObject, container):
 
-    def __init__(self, data=None, *, name=None, func=None, kwargs=None, dependencies=None, dependants=None):
+    def __init__(self, data=None, **kwargs):
         if data is not None:
             self.array = np.asarray(data)
         else:
             self.array = None
 
-        super().__init__(name=name, func=func, kwargs=kwargs, dependencies=dependencies, dependants=dependants)
+        super().__init__(**kwargs)
+
+    @classmethod
+    def from_darray(cls, darray, index):
+        ret = cls(darray[index], name=darray._name)
+
+        if darray._func is not None:
+            ret.add_dependency(darray)
+        else:
+            ret._dependants = darray._dependants
+
+        return ret
 
     @cache_update
     def __getitem__(self, index):
@@ -26,16 +37,13 @@ class DependArray(DependObject, container):
         self.array[index] = np.asarray(value, self.dtype)
         invalidate_cache(self)
 
-    def subarray(self, index, depend=True):
-        darray = self._rc(self.array[index])
+    @cache_update
+    def __iter__(self):
+        return iter(self.array)
 
-        if depend and isinstance(darray, DependArray):
-            if self._func is not None:
-                darray.add_dependency(self)
-            else:
-                darray._dependants = self._dependants
-
-        return darray
+    @cache_update
+    def __reversed__(self):
+        return reversed(self.array)
 
     def update_cache(self):
         if not self._cache_valid:
