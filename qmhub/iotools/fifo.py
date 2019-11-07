@@ -35,12 +35,6 @@ class IOFifo(object):
             self._system = System(self._n_atoms, self._n_qm_atoms, qm_charge=qm_charge, qm_mult=qm_mult)
             return self._system
 
-    import line_profiler
-    import atexit
-    profile = line_profiler.LineProfiler()
-    atexit.register(profile.print_stats)
-
-    @profile
     def return_results(self, energy, forces, output=None):
         assert self._system is not None
 
