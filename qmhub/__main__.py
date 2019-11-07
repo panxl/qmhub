@@ -14,7 +14,6 @@ def main():
     group.add_argument("-t", "--text", help="Path to text exchange file")
     group.add_argument("-b", "--bin", help="Path to binary exchange file")
     group.add_argument("-f", "--fifo", help="Path to FIFO exchange file")
-    group.add_argument("-m", "--mdi", help="Port for MolSSI Driver Interface")
 
     parser.add_argument("-d", "--driver", help="Driver")
     parser.add_argument("-c", "--cwd", help="Working directory for engine calculations")
@@ -24,10 +23,7 @@ def main():
     config = configparser.ConfigParser(allow_no_value=True)
     config.read(args.config)
 
-    if args.mdi is not None:
-        mode = "mdi"
-        input = int(args.mdi)
-    elif args.fifo is not None:
+    if args.fifo is not None:
         mode = "fifo"
         input = Path(args.fifo)
     elif args.bin is not None:
