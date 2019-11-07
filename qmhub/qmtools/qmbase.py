@@ -126,7 +126,7 @@ class QMBase(object):
     def _get_mm_esp(self, qm_cache=None):
         """Get electrostatic potential at MM atoms in the near field from QM density."""
 
-        raise NotImplementedError()
+        return np.zeros((4, len(self.mm_charges)))
 
     def _get_mulliken_charges(self, qm_cache=None):
         """Get Mulliken charges from output of QM calculation."""
