@@ -11,8 +11,9 @@ def main():
     parser.add_argument("config", help="QMHub config file")
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("-f", "--file", help="Path to text exchange file")
+    group.add_argument("-t", "--text", help="Path to text exchange file")
     group.add_argument("-b", "--bin", help="Path to binary exchange file")
+    group.add_argument("-f", "--fifo", help="Path to FIFO exchange file")
     group.add_argument("-m", "--mdi", help="Port for MolSSI Driver Interface")
 
     parser.add_argument("-d", "--driver", help="Driver")
@@ -26,12 +27,15 @@ def main():
     if args.mdi is not None:
         mode = "mdi"
         input = int(args.mdi)
+    elif args.fifo is not None:
+        mode = "fifo"
+        input = Path(args.fifo)
     elif args.bin is not None:
         mode = "bin"
         input = Path(args.bin)
-    elif args.file is not None:
-        mode = "file"
-        input = Path(args.file)
+    elif args.text is not None:
+        mode = "text"
+        input = Path(args.text)
 
     qmmm = QMMM(mode, args.driver, args.cwd)
 

@@ -6,9 +6,9 @@ from numpy.lib.recfunctions import structured_to_unstructured
 from ..system import System
 
 
-class IOFile(object):
+class IOText(object):
     def __init__(self, cwd=None):
-        self.mode = "file"
+        self.mode = "text"
         self.cwd = cwd
 
     def load_system(self, input, system=None, step=None):
