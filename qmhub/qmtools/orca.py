@@ -17,7 +17,7 @@ class ORCA(QMBase):
         nproc = get_nproc()
 
         with open(Path(self.cwd).joinpath("orca.inp"), 'w') as f:
-            f.write(get_qm_template(self.keywords, nproc=nproc, pointcharges="orca.pc"))
+            f.write(get_qm_template(self.options, nproc=nproc, pointcharges="orca.pc"))
 
             f.write("%coords\n")
             f.write("  CTyp xyz\n")

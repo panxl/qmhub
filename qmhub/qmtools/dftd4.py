@@ -47,7 +47,7 @@ class DFTD4(QMBase):
     def gen_input(self):
         """Generate input file for QM software."""
 
-        self.options.update(self.keywords)
+        self.options.update(self.options)
 
         kwargs = {
             "natoms": len(self.qm_elements),

@@ -3,7 +3,7 @@ from string import Template
 
 template = """\
 $$rem
-${keywords}\
+${options}\
 qm_mm true
 igdefield 1
 symmetry off
@@ -16,17 +16,17 @@ $$end
 """
 
 
-def get_qm_template(keywords_dict=None):
+def get_qm_template(options_dict=None):
 
-    keywords = {
+    options = {
         "jobtype": "force",
         "method": "hf",
         "basis": "6-31g*",
     }
 
-    if keywords_dict is not None:
-        keywords.update(keywords_dict)
+    if options_dict is not None:
+        options.update(options_dict)
 
-    keywords = "".join([f"{key} {value}\n" for key, value in keywords.items()])
+    options = "".join([f"{key} {value}\n" for key, value in options.items()])
 
-    return Template(template).safe_substitute(keywords=keywords)
+    return Template(template).safe_substitute(options=options)

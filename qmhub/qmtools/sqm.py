@@ -14,14 +14,14 @@ class SQM(QMBase):
     def gen_input(self):
         """Generate input file for QM software."""
 
-        if not "qmcharge" in self.keywords:
-            self.keywords["qmcharge"] = str(self.charge)
-        
-        if not "spin" in self.keywords:
-            self.keywords["spin"] = str(self.mult)
+        if not "qmcharge" in self.options:
+            self.options["qmcharge"] = str(self.charge)
+
+        if not "spin" in self.options:
+            self.options["spin"] = str(self.mult)
 
         with open(Path(self.cwd).joinpath("sqm.inp"), 'w') as f:
-            f.write(get_qm_template(self.keywords))
+            f.write(get_qm_template(self.options))
 
             for e, s, x, y, z, in zip(
                 self.qm_elements,

@@ -53,15 +53,15 @@ def main():
             engine = name
 
         if engine in config:
-            keywords = config[engine]
+            options = config[engine]
         else:
-            keywords = {}
+            options = {}
 
         qmmm.add_engine(
             engine,
             name=name,
             group_name="engine",
-            keywords=keywords,
+            options=options,
         )
 
     if 'engine2' in config:
@@ -70,15 +70,15 @@ def main():
                 engine = name
 
             if engine in config:
-                keywords = config[engine]
+                options = config[engine]
             else:
-                keywords = {}
+                options = {}
 
             qmmm.add_engine(
                 engine,
                 name=name,
                 group_name="engine2",
-                keywords=keywords,
+                options=options,
             )
 
     qmmm.return_results()

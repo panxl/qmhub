@@ -22,7 +22,7 @@ class QMBase(object):
         charge=None,
         mult=None,
         cwd=None,
-        keywords=None,
+        options=None,
         ):
         """
         Creat a QM object.
@@ -47,10 +47,10 @@ class QMBase(object):
         else:
             self.cwd = os.getcwd()
 
-        if keywords is not None:
-            self.keywords = keywords
+        if options is not None:
+            self.options = options
         else:
-            self.keywords = {}
+            self.options = {}
 
         self.qm_element_symbols = DependArray(
             name="qm_element_symbols",
@@ -99,8 +99,8 @@ class QMBase(object):
             output = Path(self.cwd).joinpath(output).read_text().split("\n")
         return output
 
-    def update_keywords(self, keywords):
-        self.keywords.update(keywords)
+    def update_options(self, options):
+        self.options.update(options)
         invalidate_cache(self._qm_cache)
 
     def gen_input(self):

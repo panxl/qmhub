@@ -3,14 +3,14 @@ from string import Template
 
 template = """\
 &qmmm
-${keywords}\
+${options}\
  /
 """
 
 
-def get_qm_template(keywords_dict=None):
+def get_qm_template(options_dict=None):
 
-    keywords = {
+    options = {
         "qm_theory": "pm3",
         "qmcharge": "0",
         "spin": "1",
@@ -19,9 +19,9 @@ def get_qm_template(keywords_dict=None):
         "verbosity": "6",
     }
 
-    if keywords_dict is not None:
-        keywords.update(keywords_dict)
+    if options_dict is not None:
+        options.update(options_dict)
 
-    keywords = "".join([f" {key} = {value},\n" for key, value in keywords.items()])
+    options = "".join([f" {key} = {value},\n" for key, value in options.items()])
 
-    return Template(template).safe_substitute(keywords=keywords)
+    return Template(template).safe_substitute(options=options)

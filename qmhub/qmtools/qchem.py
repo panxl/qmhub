@@ -14,7 +14,7 @@ class QChem(QMBase):
         """Generate input file for QM software."""
 
         with open(Path(self.cwd).joinpath("qchem.inp"), "w") as f:
-            f.write(get_qm_template(self.keywords))
+            f.write(get_qm_template(self.options))
 
             f.write("$molecule\n")
             f.write(f"{self.charge} {self.mult}\n")

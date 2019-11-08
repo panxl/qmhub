@@ -2,16 +2,16 @@ from string import Template
 
 
 template = """\
-! ${keywords}KeepDens
+! ${options}KeepDens
 %output PrintLevel Mini Print[ P_Mulliken ] 1 Print[P_AtCharges_M] 1 end
 %pal nprocs ${nproc} end
 %pointcharges "${pointcharges}"
 """
 
 
-def get_qm_template(keywords_dict=None, nproc=None, pointcharges=None):
+def get_qm_template(options_dict=None, nproc=None, pointcharges=None):
 
-    keywords = {
+    options = {
         "jobtype": "EnGrad",
         "method": "HF",
         "basis": "6-31G(d)",
@@ -20,10 +20,10 @@ def get_qm_template(keywords_dict=None, nproc=None, pointcharges=None):
         "scf_guess": "NoAutoStart",
     }
 
-    if keywords_dict is not None:
-        keywords.update(keywords_dict)
+    if options_dict is not None:
+        options.update(options_dict)
 
-    keywords = "".join([f"{value} " for value in keywords.values()])
+    options = "".join([f"{value} " for value in options.values()])
 
     if nproc is None:
         nproc = 1
@@ -31,4 +31,4 @@ def get_qm_template(keywords_dict=None, nproc=None, pointcharges=None):
     if pointcharges is None:
         pointcharges = "orca.pc"
 
-    return Template(template).safe_substitute(keywords=keywords, nproc=nproc, pointcharges=pointcharges)
+    return Template(template).safe_substitute(options=options, nproc=nproc, pointcharges=pointcharges)

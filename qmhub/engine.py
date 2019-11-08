@@ -53,7 +53,7 @@ class Engine(object):
             dependencies=[],
         )
 
-    def add_engine(self, engine, name=None, cwd=None, keywords=None):
+    def add_engine(self, engine, name=None, cwd=None, options=None):
         if name is None:
             name = engine
 
@@ -66,7 +66,7 @@ class Engine(object):
             charge = self.charge,
             mult = self.mult,
             cwd = cwd,
-            keywords = keywords,
+            options = options,
         )
 
         setattr(self, name, engine_obj)
