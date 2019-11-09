@@ -1,53 +1,28 @@
 from ctypes import c_int, c_double
-from copy import copy
 
 import numpy as np
 
 from dftd4.interface import DFTD4Library
-from dftd4.interface import P_MBD_APPROX_ATM, P_REFQ_EEQ
-from ctypes import c_int, c_double
 
 from .qmbase import QMBase
+from .templates.dftd4 import default_options
 from ..units import CODATA08_BOHR_TO_A
 
 
 class DFTD4(QMBase):
 
     OUTPUT = None
+    default_options = default_options
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._lib = DFTD4Library()
-
-        self._default_options = {
-            'lmbd': P_MBD_APPROX_ATM,
-            'refq': P_REFQ_EEQ,
-            'wf': 6.0,
-            'g_a': 3.0,
-            'g_c': 2.0,
-            'properties': True,
-            'energy': True,
-            'forces': True,
-            'hessian': False,
-            'print_level': 1,
-            's6': 1.0000,  # B3LYP-D4-ATM parameters
-            's8': 1.93077774,
-            's9': 1.0,
-            's10': 0.0,
-            'a1': 0.40520781,
-            'a2': 4.46255249,
-            'alp': 16,
-        }
-
-        self.options = copy(self._default_options)
 
     def _get_qm_cache(self, *args, output=None):
         return self.gen_input().values()
 
     def gen_input(self):
         """Generate input file for QM software."""
-
-        self.options.update(self.options)
 
         kwargs = {
             "natoms": len(self.qm_elements),

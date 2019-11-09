@@ -4,23 +4,22 @@ from string import Template
 template = """\
 &qmmm
 ${options}\
+ maxcyc = 0,
+ verbosity = 6,
  /
 """
 
 
-def get_qm_template(options_dict=None):
+default_options = {
+    "qm_theory": "pm3",
+    "qmmm_int": "1",
+}
 
-    options = {
-        "qm_theory": "pm3",
-        "qmcharge": "0",
-        "spin": "1",
-        "maxcyc": "0",
-        "qmmm_int": "1",
-        "verbosity": "6",
-    }
 
-    if options_dict is not None:
-        options.update(options_dict)
+def get_qm_template(options):
+
+    if options is None:
+        options = default_options
 
     options = "".join([f" {key} = {value},\n" for key, value in options.items()])
 

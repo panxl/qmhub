@@ -3,13 +3,14 @@ import numpy as np
 
 from ..units import ORCA_BOHR_TO_A
 from ..utils.sys import get_nproc
-from .templates.orca import get_qm_template
+from .templates.orca import get_qm_template, default_options
 from .qmbase import QMBase
 
 
 class ORCA(QMBase):
 
     OUTPUT = "orca.out"
+    default_options = default_options
 
     def gen_input(self):
         """Generate input file for QM software."""

@@ -1,5 +1,7 @@
 import os
+from copy import copy
 from pathlib import Path
+
 import numpy as np
 
 from ..utils.dobject import invalidate_cache
@@ -12,6 +14,7 @@ from ..utils.sys import run_cmdline
 class QMBase(object):
 
     OUTPUT = None
+    default_options = None
 
     def __init__(
         self,
@@ -47,10 +50,8 @@ class QMBase(object):
         else:
             self.cwd = os.getcwd()
 
-        if options is not None:
-            self.options = options
-        else:
-            self.options = {}
+        self.options = copy(self.default_options)
+        self.options.update(options)
 
         self.qm_element_symbols = DependArray(
             name="qm_element_symbols",

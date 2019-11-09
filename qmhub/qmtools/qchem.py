@@ -2,13 +2,14 @@ from pathlib import Path
 import numpy as np
 
 from ..utils.sys import get_nproc
-from .templates.qchem import get_qm_template
+from .templates.qchem import get_qm_template, default_options
 from .qmbase import QMBase
 
 
 class QChem(QMBase):
 
     OUTPUT = "qchem.out"
+    default_options = default_options
 
     def gen_input(self):
         """Generate input file for QM software."""

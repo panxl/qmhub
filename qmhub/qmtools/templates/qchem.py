@@ -16,16 +16,17 @@ $$end
 """
 
 
-def get_qm_template(options_dict=None):
+default_options = {
+    "jobtype": "force",
+    "method": "hf",
+    "basis": "6-31g*",
+}
 
-    options = {
-        "jobtype": "force",
-        "method": "hf",
-        "basis": "6-31g*",
-    }
 
-    if options_dict is not None:
-        options.update(options_dict)
+def get_qm_template(options=None):
+
+    if options is None:
+        options = default_options
 
     options = "".join([f"{key} {value}\n" for key, value in options.items()])
 

@@ -3,13 +3,14 @@ import numpy as np
 
 from ..units import AMBER_HARTREE_TO_KCAL, AMBER_BOHR_TO_A
 from ..utils.sys import get_nproc
-from .templates.sqm import get_qm_template
+from .templates.sqm import get_qm_template, default_options
 from .qmbase import QMBase
 
 
 class SQM(QMBase):
 
     OUTPUT = "sqm.out"
+    default_options = default_options
 
     def gen_input(self):
         """Generate input file for QM software."""

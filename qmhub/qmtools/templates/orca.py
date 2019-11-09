@@ -9,19 +9,20 @@ template = """\
 """
 
 
-def get_qm_template(options_dict=None, nproc=None, pointcharges=None):
+default_options = {
+    "jobtype": "EnGrad",
+    "method": "HF",
+    "basis": "6-31G(d)",
+    "grid": "Grid4 NOFINALGRID",
+    "scf_convergence": "TightSCF",
+    "scf_guess": "NoAutoStart",
+}
 
-    options = {
-        "jobtype": "EnGrad",
-        "method": "HF",
-        "basis": "6-31G(d)",
-        "grid": "Grid4 NOFINALGRID",
-        "scf_convergence": "TightSCF",
-        "scf_guess": "NoAutoStart",
-    }
 
-    if options_dict is not None:
-        options.update(options_dict)
+def get_qm_template(options=None, nproc=None, pointcharges=None):
+
+    if options is None:
+        options = default_options
 
     options = "".join([f"{value} " for value in options.values()])
 
