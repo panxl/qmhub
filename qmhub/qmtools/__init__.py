@@ -2,10 +2,11 @@ import importlib
 
 
 QM_TO_CLASS_MAP = {
-    'qchem': "QChem",
-    'orca': "ORCA",
-    'sqm': "SQM",
-    'dftd4': "DFTD4",
+    "qchem": "QChem",
+    "orca": "ORCA",
+    "sqm": "SQM",
+    "dftd4": "DFTD4",
+    "pyh4": "PyH4",
 }
 
 
