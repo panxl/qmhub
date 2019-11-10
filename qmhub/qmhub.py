@@ -74,5 +74,4 @@ class QMMM(object):
         group_obj.add_engine(engine, name=name, cwd=cwd, options=options)
 
     def return_results(self, output=None):
-        energy, energy_gradient = self.simulation.return_results()
-        self.io.return_results(energy, energy_gradient, output)
+        self.io.return_results(self.simulation.energy, self.simulation.energy_gradient, output)

@@ -1,58 +1,83 @@
 import numpy as np
 
 
+from .utils.darray import DependArray
+
+
 class Simulation(object):
     def __init__(self, protocol=None, engine_name=None, engine2_name=None, *, nrespa=None):
-        if protocol is not None:
-            self.protocol = protocol
-        else:
-            self.protocol = "md"
 
-        if engine_name is not None:
-            self.engine_name = engine_name
-        else:
-            self.engine_name = "engine"
+        self.protocol = protocol or "md"
 
-        self.engine2_name = engine2_name
+        self.engine_name = engine_name or "engine"
 
         if self.protocol.lower() == "mts":
-            if self.engine2_name is None:
-                self.engine2_name = "engine2"
+            engine2_name = engine2_name or "engine2"
+        self.engine2_name = engine2_name
 
-            if nrespa is not None:
-                self.nrespa = nrespa
-            else:
-                raise ValueError("Please set 'nrespa' for 'mts' protocol.")
+        self.nrespa = nrespa or 1
 
-        self.step = np.array(0)
+        self.step = DependArray(np.array(0), name="step")
+
+        self.energy = DependArray(
+            name="energy",
+            func=Simulation._get_energy,
+            kwargs={
+                'protocol': self.protocol,
+                'nrespa': self.nrespa,
+            },
+            dependencies=[self.step],
+        )
+
+        self.energy_gradient = DependArray(
+            name="energy_gradient",
+            func=Simulation._get_energy_gradient,
+            kwargs={
+                'protocol': self.protocol,
+                'nrespa': self.nrespa,
+            },
+            dependencies=[self.step],
+        )
 
     def add_engine(self, name, engine):
+        if name == self.engine2_name and not hasattr(self, self.engine_name):
+            raise ValueError("Please add engine before adding engine2.")
+
         if name in [self.engine_name, self.engine2_name]:
             setattr(self, name, engine)
+        else:
+            raise ValueError(f"Please add {self.engine_name} or {self.engine2_name}.")
 
-    def return_results(self):
-        if not hasattr(self, self.engine_name):
-            raise AttributeError("Please add engine first.")
+        self.energy.add_dependency(engine.energy)
+        self.energy_gradient.add_dependency(engine.energy_gradient)
 
-        if self.protocol.lower() == "md":
-            engine = getattr(self, self.engine_name)
-            return engine.energy, engine.energy_gradient
-        elif self.protocol.lower() == "mts":
-            if not hasattr(self, self.engine2_name):
-                raise AttributeError("Please add engine2 first.")
-
-            if ((self.step + 1) % self.nrespa) == 0:
-                engine = getattr(self, self.engine_name)
-                engine2 = getattr(self, self.engine2_name)
-                return (
-                    engine.energy,
-                    engine2.energy_gradient + self.nrespa * (
-                        engine.energy_gradient
-                        - engine.energy_gradient
-                    )
-                )
+    @staticmethod
+    def _get_energy(step, energy, energy2=None, protocol=None, nrespa=None):
+        if protocol.lower() == "md":
+            return energy
+        elif protocol.lower() == "mts":
+            if (step < nrespa):
+                print("Starting step")
+                return energy
+            elif ((step + 1) % nrespa) == 0:
+                print("Outer step")
+                return energy
             else:
-                engine2 = getattr(self, self.engine2_name)
-                return np.array([0.]), engine2.energy_gradient
+                print("Inner step")
+                return 0.
+        else:
+            raise ValueError("Only 'md' and 'mts' are supported.")
+
+    @staticmethod
+    def _get_energy_gradient(step, gradient, gradient2=None, protocol=None, nrespa=None):
+        if protocol.lower() == "md":
+            return gradient
+        elif protocol.lower() == "mts":
+            if (step < nrespa):
+                return gradient
+            elif ((step + 1) % nrespa) == 0:
+                return gradient2 + nrespa * (gradient - gradient2)
+            else:
+                return gradient2
         else:
             raise ValueError("Only 'md' and 'mts' are supported.")
