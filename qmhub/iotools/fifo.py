@@ -18,7 +18,7 @@ class IOFifo(object):
 
     def load_system(self, input, system=None, step=None):
 
-        self._system = system
+        self.cwd = self.cwd or Path(input).parent
 
         if step is None:
             step = 0
@@ -30,10 +30,9 @@ class IOFifo(object):
         self._fin = open(input, "rb")
 
         self._n_atoms, self._n_qm_atoms, qm_charge, qm_mult, self._pbc = read_fifo(self._fin, dtype="i4", count=5)
+        self._system = system or System(self._n_atoms, self._n_qm_atoms, qm_charge=qm_charge, qm_mult=qm_mult)
 
-        if system is None:
-            self._system = System(self._n_atoms, self._n_qm_atoms, qm_charge=qm_charge, qm_mult=qm_mult)
-            return self._system
+        return self._system
 
     def return_results(self, energy, forces, output=None):
         assert self._system is not None
