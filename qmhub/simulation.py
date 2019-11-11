@@ -57,13 +57,10 @@ class Simulation(object):
             return energy
         elif protocol.lower() == "mts":
             if (step < nrespa):
-                print("Starting step")
                 return energy
             elif ((step + 1) % nrespa) == 0:
-                print("Outer step")
                 return energy
             else:
-                print("Inner step")
                 return 0.
         else:
             raise ValueError("Only 'md' and 'mts' are supported.")
