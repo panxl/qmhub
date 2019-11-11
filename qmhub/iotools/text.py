@@ -14,9 +14,7 @@ class IOText(object):
     def load_system(self, input, system=None, step=None):
 
         self.input = Path(input)
-
-        if self.cwd is None:
-            self.cwd = self.input.parent
+        self.cwd = self.cwd or self.input.parent
 
         if step is None:
             step = 0
@@ -64,8 +62,7 @@ class IOText(object):
         return system
 
     def return_results(self, energy, forces, output=None):
-        if output is None:
-            output = self.input.with_suffix('.out')
+        output = output or self.input.with_suffix('.out')
 
         with open(output, 'w') as f:
             f.write(f"{np.asscalar(energy):22.14e}\n")

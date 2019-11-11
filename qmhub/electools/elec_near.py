@@ -10,10 +10,7 @@ class ElecNear(object):
                  charges, switching_type=None,
                  cutoff=None, swdist=None):
 
-        if switching_type is None:
-            self.switching_type = 'shift'
-        else:
-            self.switching_type = switching_type
+        self.switching_type = switching_type or 'shift'
 
         self.cutoff = cutoff
         self.swdist = swdist

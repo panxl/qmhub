@@ -49,8 +49,7 @@ def main():
     )
 
     for name, engine in config['engine'].items():
-        if engine is None:
-            engine = name
+        engine = engine or name
 
         if engine in config:
             options = config[engine]
@@ -66,8 +65,7 @@ def main():
 
     if 'engine2' in config:
         for name, engine in config['engine2'].items():
-            if engine is None:
-                engine = name
+            engine = engine or name
 
             if engine in config:
                 options = config[engine]

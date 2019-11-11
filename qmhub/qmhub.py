@@ -39,14 +39,9 @@ class QMMM(object):
         )
 
     def add_engine(self, engine, name=None, group_name=None, cwd=None, options=None):
-        if name is None:
-            name = engine
-
-        if group_name is None:
-            group_name = "engine"
-
-        if cwd is None:
-            cwd = self.io.cwd
+        name = name or engine
+        group_name = group_name or "engine"
+        cwd = cwd or self.io.cwd
 
         if not hasattr(self, group_name):
             group_obj = Engine(

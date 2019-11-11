@@ -14,10 +14,8 @@ class IOBin(object):
     def load_system(self, input, system=None, step=None):
 
         self.input = Path(input)
+        self.cwd = self.cwd or self.input.parent
 
-        if self.cwd is None:
-            self.cwd = self.input.parent
-        
         if step is None:
             step = 0
 
@@ -64,8 +62,7 @@ class IOBin(object):
         return system
 
     def return_results(self, energy, forces, output=None):
-        if output is None:
-            output = self.input.with_suffix('.out')
+        output = output or self.input.with_suffix('.out')
 
         with open(output, 'wb') as f:
             energy.tofile(f)

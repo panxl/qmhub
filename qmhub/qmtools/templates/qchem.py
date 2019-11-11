@@ -25,9 +25,7 @@ default_options = {
 
 def get_qm_template(options=None):
 
-    if options is None:
-        options = default_options
-
+    options = options or default_options
     options = "".join([f"{key} {value}\n" for key, value in options.items()])
 
     return Template(template).safe_substitute(options=options)

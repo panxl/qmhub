@@ -40,15 +40,13 @@ class QMBase(object):
             self.charge = charge
         else:
             raise ValueError("Please set 'charge' for QM calculation.")
+
         if mult is not None:
             self.mult = mult
         else:
             self.mult = 1
 
-        if cwd is not None:
-            self.cwd = cwd
-        else:
-            self.cwd = os.getcwd()
+        self.cwd = cwd or os.getcwd()
 
         self.options = copy(self.default_options)
         self.options.update(options)

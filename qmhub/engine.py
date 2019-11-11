@@ -30,6 +30,7 @@ class Engine(object):
             self.charge = charge
         else:
             raise ValueError("Please set 'charge' for QM calculation.")
+
         if mult is not None:
             self.mult = mult
         else:
@@ -54,8 +55,7 @@ class Engine(object):
         )
 
     def add_engine(self, engine, name=None, cwd=None, options=None):
-        if name is None:
-            name = engine
+        name = name or engine
 
         engine_obj = QM.create(
             engine.lower(),

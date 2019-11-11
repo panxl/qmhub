@@ -90,8 +90,7 @@ class ORCA(QMBase):
         if qm_cache is not None:
             qm_cache.update_cache()
         
-        if output is None:
-            output = "orca.engrad"
+        output = output or "orca.engrad"
 
         return np.loadtxt(Path(self.cwd).joinpath(output), skiprows=11, max_rows=len(self.qm_elements) * 3).reshape(len(self.qm_elements), 3).T
 
@@ -101,8 +100,7 @@ class ORCA(QMBase):
         if qm_cache is not None:
             qm_cache.update_cache()
 
-        if output is None:
-            output = ("orca.vpot.out", "orca.pcgrad")
+        output = output or ("orca.vpot.out", "orca.pcgrad")
 
         mm_esp = np.zeros((4, len(self.mm_charges)))
 

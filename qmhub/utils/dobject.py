@@ -11,9 +11,7 @@ def cache_update(method):
 
 
 def invalidate_cache(dobject):
-    if dobject._func is not None:
-        dobject._cache_valid = False
-    elif dobject._dependencies:
+    if dobject._func is not None or dobject._dependencies:
         dobject._cache_valid = False
 
     for item in dobject._dependants:
@@ -26,17 +24,10 @@ def invalidate_cache(dobject):
 class DependObject(object):
     def __init__(self, *, name=None, func=None, kwargs=None, dependencies=None, dependants=None):
 
-        if kwargs is None:
-            kwargs = {}
-        if dependencies is None:
-            dependencies = []
-        if dependants is None:
-            dependants = []
-
-        if func is None:
-            cache_valid = True
-        else:
-            cache_valid = False
+        kwargs = kwargs or {}
+        dependencies = dependencies or []
+        dependants = dependants or []
+        cache_valid = True if func is None else False
 
         self._name = name
         self._func = func

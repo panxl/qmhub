@@ -75,8 +75,7 @@ class QChem(QMBase):
         if qm_cache is not None:
             qm_cache.update_cache()
 
-        if output is None:
-            output = "efield.dat"
+        output = output or "efield.dat"
 
         return np.loadtxt(Path(self.cwd).joinpath("efield.dat"), skiprows=len(self.mm_charges), dtype=float).T
 
@@ -86,8 +85,7 @@ class QChem(QMBase):
         if qm_cache is not None:
             qm_cache.update_cache()
 
-        if output is None:
-            output = ("esp.dat", "efield.dat")
+        output = output or ("esp.dat", "efield.dat")
 
         mm_esp = np.zeros((4, len(self.mm_charges)))
 

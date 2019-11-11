@@ -38,8 +38,7 @@ class IOFifo(object):
     def return_results(self, energy, forces, output=None):
         assert self._system is not None
 
-        if output is None:
-            output = Path(self._fin.name).with_suffix('.out')
+        output = output or Path(self._fin.name).with_suffix('.out')
 
         try:
             os.mkfifo(output)

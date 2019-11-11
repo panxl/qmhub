@@ -38,6 +38,10 @@ class DependArray(DependObject, container):
         invalidate_cache(self)
 
     @cache_update
+    def __bool__(self):
+        return bool(self.array)
+
+    @cache_update
     def __iter__(self):
         return iter(self.array)
 

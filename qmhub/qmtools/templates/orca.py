@@ -21,15 +21,10 @@ default_options = {
 
 def get_qm_template(options=None, nproc=None, pointcharges=None):
 
-    if options is None:
-        options = default_options
-
+    options = options or default_options
     options = "".join([f"{value} " for value in options.values()])
 
-    if nproc is None:
-        nproc = 1
-    
-    if pointcharges is None:
-        pointcharges = "orca.pc"
+    nproc = nproc or 1
+    pointcharges = pointcharges or "orca.pc"
 
     return Template(template).safe_substitute(options=options, nproc=nproc, pointcharges=pointcharges)
