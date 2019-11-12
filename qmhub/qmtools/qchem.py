@@ -44,7 +44,7 @@ class QChem(QMBase):
 
         nproc = get_nproc()
         cmdline = f"cd {self.cwd}; "
-        cmdline += f"qchem -nt {nproc} qchem.inp qchem.out save > qchem_run.log"
+        cmdline += f"qchem -nt {nproc} qchem.inp qchem.out > qchem_run.log"
 
         return cmdline
 
