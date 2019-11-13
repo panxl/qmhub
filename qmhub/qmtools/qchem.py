@@ -1,4 +1,6 @@
+import os
 from pathlib import Path
+
 import numpy as np
 
 from .templates.qchem import get_qm_template, default_options
@@ -7,7 +9,7 @@ from .qmbase import QMBase
 
 class QChem(QMBase):
 
-    OUTPUT = "qchem.out"
+    OUTPUT = None
     default_options = default_options
 
     def gen_input(self):
@@ -41,6 +43,8 @@ class QChem(QMBase):
     def gen_cmdline(self):
         """Generate commandline for QM calculation."""
 
+        os.environ["QCSCRATCH"] = str(self.cwd.resolve())
+
         cmdline = f"cd {self.cwd}; "
         cmdline += f"qchem -nt {self.nproc} qchem.inp qchem.out save > qchem_run.log"
 
@@ -50,22 +54,11 @@ class QChem(QMBase):
         """Get QM energy from output of QM calculation."""
 
         if qm_cache is not None:
-            output = qm_cache
-        else:
-            if output is None:
-                output = self.OUTPUT
-            output = Path(self.cwd).joinpath(output).read_text().split("\n")
+            qm_cache.update_cache()
 
-        cc_energy = 0.0
-        for line in output:
-            if "Charge-charge energy" in line:
-                cc_energy = line.split()[-2]
+        output = output or "save/99.0"
 
-            if "Total energy" in line:
-                scf_energy = line.split()[-1]
-                break
-
-        return float(scf_energy) - float(cc_energy)
+        return np.fromfile(Path(self.cwd).joinpath(output), dtype="f8", count=2)[1]
 
     def _get_qm_energy_gradient(self, qm_cache=None, output=None):
         """Get QM energy gradient from output of QM calculation."""
@@ -73,9 +66,9 @@ class QChem(QMBase):
         if qm_cache is not None:
             qm_cache.update_cache()
 
-        output = output or "efield.dat"
+        output = output or "save/131.0"
 
-        return np.loadtxt(Path(self.cwd).joinpath("efield.dat"), skiprows=len(self.mm_charges), dtype=float).T
+        return np.fromfile(Path(self.cwd).joinpath(output), dtype="f8").reshape(-1, 3).T
 
     def _get_mm_esp(self, qm_cache=None, output=None):
         """Get electrostatic potential  at MM atoms in the near field from QM density."""
@@ -96,14 +89,14 @@ class QChem(QMBase):
         """Get Mulliken charges from output of QM calculation."""
 
         if qm_cache is not None:
-            output = qm_cache
-        else:
-            try:
-                output = Path(output).read_text().split("\n")
-            except:
-                output = Path(self.cwd).joinpath(self.OUTPUT).read_text().split("\n")
-            else:
-                raise ValueError("Can not open output.")
+            qm_cache.update_cache()
+
+        output = output or ("qchem.out")
+
+        try:
+            output = Path(self.cwd).joinpath(output).read_text().split("\n")
+        except:
+            output = Path(output).read_text().split("\n")
 
         for i in range(len(output)):
             if "Ground-State Mulliken Net Atomic Charges" in output[i]:

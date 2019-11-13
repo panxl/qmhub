@@ -97,7 +97,7 @@ class QMBase(object):
         run_cmdline(self.gen_cmdline())
         if output is not None:
             output = Path(self.cwd).joinpath(output).read_text().split("\n")
-        return output
+        return output or []
 
     def update_options(self, options):
         for key, value in options.items():
