@@ -1,5 +1,3 @@
-from copy import copy
-
 import numpy as np
 
 from pydftd3 import DFTD3Library

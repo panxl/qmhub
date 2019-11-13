@@ -48,6 +48,7 @@ class QMBase(object):
 
         self.cwd = cwd or os.getcwd()
         self.nproc = get_nproc()
+        self.cmdline = self.gen_cmdline()
 
         self.qm_element_symbols = DependArray(
             name="qm_element_symbols",
@@ -94,7 +95,7 @@ class QMBase(object):
 
     def _get_qm_cache(self, *args, output=None):
         self.gen_input()
-        run_cmdline(self.gen_cmdline())
+        run_cmdline(self.cmdline)
         if output is not None:
             output = Path(self.cwd).joinpath(output).read_text().split("\n")
         return output or []
