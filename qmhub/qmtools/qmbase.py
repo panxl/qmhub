@@ -47,10 +47,6 @@ class QMBase(object):
             self.mult = 1
 
         self.cwd = cwd or os.getcwd()
-
-        self.options = copy(self.default_options)
-        self.options.update(options)
-
         self.nproc = get_nproc()
 
         self.qm_element_symbols = DependArray(
@@ -60,7 +56,6 @@ class QMBase(object):
                 self.qm_elements,
             ]
         )
-
         self._qm_cache = DependList(
             name="qm_cache",
             func=self._get_qm_cache,
@@ -72,6 +67,10 @@ class QMBase(object):
                 self.mm_charges,
             ]
         )
+
+        self.options = copy(self.default_options)
+        self.update_options(options)
+
         self.qm_energy = DependArray(
             name="qm_energy",
             func=self._get_qm_energy,
@@ -101,7 +100,12 @@ class QMBase(object):
         return output
 
     def update_options(self, options):
-        self.options.update(options)
+        for key, value in options.items():
+            try:
+                self.options[key] = type(self.options[key])(value)
+            except:
+                pass
+
         invalidate_cache(self._qm_cache)
 
     def gen_input(self):
