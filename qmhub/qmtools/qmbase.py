@@ -8,7 +8,7 @@ from ..utils.dobject import invalidate_cache
 from ..utils.darray import DependArray
 from ..utils.dlist import DependList
 from ..utils.elements import get_element_symbols
-from ..utils.sys import run_cmdline
+from ..utils.sys import run_cmdline, get_nproc
 
 
 class QMBase(object):
@@ -50,6 +50,8 @@ class QMBase(object):
 
         self.options = copy(self.default_options)
         self.options.update(options)
+
+        self.nproc = get_nproc()
 
         self.qm_element_symbols = DependArray(
             name="qm_element_symbols",

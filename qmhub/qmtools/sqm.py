@@ -2,7 +2,6 @@ from pathlib import Path
 import numpy as np
 
 from ..units import AMBER_HARTREE_TO_KCAL, AMBER_BOHR_TO_A
-from ..utils.sys import get_nproc
 from .templates.sqm import get_qm_template, default_options
 from .qmbase import QMBase
 

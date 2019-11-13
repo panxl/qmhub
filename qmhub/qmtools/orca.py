@@ -2,7 +2,6 @@ from pathlib import Path
 import numpy as np
 
 from ..units import ORCA_BOHR_TO_A
-from ..utils.sys import get_nproc
 from .templates.orca import get_qm_template, default_options
 from .qmbase import QMBase
 
@@ -15,10 +14,8 @@ class ORCA(QMBase):
     def gen_input(self):
         """Generate input file for QM software."""
 
-        nproc = get_nproc()
-
         with open(Path(self.cwd).joinpath("orca.inp"), 'w') as f:
-            f.write(get_qm_template(self.options, nproc=nproc, pointcharges="orca.pc"))
+            f.write(get_qm_template(self.options, nproc=self.nproc, pointcharges="orca.pc"))
 
             f.write("%coords\n")
             f.write("  CTyp xyz\n")

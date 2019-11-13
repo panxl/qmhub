@@ -1,7 +1,6 @@
 from pathlib import Path
 import numpy as np
 
-from ..utils.sys import get_nproc
 from .templates.qchem import get_qm_template, default_options
 from .qmbase import QMBase
 
@@ -42,9 +41,8 @@ class QChem(QMBase):
     def gen_cmdline(self):
         """Generate commandline for QM calculation."""
 
-        nproc = get_nproc()
         cmdline = f"cd {self.cwd}; "
-        cmdline += f"qchem -nt {nproc} qchem.inp qchem.out > qchem_run.log"
+        cmdline += f"qchem -nt {self.nproc} qchem.inp qchem.out save > qchem_run.log"
 
         return cmdline
 
