@@ -105,7 +105,7 @@ class QMBase(object):
             try:
                 self.options[key] = type(self.options[key])(value)
             except:
-                pass
+                self.options[key] = value
 
         invalidate_cache(self._qm_cache)
 

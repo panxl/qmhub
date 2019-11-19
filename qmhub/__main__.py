@@ -51,8 +51,8 @@ def main():
     for name, engine in config['engine'].items():
         engine = engine or name
 
-        if engine in config:
-            options = config[engine]
+        if name in config:
+            options = config[name]
         else:
             options = {}
 
@@ -67,8 +67,8 @@ def main():
         for name, engine in config['engine2'].items():
             engine = engine or name
 
-            if engine in config:
-                options = config[engine]
+            if name in config:
+                options = config[name]
             else:
                 options = {}
 
