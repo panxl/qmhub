@@ -110,7 +110,9 @@ class SQM(QMBase):
             if "Forces on MM atoms from SCF calculation" in output[i]:
                 for j in range(len(self.mm_charges)):
                     line = output[i + j + 1]
-                    mm_esp[1:, j] = [float(n) / self.mm_charges[j] for n in line.split()[-3:]]
+                    mm_esp[1, j] = float(line[18:38]) / self.mm_charges[j]
+                    mm_esp[2, j] = float(line[38:58]) / self.mm_charges[j]
+                    mm_esp[3, j] = float(line[58:78]) / self.mm_charges[j]
                 line_num = i + j + 2
                 break
 
@@ -118,7 +120,7 @@ class SQM(QMBase):
             if "Electrostatic Potential on MM atoms from QM Atoms" in output[i]:
                 for j in range(len(self.mm_charges)):
                     line = output[i + j + 1]
-                    mm_esp[0, j] = float(line.split()[-1])
+                    mm_esp[0, j] = float(line[18:38])
                 break
 
         mm_esp[0] /= AMBER_HARTREE_TO_KCAL
