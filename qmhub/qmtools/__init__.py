@@ -8,6 +8,7 @@ QM_TO_CLASS_MAP = {
     "dftd4": "DFTD4",
     "pydftd3": "PyDFTD3",
     "pyh4": "PyH4",
+    "dummy": "Dummy",
 }
 
 

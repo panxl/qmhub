@@ -116,8 +116,7 @@ class QMBase(object):
 
     def gen_cmdline(self):
         """Generate commandline for QM calculation."""
-
-        raise NotImplementedError()
+        pass
 
     def _get_qm_energy(self, qm_cache=None):
         """Get QM energy from output of QM calculation."""
