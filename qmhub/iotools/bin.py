@@ -67,3 +67,20 @@ class IOBin(object):
         with open(output, 'wb') as f:
             energy.tofile(f)
             forces.T.tofile(f)
+
+    @staticmethod
+    def save_input(input):
+        """Preserve the input file passed from the driver."""
+        import glob
+        import shutil
+
+        input = str(input)
+        prev_inputs = glob.glob(input + "_*")
+
+        if prev_inputs:
+            idx = max([int(i.split('_')[-1]) for i in prev_inputs]) + 1
+        else:
+            idx = 0
+
+        if Path(input).is_file():
+            shutil.copyfile(input, f"{input}_{idx:04d}")

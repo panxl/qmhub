@@ -85,3 +85,8 @@ class IOFifo(object):
             self._fout.write(_energy)
             _forces = forces.tobytes(order="F")
             self._fout.write(_forces)
+
+    @staticmethod
+    def save_input(input):
+        """Preserve the input file passed from the driver."""
+        pass

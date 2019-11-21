@@ -18,8 +18,10 @@ class QMMM(object):
     def setup_simulation(self, protocol="md", **kwargs):
         self.simulation = Simulation(protocol, **kwargs)
 
-    def load_system(self, input):
+    def load_system(self, input, save_input=False):
         self.system = self.io.load_system(input, step=self.simulation.step)
+        if save_input:
+            self.io.save_input(input)
 
     def build_model(self, switching_type=None, cutoff=None, swdist=None, pbc=None):
         if not hasattr(self, 'system'):

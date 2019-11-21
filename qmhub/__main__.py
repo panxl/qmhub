@@ -35,11 +35,12 @@ def main():
 
     qmmm = QMMM(mode, args.driver, args.cwd)
 
-    protocol=config.get('simulation', 'protocol', fallback='md')
-    nrespa=config.getint('simulation', 'nrespa', fallback=None)
+    protocol = config.get('simulation', 'protocol', fallback='md')
+    nrespa = config.getint('simulation', 'nrespa', fallback=None)
+    save_input = config.getboolean('simulation', 'save_input', fallback=False)
     qmmm.setup_simulation(protocol, nrespa=nrespa)
 
-    qmmm.load_system(input)
+    qmmm.load_system(input, save_input=save_input)
 
     qmmm.build_model(
         switching_type=config.get('model', 'switching_function', fallback='lrec'),
