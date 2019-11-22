@@ -100,12 +100,13 @@ class QMBase(object):
             output = Path(self.cwd).joinpath(output).read_text().split("\n")
         return output or []
 
-    def update_options(self, options):
-        for key, value in options.items():
-            try:
-                self.options[key] = type(self.options[key])(value)
-            except:
-                self.options[key] = value
+    def update_options(self, options=None):
+        if options is not None:
+            for key, value in options.items():
+                try:
+                    self.options[key] = type(self.options[key])(value)
+                except:
+                    self.options[key] = value
 
         invalidate_cache(self._qm_cache)
 
