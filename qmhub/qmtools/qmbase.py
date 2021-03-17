@@ -57,6 +57,13 @@ class QMBase(object):
                 self.qm_elements,
             ]
         )
+        self.qm_element_ids = DependArray(
+            name="qm_element_ids",
+            func=(lambda t : [np.unique(t).tolist().index(i) for i in t]),
+            dependencies=[
+                self.qm_elements,
+            ]
+        )
         self._qm_cache = DependList(
             name="qm_cache",
             func=self._get_qm_cache,
@@ -97,7 +104,13 @@ class QMBase(object):
         self.gen_input()
         run_cmdline(self.cmdline)
         if output is not None:
-            output = Path(self.cwd).joinpath(output).read_text().split("\n")
+            output_path = Path(self.cwd).joinpath(output)
+            try:
+                output = output_path.read_text().split("\n")
+            except:
+                raise
+            else:
+                os.remove(output_path)
         return output or []
 
     def update_options(self, options=None):
