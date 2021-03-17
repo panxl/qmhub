@@ -98,3 +98,8 @@ class DependArray(DependObject, container):
     def __imatmul__(self, other):
         np.matmul(self.array, other, self.array)
         return self
+
+    @cache_update
+    def tobytes(self, order='C'):
+        ""
+        return self.array.tobytes(order=order)
