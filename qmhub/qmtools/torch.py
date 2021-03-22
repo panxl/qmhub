@@ -11,7 +11,7 @@ class Torch(QMBase):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._model = torch.jit.load(self.options['model'])
+        self._model = torch.jit.load(self.options['model']).double()
 
     def _get_qm_cache(self, *args, output=None):
         return self.gen_input()
