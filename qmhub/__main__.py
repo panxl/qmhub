@@ -14,6 +14,7 @@ def main():
     group.add_argument("-t", "--text", help="Path to text exchange file")
     group.add_argument("-b", "--bin", help="Path to binary exchange file")
     group.add_argument("-f", "--fifo", help="Path to FIFO exchange file")
+    group.add_argument("-s", "--shm", help="Path to SHM exchange file")
 
     parser.add_argument("-d", "--driver", help="Driver")
     parser.add_argument("-c", "--cwd", help="Working directory for engine calculations")
@@ -23,7 +24,10 @@ def main():
     config = configparser.ConfigParser(allow_no_value=True)
     config.read(args.config)
 
-    if args.fifo is not None:
+    if args.shm is not None:
+        mode = "shm"
+        input = Path(args.shm)
+    elif args.fifo is not None:
         mode = "fifo"
         input = Path(args.fifo)
     elif args.bin is not None:
