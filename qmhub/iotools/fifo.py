@@ -81,10 +81,8 @@ class IOFifo(object):
 
             self._system.atoms.positions[:] = read_fifo(self._fin, dtype="f8", count=self._n_atoms * 3).reshape(3, self._n_atoms)
 
-            _energy = energy.tobytes()
-            self._fout.write(_energy)
-            _forces = forces.tobytes(order="F")
-            self._fout.write(_forces)
+            self._fout.write(energy.tobytes())
+            self._fout.write(forces.tobytes(order="F"))
 
     @staticmethod
     def save_input(input):

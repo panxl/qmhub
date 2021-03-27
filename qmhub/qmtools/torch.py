@@ -40,6 +40,6 @@ class Torch(QMBase):
         """Get electrostatic potential at MM atoms in the near field from QM density."""
 
         mm_esp = np.zeros((4, len(self.mm_charges)))
-        mm_esp[0] = qm_cache[3][0].detach().numpy() / CODATA08_HARTREE_TO_EV
-        mm_esp[1:] = qm_cache[2][0].detach().numpy().T / self.mm_charges / (CODATA08_HARTREE_TO_EV / CODATA08_BOHR_TO_A)
+        mm_esp[0] = qm_cache[2][0].detach().numpy() / CODATA08_HARTREE_TO_EV
+        mm_esp[1:] = qm_cache[3][0].detach().numpy().T / (CODATA08_HARTREE_TO_EV / CODATA08_BOHR_TO_A)
         return mm_esp

@@ -58,7 +58,14 @@ class QChem(QMBase):
 
         output = output or "save/99.0"
 
-        return np.fromfile(Path(self.cwd).joinpath(output), dtype="f8", count=2)[1]
+        try:
+            energy = np.fromfile(Path(self.cwd).joinpath(output), dtype="f8", count=1, offset=8).item()
+        except:
+            raise
+        else:
+            os.remove(Path(self.cwd).joinpath(output))
+
+        return energy
 
     def _get_qm_energy_gradient(self, qm_cache=None, output=None):
         """Get QM energy gradient from output of QM calculation."""
@@ -68,7 +75,14 @@ class QChem(QMBase):
 
         output = output or "save/131.0"
 
-        return np.fromfile(Path(self.cwd).joinpath(output), dtype="f8").reshape(-1, 3).T
+        try:
+            gradient = np.fromfile(Path(self.cwd).joinpath(output), dtype="f8", count=(len(self.qm_elements)*3)).reshape(-1, 3).T
+        except:
+            raise
+        else:
+            os.remove(Path(self.cwd).joinpath(output))
+
+        return gradient
 
     def _get_mm_esp(self, qm_cache=None, output=None):
         """Get electrostatic potential  at MM atoms in the near field from QM density."""
@@ -76,12 +90,18 @@ class QChem(QMBase):
         if qm_cache is not None:
             qm_cache.update_cache()
 
-        output = output or ("esp.dat", "efield.dat")
+        output = output or ("save/5001.0", "save/5002.0")
 
         mm_esp = np.zeros((4, len(self.mm_charges)))
 
-        mm_esp[0] = np.loadtxt(Path(self.cwd).joinpath(output[0]), dtype=float)
-        mm_esp[1:] = -np.loadtxt(Path(self.cwd).joinpath(output[1]), max_rows=len(self.mm_charges), dtype=float).T
+        try:
+            mm_esp[0] = np.fromfile(Path(self.cwd).joinpath(output[0]), dtype="f8", count=len(self.mm_charges))
+            mm_esp[1:] = -np.fromfile(Path(self.cwd).joinpath(output[1]), dtype="f8", count=(len(self.mm_charges)*3)).reshape(-1, 3).T
+        except:
+            raise
+        else:
+            os.remove(Path(self.cwd).joinpath(output[0]))
+            os.remove(Path(self.cwd).joinpath(output[1]))
 
         return mm_esp
 
