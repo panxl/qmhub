@@ -37,8 +37,9 @@ def main():
 
     protocol = config.get('simulation', 'protocol', fallback='md')
     nrespa = config.getint('simulation', 'nrespa', fallback=None)
+    scaling_factor = config.getfloat('simulation', 'scaling_factor', fallback=None)
     save_input = config.getboolean('simulation', 'save_input', fallback=False)
-    qmmm.setup_simulation(protocol, nrespa=nrespa)
+    qmmm.setup_simulation(protocol, nrespa=nrespa, scaling_factor=scaling_factor)
 
     qmmm.load_system(input, save_input=save_input)
 

@@ -5,7 +5,7 @@ from .utils.darray import DependArray
 
 
 class Simulation(object):
-    def __init__(self, protocol=None, engine_name=None, engine2_name=None, *, nrespa=None):
+    def __init__(self, protocol=None, engine_name=None, engine2_name=None, *, nrespa=None, scaling_factor=None):
 
         self.protocol = protocol or "md"
 
@@ -16,6 +16,7 @@ class Simulation(object):
         self.engine2_name = engine2_name
 
         self.nrespa = nrespa or 1
+        self.scaling_factor = scaling_factor
 
         self.step = DependArray(np.array(0), name="step")
 
@@ -25,6 +26,7 @@ class Simulation(object):
             kwargs={
                 'protocol': self.protocol,
                 'nrespa': self.nrespa,
+                'scaling_factor': self.scaling_factor,
             },
             dependencies=[self.step],
         )
@@ -35,6 +37,7 @@ class Simulation(object):
             kwargs={
                 'protocol': self.protocol,
                 'nrespa': self.nrespa,
+                'scaling_factor': self.scaling_factor,
             },
             dependencies=[self.step],
         )
@@ -52,7 +55,9 @@ class Simulation(object):
         self.energy_gradient.add_dependency(engine.energy_gradient)
 
     @staticmethod
-    def _get_energy(step, energy, energy2=None, protocol=None, nrespa=None):
+    def _get_energy(step, energy, energy2=None, protocol=None, nrespa=None, scaling_factor=None):
+        if scaling_factor is not None:
+            energy = energy * scaling_factor
         if protocol.lower() == "md":
             return energy
         elif protocol.lower() == "mts":
@@ -66,7 +71,11 @@ class Simulation(object):
             raise ValueError("Only 'md' and 'mts' are supported.")
 
     @staticmethod
-    def _get_energy_gradient(step, gradient, gradient2=None, protocol=None, nrespa=None):
+    def _get_energy_gradient(step, gradient, gradient2=None, protocol=None, nrespa=None, scaling_factor=None):
+        if scaling_factor is not None:
+            gradient = gradient * scaling_factor
+            if gradient2 is not None:
+                gradient2 = gradient2 * scaling_factor
         if protocol.lower() == "md":
             return gradient
         elif protocol.lower() == "mts":
