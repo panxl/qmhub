@@ -107,21 +107,17 @@ class SQM(QMBase):
         mm_esp = np.zeros((4, len(self.mm_charges)))
 
         for i in range(len(output)):
-            if "Forces on MM atoms from SCF calculation" in output[i]:
-                for j in range(len(self.mm_charges)):
-                    line = output[i + j + 1]
-                    mm_esp[1, j] = float(line[18:38]) / self.mm_charges[j]
-                    mm_esp[2, j] = float(line[38:58]) / self.mm_charges[j]
-                    mm_esp[3, j] = float(line[58:78]) / self.mm_charges[j]
-                line_num = i + j + 2
-                break
-
-        for i in range(line_num, len(output)):
-            if "Electrostatic Potential on MM atoms from QM Atoms" in output[i]:
+            if "Electrostatic potential and field on MM atoms from QM Atoms" in output[i]:
                 for j in range(len(self.mm_charges)):
                     line = output[i + j + 1]
                     mm_esp[0, j] = float(line[18:38])
+                    mm_esp[1, j] = -float(line[38:58])
+                    mm_esp[2, j] = -float(line[58:78])
+                    mm_esp[3, j] = -float(line[78:98])
                 break
+
+            if i == len(output) - 1:
+                raise ValueError("Can not find MM electrostatic potential and field.")
 
         mm_esp[0] /= AMBER_HARTREE_TO_KCAL
         mm_esp[1:] /= (AMBER_HARTREE_TO_KCAL / AMBER_BOHR_TO_A)

@@ -5,7 +5,7 @@ template = """\
 &qmmm
 ${options}\
  maxcyc = 0,
- verbosity = 6,
+ verbosity = 4,
  /
 """
 
