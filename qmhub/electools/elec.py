@@ -66,8 +66,8 @@ class Elec(object):
         )
         self.coulomb_exclusion = DependArray(
             name="coulomb_exclusion",
-            func=(lambda x: np.nonzero(x < .8)[0]),
-            dependencies=[self.dij_min],
+            func=(lambda x: np.nonzero(x.min(axis=0) < .8)[0]),
+            dependencies=[self.dij],
         )
         self.mm1_index = DependArray(
             name="mm1_index",
@@ -115,10 +115,8 @@ class Elec(object):
             self.qmqm = None
 
         self.near_field = ElecNear(
-            dij_min=self.dij_min,
-            dij_min_gradient=self.dij_min_gradient, 
-            dij_inverse=self.dij_inverse,
-            dij_inverse_gradient=self.dij_inverse_gradient,
+            rij=self.rij,
+            dij=self.dij,
             charges=charges,
             switching_type=switching_type,
             cutoff=cutoff,
