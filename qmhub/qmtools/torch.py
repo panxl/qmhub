@@ -19,12 +19,18 @@ class Torch(QMBase):
     def gen_input(self):
         """Generate input file for QM software."""
 
-        args = (
-            torch.from_numpy(np.ascontiguousarray(self.qm_positions.T)[None]),
-            torch.from_numpy(self.qm_element_ids[:]),
-            torch.from_numpy(self.mm_positions.T[None]),
-            torch.from_numpy(self.mm_charges[None]),
-            )
+        if self.mm_charges is not None:
+            args = (
+                torch.from_numpy(np.ascontiguousarray(self.qm_positions.T)[None]),
+                torch.from_numpy(self.qm_element_ids[:]),
+                torch.from_numpy(self.mm_positions.T[None]),
+                torch.from_numpy(self.mm_charges[None]),
+                )
+        else:
+            args = (
+                torch.from_numpy(np.ascontiguousarray(self.qm_positions.T)[None]),
+                torch.from_numpy(self.qm_element_ids[:]),
+                )
 
         return self._model(*args)
 
