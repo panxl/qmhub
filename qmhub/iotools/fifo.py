@@ -62,6 +62,8 @@ class IOFifo(object):
 
         self._system.atoms.positions[:] = read_fifo(self._fin, dtype="f8", count=self._n_atoms * 3).reshape(3, self._n_atoms)
 
+        self._system.wrap_positions()
+
         self._fout = open(output, "wb")
         self._fout.write(energy.tobytes())
         self._fout.write(forces.tobytes(order="F"))
@@ -80,6 +82,8 @@ class IOFifo(object):
                 self._system.cell_basis[:] = cell_basis
 
             self._system.atoms.positions[:] = read_fifo(self._fin, dtype="f8", count=self._n_atoms * 3).reshape(3, self._n_atoms)
+
+            self._system.wrap_positions()
 
             self._fout.write(energy.tobytes())
             self._fout.write(forces.tobytes(order="F"))

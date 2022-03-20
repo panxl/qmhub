@@ -26,3 +26,8 @@ class System(object):
  
         self.qm_charge = qm_charge
         self.qm_mult = qm_mult
+
+    def wrap_positions(self):
+        self.atoms.positions -= self.qm.atoms.positions.mean(axis=1, keepdims=True)
+        if not np.all(self.cell_basis == 0):
+            self.atoms.positions -= np.around(self.atoms.positions / np.diagonal(self.cell_basis)[:, np.newaxis]) * np.diagonal(self.cell_basis)[:, np.newaxis]

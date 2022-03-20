@@ -57,6 +57,8 @@ class IOText(object):
         if not np.all(cell_basis == 0.0):
             system.cell_basis[:] = cell_basis
 
+        system.wrap_positions()
+
         self._step[()] = _step
 
         return system
