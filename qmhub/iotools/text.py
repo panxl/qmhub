@@ -67,7 +67,7 @@ class IOText(object):
         output = output or self.input.with_suffix('.out')
 
         with open(output, 'w') as f:
-            f.write(f"{np.asscalar(energy):22.14e}\n")
+            f.write(f"{energy.item():22.14e}\n")
             np.savetxt(f, forces.T, fmt='%22.14e')
 
     @staticmethod

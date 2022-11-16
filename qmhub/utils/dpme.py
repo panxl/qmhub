@@ -18,7 +18,7 @@ class DependPME(pme.PMEInstanceD):
     def _func(self, cell_basis, alpha, order, nfft):
         super().setup(
                 1,
-                np.asscalar(alpha),
+                alpha.item(),
                 order,
                 *nfft.tolist(),
                 1.,
