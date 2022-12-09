@@ -4,7 +4,6 @@ A QM/MM interface.
 """
 import sys
 from setuptools import setup, find_packages
-import versioneer
 
 short_description = __doc__.split("\n")
 
@@ -27,8 +26,6 @@ setup(
     description=short_description[0],
     long_description=long_description,
     long_description_content_type="text/markdown",
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
     license='MIT',
 
     # Which Python importable modules should be included when your package is installed
