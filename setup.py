@@ -1,6 +1,6 @@
 """
 QMHub
-A universal QM/MM interface.
+A QM/MM interface.
 """
 import sys
 from setuptools import setup, find_packages

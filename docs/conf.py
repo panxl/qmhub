@@ -24,7 +24,7 @@ import qmhub
 
 project = 'QMHub'
 copyright = ("2019, Xiaoliang Pan. Project structure based on the "
-             "Computational Molecular Science Python Cookiecutter version 1.0")
+             "Computational Molecular Science Python Cookiecutter version 1.1")
 author = 'Xiaoliang Pan'
 
 # The short X.Y version
@@ -166,7 +166,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'qmhub', 'QMHub Documentation',
-     author, 'qmhub', 'A universal QM/MM interface.',
+     author, 'qmhub', 'A QM/MM interface.',
      'Miscellaneous'),
 ]
 

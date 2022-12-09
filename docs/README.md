@@ -16,3 +16,4 @@ make html
 
 The compiled docs will be in the `_build` directory and can be viewed by opening `index.html` (which may itself 
 be inside a directory called `html/` depending on what version of Sphinx is installed).
+
