@@ -25,9 +25,9 @@ requires-python = ">=3.8"
 #]
 
 # Update the urls once the hosting is set up.
-#[project.urls]
-#"Source" = "https://github.com/<username>/qmhub/"
-#"Documentation" = "https://qmhub.readthedocs.io/"
+[project.urls]
+"Source" = "https://github.com/panxl/qmhub/"
+"Documentation" = "https://panxl.github.io/qmhub/"
 
 [project.optional-dependencies]
 test = [
@@ -58,7 +58,7 @@ zip-safe = false
 # (instead of using 'find'). With 'find', the 'tests' subpackage is discovered
 # recursively because of its __init__.py file, but the data subdirectory is excluded
 # with include-package-data = false and namespaces = false.
-include-package-data = false
+include-package-data = true
 [tool.setuptools.packages.find]
 namespaces = false
 where = ["."]
