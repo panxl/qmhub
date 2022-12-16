@@ -10,6 +10,7 @@ Welcome to QMHub's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   Home <self>
    getting_started
    api
 
