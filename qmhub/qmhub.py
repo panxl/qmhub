@@ -10,7 +10,9 @@ from .iotools import IO
 
 
 class QMMM(object):
+    '''qmmm'''
     def __init__(self, mode, driver=None, cwd=None):
+        '''inital'''
         self.io = IO.create(mode, cwd)
         self.driver = driver
         self.engine_groups = {}
