@@ -10,22 +10,31 @@ from .iotools import IO
 
 
 class QMMM(object):
-    '''qmmm'''
+    '''QMHub python module'''
     def __init__(self, mode, driver=None, cwd=None):
-        '''inital'''
         self.io = IO.create(mode, cwd)
         self.driver = driver
         self.engine_groups = {}
 
     def setup_simulation(self, protocol="md", **kwargs):
+        '''Prepares a simulations with give protocols. Default is protocl is `md`, molecular dynamics
+        supports multiple protocols throught **kwargs
+        
+        other options are what?'''
         self.simulation = Simulation(protocol, **kwargs)
 
     def load_system(self, input, save_input=False):
+        '''loads a saved simulation from the step it was saved at. Takes the simualtion as input, which has saved it's last step
+        
+        what kind of file?'''
         self.system = self.io.load_system(input, step=self.simulation.step)
         if save_input:
             self.io.save_input(input)
 
     def build_model(self, switching_type=None, cutoff=None, swdist=None, pbc=None):
+        '''Creates a model with the defaults of 
+        
+        these don't seem to be used...'''
         if not hasattr(self, 'system'):
             raise AttributeError("Please load system first.")
 
@@ -43,6 +52,9 @@ class QMMM(object):
         )
 
     def add_engine(self, engine, name=None, group_name=None, cwd=None, options=None):
+        '''Default engine name is `engine`
+        
+        what is engine for?'''
         name = name or engine
         group_name = group_name or "engine"
         cwd = cwd or self.io.cwd
@@ -73,4 +85,8 @@ class QMMM(object):
         group_obj.add_engine(engine, name=name, cwd=cwd, options=options)
 
     def return_results(self, output=None):
+        '''prints the simulation energy figures and energy gradient base on current simulations
+        can take output of option, default is None
+        
+        what are options'''
         self.io.return_results(self.simulation.energy, self.simulation.energy_gradient, output)
