@@ -1,15 +1,9 @@
 API Documentation
 =================
-qmhub.QMMM
-==========
-
-.. currentmodule:: qmhub
 
 .. autoclass:: QMMM
-
    
    .. automethod:: setup_simulation
-
    
    .. rubric:: Methods
 
