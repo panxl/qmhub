@@ -3,6 +3,10 @@ QMMM
 
 .. currentmodule:: qmhub
 
+.. automodule:: conf
+
+.. automodule:: engine
+
 .. autoclass:: QMMM
 
    
