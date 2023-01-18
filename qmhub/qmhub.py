@@ -20,17 +20,23 @@ class QMMM(object):
     def setup_simulation(self, protocol="md", **kwargs):
         '''Prepares a simulations with given protocols.
         
-        Paratmeter
+        Parameters
         ----------
-        Protocol : str, optional
+        protocol : str, optional
             `md` is molecular dynamics.`mts` is multiple time step molecular dynamics, where [][][]. Default is `md`
         '''
         self.simulation = Simulation(protocol, **kwargs)
 
     def load_system(self, input, save_input=False):
-        loads a saved simulation from the step it was saved at. Takes the simualtion as input, which has saved it's last step
+        ''''Loads a saved simulation from the step it was saved at. Takes the simualtion as input, which has saved it's last step
         
-        what kind of file?'''
+        Parameters
+        ----------
+        input : str
+            The path to a binary file, text file, or a named pipe (fifo)
+        save_input : Boolean, optional
+            If the files are to be kept after running
+        '''
         self.system = self.io.load_system(input, step=self.simulation.step)
         if save_input:
             self.io.save_input(input)
