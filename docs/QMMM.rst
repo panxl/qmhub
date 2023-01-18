@@ -6,7 +6,7 @@ QMMM
 .. autoclass:: QMMM
 
    
-   .. automethod:: __init__
+   .. automethod:: setup_simulation
 
    
    .. rubric:: Methods
