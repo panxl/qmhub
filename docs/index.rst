@@ -13,6 +13,7 @@ Welcome to QMHub's documentation!
    Home <self>
    getting_started
    api
+   QMMM
 
 
 
