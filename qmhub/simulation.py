@@ -5,6 +5,10 @@ from .utils.darray import DependArray
 
 
 class Simulation(object):
+    '''Simulation object stores energy gradient and energy values as an array with a dependency on the simulation step
+    The object also stores the engine, protocol, and scaling factor needed by the simulation
+    
+    what is scaling factor'''
     def __init__(self, protocol=None, engine_name=None, engine2_name=None, *, nrespa=None, scaling_factor=None):
 
         self.protocol = protocol or "md"
@@ -43,6 +47,7 @@ class Simulation(object):
         )
 
     def add_engine(self, name, engine):
+        ''''''
         if name == self.engine2_name and not hasattr(self, self.engine_name):
             raise ValueError("Please add engine before adding engine2.")
 
@@ -56,6 +61,8 @@ class Simulation(object):
 
     @staticmethod
     def _get_energy(step, energy, energy2=None, protocol=None, nrespa=None, scaling_factor=None):
+        '''Retuerns the free energy of the system as a float. A static method for all instances of the simulation class. 
+        Will return 0 if '''
         if scaling_factor is not None:
             energy = energy * scaling_factor
         if protocol.lower() == "md":
@@ -72,6 +79,15 @@ class Simulation(object):
 
     @staticmethod
     def _get_energy_gradient(step, gradient, gradient2=None, protocol=None, nrespa=None, scaling_factor=None):
+        '''Returns the energy gradient and as Numpy array output. A static method for all instances of the simulation class. 
+        
+        Args:
+           step ()
+           gradient ()
+           gradient2 ( optional)
+        Returns:
+            Numpy Array
+        '''
         if scaling_factor is not None:
             gradient = gradient * scaling_factor
             if gradient2 is not None:
