@@ -12,19 +12,23 @@ from .iotools import IO
 class QMMM(object):
     '''QMHub python module'''
     def __init__(self, mode, driver=None, cwd=None):
+        '''driver and cwd has default of none'''
         self.io = IO.create(mode, cwd)
         self.driver = driver
         self.engine_groups = {}
 
     def setup_simulation(self, protocol="md", **kwargs):
-        '''Prepares a simulations with give protocols. Default is protocl is `md`, molecular dynamics
-        supports multiple protocols throught **kwargs
+        '''Prepares a simulations with given protocols.
         
-        other options are what?'''
+        Paratmeter
+        ----------
+        Protocol : str, optional
+            `md` is molecular dynamics.`mts` is multiple time step molecular dynamics, where [][][]. Default is `md`
+        '''
         self.simulation = Simulation(protocol, **kwargs)
 
     def load_system(self, input, save_input=False):
-        '''loads a saved simulation from the step it was saved at. Takes the simualtion as input, which has saved it's last step
+        loads a saved simulation from the step it was saved at. Takes the simualtion as input, which has saved it's last step
         
         what kind of file?'''
         self.system = self.io.load_system(input, step=self.simulation.step)
@@ -85,7 +89,7 @@ class QMMM(object):
         group_obj.add_engine(engine, name=name, cwd=cwd, options=options)
 
     def return_results(self, output=None):
-        '''prints the simulation energy figures and energy gradient base on current simulations
+        '''Prints the simulation energy figures and energy gradient base on current simulations
         can take output of option, default is None
         
         what are options'''
