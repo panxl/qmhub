@@ -1,13 +1,13 @@
 Atoms
 ==========
 
-.. currentmodule:: atoms
+.. currentmodule:: qmhub
 
 .. automodule:: conf
 
 .. automodule:: engine
 
-.. autoclass:: atoms
+.. autoclass:: Atoms
 
    
    .. automethod:: new
