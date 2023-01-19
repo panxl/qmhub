@@ -1,14 +1,7 @@
 Atoms
 ==========
 
-.. currentmodule:: qmhub
-
-.. automodule:: conf
-
-.. automodule:: engine
-
-.. autoclass:: Atoms
-
+.. autosummary::
+   :toctree: autosummary
    
-   .. automethod:: new
-   .. automethod:: from_atoms
+   qmhub.atoms
