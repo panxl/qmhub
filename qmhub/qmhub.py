@@ -28,7 +28,7 @@ class QMMM(object):
     def load_system(self, input, save_input=False):
         ''''Loads a saved simulation from the step it was saved at. Takes the simualtion as input, which has saved it's last step.
         
-        Args
+        Args:
             input (str): The path to a binary file, text file, or a named pipe (fifo).
             save_input (Boolean, optional): If the files are to be kept after running.
         '''
@@ -39,7 +39,7 @@ class QMMM(object):
     def build_model(self, switching_type=None, cutoff=None, swdist=None, pbc=None):
         '''Creates a model to store atome positions and charges, takes several options with defaults of `None`.
         
-        Args
+        Args:
             switching_type (optional): 
             cutoff (optional): 
             swdit (optional):
@@ -64,7 +64,7 @@ class QMMM(object):
     def add_engine(self, engine, name=None, group_name=None, cwd=None, options=None):
         '''The engine to model atom positions and charges. Default engine name is `engine`.
         
-        Args
+        Args:
             engine ():
             name (str, optional): 
             group_name (str, optional): 
@@ -103,6 +103,6 @@ class QMMM(object):
     def return_results(self, output=None):
         '''Prints the simulation energy figures and energy gradient base on current simulations.
         
-        args
+        Args:
             output (str, optional): '''
         self.io.return_results(self.simulation.energy, self.simulation.energy_gradient, output)
