@@ -9,7 +9,12 @@ class Atoms(Sequence):
     ''' QMHub atom object'''
     def __init__(self, positions=None, charges=None, elements=None):
         '''
+        Stores position, charge, and element of atom object
         
+        Arge:
+            positons (optional):
+            charges (optional):
+            elements (optional):
         '''
         self.positions = positions
         self.charges = charges
