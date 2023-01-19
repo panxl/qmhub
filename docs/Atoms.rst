@@ -7,7 +7,7 @@ Atoms
 
 .. automodule:: engine
 
-.. autoclass:: Atoms
+.. autoclass:: atoms
 
    
    .. automethod:: new
