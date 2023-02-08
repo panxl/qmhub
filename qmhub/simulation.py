@@ -14,9 +14,8 @@ class Simulation(object):
             protocol (str, optional):
             engine_name (str, optional):
             engine2_name (str, optional):
-            * [what]
-            nrespa (int, optional):
-            scaling_factor(int, optional):
+            nrespa (int, optional, keyword only):
+            scaling_factor(int, optional, keyword only):
         '''
 
         self.protocol = protocol or "md"
