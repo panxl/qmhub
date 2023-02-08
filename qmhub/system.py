@@ -41,10 +41,11 @@ class System(object):
         self.qm_mult = qm_mult
 
     def wrap_positions(self):
-        '''what
+        '''Sets the position of MM atoms relative to the mean postion of QM atoms by subtracting the mean position of QM atoms from the position of MM atoms.
+        [check]
         
         Args:
-            
+            None
         '''
         self.atoms.positions -= self.qm.atoms.positions.mean(axis=1, keepdims=True)
         if not np.all(self.cell_basis == 0):
