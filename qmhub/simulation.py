@@ -8,13 +8,13 @@ class Simulation(object):
     '''Simulation object stores energy gradient and energy values as an array with a dependency on the simulation step; among other factors such as the engine, protocol, and scaling factor needed by the simulation.'''
     def __init__(self, protocol=None, engine_name=None, engine2_name=None, *, nrespa=None, scaling_factor=None):
         '''
-        Initizalize the simulation object
+        Initizalizes the simulation object by storing the variable the array needs, placing them in a list as needed to form the energy array and energy gradient array.
         
         Args:
             protocol (str, optional):
             engine_name (str, optional):
             engine2_name (str, optional):
-            * (what)
+            * [what]
             nrespa (int, optional):
             scaling_factor(int, optional):
         '''
@@ -56,7 +56,7 @@ class Simulation(object):
 
     def add_engine(self, name, engine):
         '''
-        Attaches engine to simulation object
+        Attaches engine to simulation object, and gives the energy array and energy gradient arrays those arrays brought by the engine.
         
         Args:
             name (str):
