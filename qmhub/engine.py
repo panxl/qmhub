@@ -4,11 +4,9 @@ import numpy as np
 
 from .qmtools import QM
 from .utils.darray import DependArray
-'''
-test'''
 
 class Engine(object):
-
+    '''QMHub Engine object'''
     def __init__(
         self,
         qm_positions,
@@ -19,7 +17,15 @@ class Engine(object):
         mult=None,
     ):
         """
-        Creat a Engine object.
+        Creates an Engine object for QM simulations; which stores the elements and positions of the QM simulation, and optionally the positions and charges from the MM simulation. Also creates energy arrays and energy gradients arrays particular to the QM system.
+        
+        Args:
+            qm_positions ():
+            qm_elements ():
+            mm_positions (optional):
+            mm_charges (optional):
+            charge (optional):
+            mult (optional):
         """
 
         self.qm_positions = qm_positions
@@ -56,6 +62,15 @@ class Engine(object):
         )
 
     def add_engine(self, engine, name=None, cwd=None, options=None):
+        '''
+        Makes an Engine object from a given engine. [what, why]
+        
+        Args:
+            engine (Engine):
+            name (str, optional):
+            cwd (optional):
+            options (str, optional):
+        '''
         name = name or engine
 
         engine_obj = QM.create(
