@@ -12,7 +12,7 @@ from .iotools import IO
 class QMMM(object):
     '''QMHub python module'''
     def __init__(self, mode, driver=None, cwd=None):
-        '''Initizalizes the QMHub module with the I/O mode, cwd, and driver.
+        '''Creates the QMHub module with the I/O mode, cwd, and driver.
         
         Args:
             mode (str):
