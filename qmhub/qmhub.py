@@ -12,7 +12,13 @@ from .iotools import IO
 class QMMM(object):
     '''QMHub python module'''
     def __init__(self, mode, driver=None, cwd=None):
-        '''driver and cwd has default of none'''
+        '''Initizalizes the QMHub module with the I/O mode, cwd, and driver.
+        
+        Args:
+            mode (str):
+            driver (str, optional):
+            cwd (str, optional):
+        '''
         self.io = IO.create(mode, cwd)
         self.driver = driver
         self.engine_groups = {}
