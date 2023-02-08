@@ -63,7 +63,7 @@ class Engine(object):
 
     def add_engine(self, engine, name=None, cwd=None, options=None):
         '''
-        Makes an Engine object from a given engine. [what, why]
+        Attaches an given engine to the dictionary of the Engine object, i.e. the set of engines; allowing for the results of different engines to be added together for additional module components, e.g. error correction.
         
         Args:
             engine (Engine):
