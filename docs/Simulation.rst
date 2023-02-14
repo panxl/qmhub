@@ -1,11 +1,6 @@
 Simulation
 ==========
 
-.. currentmodule:: simulation
-
-.. automodule:: conf
-
-.. automodule:: engine
 
 .. autoclass:: Simulation
 
