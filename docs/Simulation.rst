@@ -11,4 +11,5 @@ Simulation
 
    
    .. automethod:: add_engine
-   .. automethod:: 
+   .. automethod:: _get_energy
+   .. automethod:: _get_energy_gradient
