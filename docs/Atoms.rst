@@ -9,7 +9,7 @@ Atoms
 
 .. autoclass:: Atoms
 
-   
+   .. automethod:: __init__
    .. automethod:: new
    .. automethod:: from_atoms
    
