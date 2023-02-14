@@ -1,7 +1,7 @@
 Atoms
 ==========
 
-.. currentmodule:: atoms
+.. currentmodule:: qmhub
 
 .. automodule:: conf
 
