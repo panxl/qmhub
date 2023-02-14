@@ -9,6 +9,6 @@ Engine
 
 .. autoclass:: Engine
 
-   
+   .. automethod:: __init__
    .. automethod:: add_engine
    
