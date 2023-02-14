@@ -9,5 +9,5 @@ System
 
 .. autoclass:: System
 
-   
+   .. automethod:: __init__
    .. automethod:: wrap_positions
