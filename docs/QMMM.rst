@@ -9,7 +9,7 @@ QMMM
 
 .. autoclass:: QMMM
 
-   
+   .. automethod:: __init__
    .. automethod:: setup_simulation
    .. automethod:: load_simulation
    .. automethod:: build_model
