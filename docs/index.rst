@@ -11,18 +11,26 @@ Welcome to QMHub's documentation!
    :caption: Contents:
 
    Home <self>
-   Installation
    CommandLine
    PythonModule
-   api
    AMBER
-   QMMM
-   Atoms
-   Simulation
-   Model
-   Engine
-   System
+   api
+   <!--QMMM-->
+   <!--Atoms-->
+   <!--Simulation-->
+   <!--Model-->
+   <!--Engine-->
+   <!--System-->
+   
+.. toctree::
+   :maxdepth: 2
+   :caption: Tutorials:
 
+   Installation
+   AMBER Installation
+   QM/MM MD with AMBER
+   
+   
 
 
 Indices and tables
