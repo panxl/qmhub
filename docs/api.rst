@@ -1,7 +1,7 @@
 API Documentation
 =================
 
-QMMM
+**QMMM**
 
 .. currentmodule:: qmhub
 
@@ -19,7 +19,7 @@ QMMM
    .. automethod:: return_results
    
 
-Atoms
+**Atoms**
 
 .. currentmodule:: qmhub.atoms
 
