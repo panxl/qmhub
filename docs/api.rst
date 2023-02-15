@@ -2,7 +2,7 @@ API Documentation
 =================
 
 QMMM
-==========
+----
 
 .. currentmodule:: qmhub
 
@@ -21,7 +21,7 @@ QMMM
    
    
 Atoms
-==========
+-----
 
 .. currentmodule:: qmhub.atoms
 
