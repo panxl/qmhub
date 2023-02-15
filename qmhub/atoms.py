@@ -11,7 +11,7 @@ class Atoms(Sequence):
         '''
         Stores position, charge, and element of atom object
         
-        Arge:
+        Args:
             positons (optional):
             charges (optional):
             elements (optional):
