@@ -2,6 +2,7 @@ API Documentation
 =================
 
 QMMM
+
 .. currentmodule:: qmhub
 
 .. automodule:: conf
@@ -19,6 +20,7 @@ QMMM
    
 
 Atoms
+
 .. currentmodule:: qmhub.atoms
 
 .. automodule:: conf
