@@ -14,6 +14,7 @@ Welcome to QMHub's documentation!
    Installation
    CommandLine
    PythonModule
+   api
    AMBER
    QMMM
    Atoms
