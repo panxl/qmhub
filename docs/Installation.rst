@@ -36,10 +36,12 @@ Outside of this directory, run the following commands:
     cp python/helpmelib.cpython-310-x86_64-linux-gnu.so /[pwd]/mambaforge/lib/[python.version]/site-packages/qmhub
 
 N.B. you have your own cmake.sh for your server enviorment, for example:
+
 .. code-block::
     CXX=icpc PKG_CONFIG_PATH=~/mambaforge/lib/pkgconfig cmake .. -DFFTW_INCLUDES=$MKLROOT/include/fftw -DFFTW_LIBRARIES=$MKLROOT/lib/intel64 -DHAVE_FFTWF=1 -DHAVE_FFTWD=1 -DHAVE_FFTWL=1 
 
 if you use an intel compilers, you will need to compile each time at the start of the session; run:
+
 ..code-block::
     module load intel/2020a
     export LD_PRELOAD=$MKLROOT/lib/intel64/libmkl_core.so:$MKLROOT/lib/intel64/libmkl_sequential.so
@@ -54,7 +56,7 @@ Command Line Usage
 
 Generate the .inp input file manually
 
-use mdanaylsis, a script with pdb, or anything that can generate data in right format	
+use mdanaylsis, a script with protein databank file, or anything that can generate data in right format	
 
 https://docs.mdanalysis.org/stable/index.html
 
@@ -82,7 +84,7 @@ Python Module
 
 qmhub can be used as a python moduele that can do all and more of qmhub commandline functionality:
 
-    take arrays from .nc and .psf formate and copy them directly into QMhub with pdb, mdanaylsis, anything
+    take arrays from .nc and .psf formate and copy them directly into QMhub with protein data bank files, mdanaylsis, anything
 
     force matching
     
