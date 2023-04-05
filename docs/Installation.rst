@@ -52,7 +52,6 @@ Generate the .inp input file manually
 use mdanaylsis, a script with pdb, or anything that can generate data in right format	
 https://docs.mdanalysis.org/stable/index.html
 
-<I hate markdown>
 qmmm.inp contains:
 
     first 3 columns xyz cordiantes
@@ -81,4 +80,5 @@ qmhub can be used as a python moduele that can do all and more of qmhub commandl
     Maxmimum likelihood potentional training
 
     energy weighting
+        
         by useing python to extract the desired array from qmhub and do maniputations or seperate from simulations
