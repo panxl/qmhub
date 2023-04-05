@@ -1,7 +1,7 @@
 Installation
 ============
 
-.. image:: qmhub/docs/qmhub.png
+.. image:: qmhub.png
   :width: 300
 
 install mambaforge or miniforge
@@ -18,7 +18,7 @@ you run qmhub in this directory
     qmhub -t qmmm.inp qmhub.ini
 
 
-.. image:: qmhub/docs/helpme.png
+.. image:: helpme.png
   :width: 300
   
 Outside of this directory, run the following commands:
