@@ -44,6 +44,9 @@ if you use an intel compilers, you will need to compile each time at the start o
 
 If errors are encountered, see: https://stackoverflow.com/questions/61341878/intel-mkl-fatal-error-when-running-kaldi-gst-live-demo
 
+
+
+
 **Command Line Usage**
 
 Generate the .inp input file manually
@@ -65,6 +68,8 @@ run:
 View the output in qmmm.out as a coordinate list
 
 N.B. in qmmm.ini, nrespa is the number of MM cycles between QM cycles
+
+
 
 
 **Python Module**
