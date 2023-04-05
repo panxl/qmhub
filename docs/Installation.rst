@@ -5,6 +5,7 @@ Installation
   :width: 600
 
 install mambaforge or miniforge
+
 install numpy, scipy, and ipython
 
 .. code-block:: console
@@ -13,6 +14,7 @@ install numpy, scipy, and ipython
 
 
 you should now have seperate directroy with qmhub.ini, qmmm.inp, and qmmm.out
+
 you run qmhub in this directory
 .. code-block::
     qmhub -t qmmm.inp qmhub.ini
@@ -51,7 +53,9 @@ Command Line Usage
 ------------------
 
 Generate the .inp input file manually
+
 use mdanaylsis, a script with pdb, or anything that can generate data in right format	
+
 https://docs.mdanalysis.org/stable/index.html
 
 qmmm.inp contains:
