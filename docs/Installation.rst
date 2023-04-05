@@ -48,7 +48,7 @@ If errors are encountered, see: https://stackoverflow.com/questions/61341878/int
 
 
 Command Line Usage
--------------------
+------------------
 
 Generate the .inp input file manually
 use mdanaylsis, a script with pdb, or anything that can generate data in right format	
@@ -74,7 +74,7 @@ N.B. in qmmm.ini, nrespa is the number of MM cycles between QM cycles
 
 
 Python Module
-----------------
+-------------
 
 qmhub can be used as a python moduele that can do all and more of qmhub commandline functionality:
 
