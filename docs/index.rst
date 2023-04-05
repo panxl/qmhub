@@ -5,7 +5,7 @@
 
 Welcome to QMHub's documentation!
 =========================================================
-[]description[]
+A QM/MM interface.
 
 
 .. toctree::
