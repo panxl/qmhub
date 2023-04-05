@@ -2,7 +2,7 @@ Installation
 ============
 
 .. image:: qmhub.png
-  :width: 300
+  :width: 600
 
 install mambaforge or miniforge
 install numpy, scipy, and ipython
@@ -19,7 +19,7 @@ you run qmhub in this directory
 
 
 .. image:: helpme.png
-  :width: 300
+  :width: 600
   
 Outside of this directory, run the following commands:
 .. code-block::
