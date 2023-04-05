@@ -3,7 +3,6 @@ Installation
 
 .. image:: qmhub/docs/qmhub.png
   :width: 300
-  :alt: Alternative text
 
 install mambaforge or miniforge
 install numpy, scipy, and ipython
@@ -21,7 +20,6 @@ you run qmhub in this directory
 
 .. image:: qmhub/docs/helpme.png
   :width: 300
-  :alt: Alternative text
   
 Outside of this directory, run the following commands:
 .. code-block::
@@ -71,7 +69,7 @@ N.B. in qmmm.ini, nrespa is the number of MM cycles between QM cycles
 
 **Python Module**
 
-qmhub can be used as a python moduele that can do all and more of qmhub commandline functionality
+qmhub can be used as a python moduele that can do all and more of qmhub commandline functionality:
 
     take arrays from .nc and .psf formate and copy them directly into QMhub with pdb, mdanaylsis, anything
 
@@ -81,4 +79,4 @@ qmhub can be used as a python moduele that can do all and more of qmhub commandl
 
     energy weighting
         
-        by useing python to extract the desired array from qmhub and do maniputations or seperate from simulations
+        by using python to extract the desired array from qmhub and do maniputations or seperate from simulations
