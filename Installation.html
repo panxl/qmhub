@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation &mdash; QMHub  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="API Documentation" href="api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            QMHub
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CommandLine.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="PythonModule.html">Python Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#command-line-usage">Command Line Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#python-module">Python Module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">QMHub</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Installation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Installation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
+<a class="reference internal image-reference" href="_images/qmhub.png"><img alt="_images/qmhub.png" src="_images/qmhub.png" style="width: 600px;" /></a>
+<p>install mambaforge or miniforge</p>
+<p>install numpy, scipy, and ipython</p>
+<p>you should now have seperate directroy with qmhub.ini, qmmm.inp, and qmmm.out</p>
+<p>you run qmhub in this directory
+.. code-block:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">qmhub</span> <span class="o">-</span><span class="n">t</span> <span class="n">qmmm</span><span class="o">.</span><span class="n">inp</span> <span class="n">qmhub</span><span class="o">.</span><span class="n">ini</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/helpme.png"><img alt="_images/helpme.png" src="_images/helpme.png" style="width: 600px;" /></a>
+<p>Outside of this directory, run the following commands:
+.. code-block:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">andysim</span><span class="o">/</span><span class="n">helpme</span><span class="o">.</span><span class="n">git</span>
+<span class="n">cd</span> <span class="n">helpme</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">CMake</span><span class="o">/</span><span class="mf">3.9.6</span>
+<span class="n">mkdir</span> <span class="n">build</span>
+<span class="n">cp</span> <span class="n">cmake</span><span class="o">.</span><span class="n">sh</span> <span class="n">build</span>
+<span class="n">cd</span> <span class="n">build</span>
+<span class="n">bash</span> <span class="n">cmake</span><span class="o">.</span><span class="n">sh</span>
+<span class="n">make</span> <span class="n">helpmelib</span>
+<span class="n">cp</span> <span class="n">python</span><span class="o">/</span><span class="n">helpmelib</span><span class="o">.</span><span class="n">cpython</span><span class="o">-</span><span class="mi">310</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">gnu</span><span class="o">.</span><span class="n">so</span> <span class="o">/</span><span class="p">[</span><span class="n">pwd</span><span class="p">]</span><span class="o">/</span><span class="n">mambaforge</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="p">[</span><span class="n">python</span><span class="o">.</span><span class="n">version</span><span class="p">]</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">qmhub</span>
+</pre></div>
+</div>
+<p>N.B. you have your own cmake.sh for your server enviorment, for example:</p>
+<p>if you use an intel compilers, you will need to compile each time at the start of the session; run:</p>
+<dl class="simple">
+<dt>..code-block::</dt><dd><p>module load intel/2020a
+export LD_PRELOAD=$MKLROOT/lib/intel64/libmkl_core.so:$MKLROOT/lib/intel64/libmkl_sequential.so</p>
+</dd>
+</dl>
+<p>If errors are encountered, see: <a class="reference external" href="https://stackoverflow.com/questions/61341878/intel-mkl-fatal-error-when-running-kaldi-gst-live-demo">https://stackoverflow.com/questions/61341878/intel-mkl-fatal-error-when-running-kaldi-gst-live-demo</a></p>
+<section id="command-line-usage">
+<h2>Command Line Usage<a class="headerlink" href="#command-line-usage" title="Permalink to this heading"></a></h2>
+<p>Generate the .inp input file manually</p>
+<p>use mdanaylsis, a script with protein databank file, or anything that can generate data in right format</p>
+<p><a class="reference external" href="https://docs.mdanalysis.org/stable/index.html">https://docs.mdanalysis.org/stable/index.html</a></p>
+<p>qmmm.inp contains:</p>
+<blockquote>
+<div><p>first 3 columns xyz cordiantes</p>
+<p>4th column is charge for MM</p>
+<p>5th column is atomic number for QM</p>
+</div></blockquote>
+<p>run:
+.. code-block:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">qmhub</span> <span class="o">-</span><span class="n">t</span> <span class="n">qmmm</span><span class="o">.</span><span class="n">inp</span> <span class="n">qmhub</span><span class="o">.</span><span class="n">ini</span>
+</pre></div>
+</div>
+<p>View the output in qmmm.out as a coordinate list</p>
+<p>N.B. in qmmm.ini, nrespa is the number of MM cycles between QM cycles</p>
+</section>
+<section id="python-module">
+<h2>Python Module<a class="headerlink" href="#python-module" title="Permalink to this heading"></a></h2>
+<p>qmhub can be used as a python moduele that can do all and more of qmhub commandline functionality:</p>
+<blockquote>
+<div><p>take arrays from .nc and .psf formate and copy them directly into QMhub with protein data bank files, mdanaylsis, anything</p>
+<p>force matching</p>
+<p>Maxmimum likelihood potentional training</p>
+<p>energy weighting</p>
+<blockquote>
+<div><p>by using python to extract the desired array from qmhub and do maniputations or seperate from simulations</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api.html" class="btn btn-neutral float-left" title="API Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2019, Xiaoliang Pan. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
