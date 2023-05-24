@@ -5,7 +5,18 @@ from .utils.darray import DependArray
 
 
 class Simulation(object):
+    '''Simulation object stores energy gradient and energy values as an array with a dependency on the simulation step; among other factors such as the engine, protocol, and scaling factor needed by the simulation.'''
     def __init__(self, protocol=None, engine_name=None, engine2_name=None, *, nrespa=None, scaling_factor=None):
+        '''
+        Creates the simulation object by storing the variable the array needs, placing them in a list as needed to form the energy array and energy gradient array.
+        
+        Args:
+            protocol (str, optional):
+            engine_name (str, optional):
+            engine2_name (str, optional):
+            nrespa (int, optional, keyword only):
+            scaling_factor(int, optional, keyword only):
+        '''
 
         self.protocol = protocol or "md"
 
@@ -43,6 +54,13 @@ class Simulation(object):
         )
 
     def add_engine(self, name, engine):
+        '''
+        Attaches engine to simulation object, and gives the energy array and energy gradient arrays those arrays brought by the engine.
+        
+        Args:
+            name (str):
+            engine (str):
+        '''
         if name == self.engine2_name and not hasattr(self, self.engine_name):
             raise ValueError("Please add engine before adding engine2.")
 
@@ -56,6 +74,19 @@ class Simulation(object):
 
     @staticmethod
     def _get_energy(step, energy, energy2=None, protocol=None, nrespa=None, scaling_factor=None):
+        '''Retuerns the free energy of the system as a float. A static method for all instances of the simulation class. 
+        Will return 0 if `((step + 1) % nrespa)`
+        
+        Args:
+            step (int):
+            energy (Array):
+            energy2 (Array, optional):
+            protocol (str, optional):
+            nrespa (int, optional):
+            scaling_factor (int, optional):
+        Returns:
+            float
+        '''
         if scaling_factor is not None:
             energy = energy * scaling_factor
         if protocol.lower() == "md":
@@ -72,6 +103,15 @@ class Simulation(object):
 
     @staticmethod
     def _get_energy_gradient(step, gradient, gradient2=None, protocol=None, nrespa=None, scaling_factor=None):
+        '''Returns the energy gradient and as Numpy array output. A static method for all instances of the simulation class. 
+        
+        Args:
+           step ():
+           gradient ():
+           gradient2 ( optional):
+        Returns:
+            Numpy Array
+        '''
         if scaling_factor is not None:
             gradient = gradient * scaling_factor
             if gradient2 is not None:

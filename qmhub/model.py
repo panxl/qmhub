@@ -6,6 +6,7 @@ from .utils.darray import DependArray
 
 
 class Model(object):
+    '''QMHub Model object'''
     def __init__(
         self,
         qm_positions,
@@ -20,7 +21,19 @@ class Model(object):
         pbc=None,
         ):
         """
-        Creat a Model object.
+        Creates a Model object to store values for both the MM and QM simulation which are not part of the simulation's engine.
+        
+        Args:
+            qm_positions ():
+            positions ():
+            qm_charges ():
+            charges ():
+            cell_basis ():
+            qm_total_charge ():
+            switching_type (optional):
+            cutoff (optional):
+            swdist (optional):
+            pbc (optional):
         """
 
         self.qm_positions = qm_positions
@@ -69,6 +82,15 @@ class Model(object):
         qm_energy_gradient,
         mm_esp,
         ):
+        '''
+        Sets the attraction values of the named simulation with the results of the previous step.
+        
+        Args:
+            name ():
+            qm_energy ():
+            qm_energy_gradient ():
+            mm_esp():
+        '''
 
         result_obj = Result(
             qm_energy=qm_energy,

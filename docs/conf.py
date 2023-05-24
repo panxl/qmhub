@@ -18,7 +18,9 @@ import sys
 sys.path.insert(0, os.path.abspath('..'))
 
 import qmhub
-
+'''
+docstring
+'''
 
 # -- Project information -----------------------------------------------------
 
@@ -53,7 +55,7 @@ extensions = [
 ]
 
 autosummary_generate = True
-napoleon_google_docstring = False
+napoleon_google_docstring = True
 napoleon_use_param = False
 napoleon_use_ivar = True
 
@@ -147,6 +149,7 @@ latex_documents = [
     (master_doc, 'qmhub.tex', 'QMHub Documentation',
      'qmhub', 'manual'),
 ]
+
 
 
 # -- Options for manual page output ------------------------------------------
