@@ -4,6 +4,7 @@ from scipy.special import erfc
 
 from ..utils.darray import DependArray
 from ..utils.dpme import DependPME
+from ..utils.sys import get_nproc
 
 
 PI = math.pi
@@ -48,7 +49,7 @@ class Ewald(object):
             kwargs={'cell_basis': cell_basis},
         )
 
-        self.pme = DependPME(self.cell_basis, self.alpha, self.order, self.nfft)
+        self.pme = DependPME(self.cell_basis, self.alpha, self.order, self.nfft, get_nproc())
 
         self.ewald_real_tensor = DependArray(
             name="ewald_real_tensor",

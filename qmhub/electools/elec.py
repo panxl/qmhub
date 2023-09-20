@@ -8,6 +8,7 @@ from .elec_near import ElecNear
 try:
     from .pme import Ewald
 except ImportError:
+    print("helPME library is not imported correctly!")
     from .ewald import Ewald
 
 from .ewald import Ewald as EwaldQMQM

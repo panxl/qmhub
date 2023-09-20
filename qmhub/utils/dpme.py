@@ -6,23 +6,23 @@ from .dobject import cache_update
 
 
 class DependPME(pme.PMEInstanceD):
-    def __init__(self, cell_basis, alpha, order, nfft):
+    def __init__(self, cell_basis, alpha, order, nfft, nproc):
         super().__init__()
 
         self._name = "PME"
-        self._kwargs = {"alpha": alpha, "order": order, "nfft": nfft}
+        self._kwargs = {"alpha": alpha, "order": order, "nfft": nfft, "nproc": nproc}
         self._dependencies = [cell_basis]
         self._dependants = []
         self._cache_valid = False
 
-    def _func(self, cell_basis, alpha, order, nfft):
+    def _func(self, cell_basis, alpha, order, nfft, nproc):
         super().setup(
                 1,
                 alpha.item(),
                 order,
                 *nfft.tolist(),
                 1.,
-                1,
+                nproc,
         )
 
         super().set_lattice_vectors(
