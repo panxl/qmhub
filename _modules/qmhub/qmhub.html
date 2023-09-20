@@ -10,11 +10,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -41,14 +41,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../index.html">Home</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../CommandLine.html">Command Line</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../PythonModule.html">Python Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Tutorials:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../Installation.html">Installation</a></li>
 </ul>
 
         </div>
@@ -87,48 +81,26 @@
 <span class="kn">from</span> <span class="nn">.iotools</span> <span class="kn">import</span> <span class="n">IO</span>
 
 
-<div class="viewcode-block" id="QMMM"><a class="viewcode-back" href="../../api.html#qmhub.QMMM">[docs]</a><span class="k">class</span> <span class="nc">QMMM</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;QMHub python module&#39;&#39;&#39;</span>
-<div class="viewcode-block" id="QMMM.__init__"><a class="viewcode-back" href="../../api.html#qmhub.QMMM.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;Creates the QMHub module with the I/O mode, cwd, and driver.</span>
-<span class="sd">        </span>
-<span class="sd">        Args:</span>
-<span class="sd">            mode (str):</span>
-<span class="sd">            driver (str, optional):</span>
-<span class="sd">            cwd (str, optional):</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="QMMM">
+<a class="viewcode-back" href="../../autosummary/qmhub.QMMM.html#qmhub.QMMM">[docs]</a>
+<span class="k">class</span> <span class="nc">QMMM</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="QMMM.__init__">
+<a class="viewcode-back" href="../../autosummary/qmhub.QMMM.html#qmhub.QMMM.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span> <span class="o">=</span> <span class="n">IO</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">cwd</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">driver</span> <span class="o">=</span> <span class="n">driver</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">engine_groups</span> <span class="o">=</span> <span class="p">{}</span></div>
 
-<div class="viewcode-block" id="QMMM.setup_simulation"><a class="viewcode-back" href="../../api.html#qmhub.QMMM.setup_simulation">[docs]</a>    <span class="k">def</span> <span class="nf">setup_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="s2">&quot;md&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;Prepares a simulations with given protocols.</span>
-<span class="sd">        </span>
-<span class="sd">        Args:</span>
-<span class="sd">            protocol (str, optional): `md` is molecular dynamics.`mts` is multiple time step molecular dynamics, where multiple steps of molecular simulation are made between each quantum mechanical step. Default is `md`.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">simulation</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">setup_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="s2">&quot;md&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simulation</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">load_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">save_input</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;&#39;Loads a saved simulation from the step it was saved at. Takes the simualtion as input, which has saved it&#39;s last step.</span>
-<span class="sd">        </span>
-<span class="sd">        Args:</span>
-<span class="sd">            input (str): The path to a binary file, text file, or a named pipe (fifo).</span>
-<span class="sd">            save_input (Boolean, optional): If the files are to be kept after running.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">load_system</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">simulation</span><span class="o">.</span><span class="n">step</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">save_input</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">save_input</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
 
-<div class="viewcode-block" id="QMMM.build_model"><a class="viewcode-back" href="../../api.html#qmhub.QMMM.build_model">[docs]</a>    <span class="k">def</span> <span class="nf">build_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">switching_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">swdist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;Creates a model to store atome positions and charges, takes several options with defaults of `None`.</span>
-<span class="sd">        </span>
-<span class="sd">        Args:</span>
-<span class="sd">            switching_type (optional): </span>
-<span class="sd">            cutoff (optional): </span>
-<span class="sd">            swdit (optional):</span>
-<span class="sd">            pbc (optional):</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">build_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">switching_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">swdist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;system&#39;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Please load system first.&quot;</span><span class="p">)</span>
 
@@ -143,18 +115,9 @@
             <span class="n">cutoff</span><span class="o">=</span><span class="n">cutoff</span><span class="p">,</span>
             <span class="n">swdist</span><span class="o">=</span><span class="n">swdist</span><span class="p">,</span>
             <span class="n">pbc</span><span class="o">=</span><span class="n">pbc</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
-<div class="viewcode-block" id="QMMM.add_engine"><a class="viewcode-back" href="../../api.html#qmhub.QMMM.add_engine">[docs]</a>    <span class="k">def</span> <span class="nf">add_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">group_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;The engine to model atom positions and charges. Default engine name is `engine`.</span>
-<span class="sd">        </span>
-<span class="sd">        Args:</span>
-<span class="sd">            engine ():</span>
-<span class="sd">            name (str, optional): </span>
-<span class="sd">            group_name (str, optional): </span>
-<span class="sd">            cwd (str, optional):</span>
-<span class="sd">            options (str, optional):</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">add_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">group_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">engine</span>
         <span class="n">group_name</span> <span class="o">=</span> <span class="n">group_name</span> <span class="ow">or</span> <span class="s2">&quot;engine&quot;</span>
         <span class="n">cwd</span> <span class="o">=</span> <span class="n">cwd</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">cwd</span>
@@ -182,14 +145,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">simulation</span><span class="o">.</span><span class="n">add_engine</span><span class="p">(</span><span class="n">group_name</span><span class="p">,</span> <span class="n">result_obj</span><span class="p">)</span>
 
         <span class="n">group_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine_groups</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span>
-        <span class="n">group_obj</span><span class="o">.</span><span class="n">add_engine</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span></div>
+        <span class="n">group_obj</span><span class="o">.</span><span class="n">add_engine</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 
-<div class="viewcode-block" id="QMMM.return_results"><a class="viewcode-back" href="../../api.html#qmhub.QMMM.return_results">[docs]</a>    <span class="k">def</span> <span class="nf">return_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;Prints the simulation energy figures and energy gradient base on current simulations.</span>
-<span class="sd">        </span>
-<span class="sd">        Args:</span>
-<span class="sd">            output (str, optional): &#39;&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">return_results</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulation</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulation</span><span class="o">.</span><span class="n">energy_gradient</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span></div></div>
+    <span class="k">def</span> <span class="nf">return_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">return_results</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulation</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulation</span><span class="o">.</span><span class="n">energy_gradient</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>

@@ -5,34 +5,14 @@
 
 Welcome to QMHub's documentation!
 =========================================================
-A QM/MM interface.
-
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-   Home <self>
-   CommandLine
-   PythonModule
-   AMBER
+   getting_started
    api
-   <!--QMMM-->
-   <!--Atoms-->
-   <!--Simulation-->
-   <!--Model-->
-   <!--Engine-->
-   <!--System-->
-   
-.. toctree::
-   :maxdepth: 2
-   :caption: Tutorials:
 
-   Installation
-   AMBER Installation
-   QM/MM MD with AMBER
-   
-   
 
 
 Indices and tables

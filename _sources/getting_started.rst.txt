@@ -1,7 +1,4 @@
 Getting Started
 ===============
 
-.. automodule:: conf
-
-
-.. automodule:: engine
+This page details how to get started with QMHub. 
