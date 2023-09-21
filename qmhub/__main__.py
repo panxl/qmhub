@@ -1,7 +1,6 @@
 from pathlib import Path
 import argparse
 import configparser
-from IPython import embed
 
 from qmhub import QMMM
 
@@ -84,6 +83,7 @@ def main():
     qmmm.return_results()
 
     if args.interactive:
+        from IPython import embed
         embed()
 
 

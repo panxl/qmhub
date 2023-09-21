@@ -21,8 +21,8 @@ classifiers = [
 requires-python = ">=3.8"
 # Declare any run-time dependencies that should be installed with the package.
 dependencies = [
-    "numpy==1.25; python_version>='3.8'",
-    "scipy==1.11; python_version>='3.8'",
+    "numpy",
+    "scipy",
 ]
 
 # Update the urls once the hosting is set up.
