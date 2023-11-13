@@ -3,6 +3,7 @@ import importlib
 
 QM_TO_CLASS_MAP = {
     "qchem": "QChem",
+    "miniqc": "MiniQC",
     "orca": "ORCA",
     "sqm": "SQM",
     "dftd4": "DFTD4",
