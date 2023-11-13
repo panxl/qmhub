@@ -1,9 +1,6 @@
 import numpy as np
 import torch
-import torch_geometric
-import torch_cluster
-import torch_scatter
-import torch_sparse
+from torchmdnet.extensions import get_neighbor_pairs_kernel
 
 from .qmbase import QMBase
 from ..units import CODATA08_BOHR_TO_A, CODATA08_HARTREE_TO_EV
