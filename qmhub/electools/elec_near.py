@@ -132,7 +132,7 @@ class ElecNear(object):
 
     @staticmethod
     def _get_dij_min(dij_min, cutoff):
-        return dij_min[dij_min < cutoff]
+        return dij_min[dij_min < (cutoff - 1e-5)] # Add a small buffer to avoid numerical instability
 
     @staticmethod
     def _get_masked_array(array, mask):
