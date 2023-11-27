@@ -127,7 +127,7 @@ class ElecNear(object):
     @staticmethod
     def _get_near_field_mask(dij_min, mask, cutoff=None):
         _mask = np.copy(mask)
-        _mask[mask] = (dij_min < cutoff)
+        _mask[mask] = (dij_min < (cutoff - 1e-5)) # Add a small buffer to avoid numerical instability
         return _mask
 
     @staticmethod
