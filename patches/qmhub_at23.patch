@@ -1,0 +1,1066 @@
+diff --git a/AmberTools/src/sander/CMakeLists.txt b/AmberTools/src/sander/CMakeLists.txt
+index e1b689ee..ba3eac67 100644
+--- a/AmberTools/src/sander/CMakeLists.txt
++++ b/AmberTools/src/sander/CMakeLists.txt
+@@ -96,14 +96,14 @@ set(QM_SOURCE qm_mm.F90 qm_ewald.F90 qmmm_vsolv.F90
+     ArrayList.c qm2_extern_gms_module.F90 qm2_extern_tc_module.F90 qm2_extern_gau_module.F90 qm2_extern_mrcc_module.F90
+     qm2_extern_orc_module.F90 qm2_extern_nw_module.F90 qm2_extern_qc_module.F90 qm2_extern_reaxff_puremd_module.F90
+     qm2_extern_quick_module.F90 qm2_extern_genmpi_module.F90
+-    qmmm_adaptive_module.F90 prn_qmmm_dipole.F90 quick_module.F90 tcpb_module.F90)
++    qm2_extern_qmhub_module.F90 qmmm_adaptive_module.F90 prn_qmmm_dipole.F90 quick_module.F90 tcpb_module.F90)
+ 
+ set(QM_API_SOURCE qm_ewald.F90 qmmm_vsolv.F90
+     qm2_extern_util_module.F90 qm2_extern_module.F90 qm2_extern_adf_module.F90 qm2_read_adf_results.c KFReader.c
+     ArrayList.c qm2_extern_gms_module.F90 qm2_extern_tc_module.F90 qm2_extern_gau_module.F90 qm2_extern_mrcc_module.F90
+     qm2_extern_orc_module.F90 qm2_extern_nw_module.F90 qm2_extern_qc_module.F90 qm2_extern_reaxff_puremd_module.F90
+     qm2_extern_quick_module.F90 qm2_extern_genmpi_module.F90
+-    qmmm_adaptive_module.F90 prn_qmmm_dipole.F90 quick_module.F90 tcpb_module.F90)
++    qm2_extern_qmhub_module.F90 qmmm_adaptive_module.F90 prn_qmmm_dipole.F90 quick_module.F90 tcpb_module.F90)
+ 
+ set(API_SOURCE  nose_hoover_init.F90
+     lmod.F90 egb.F90
+@@ -193,7 +193,7 @@ set(LES_SOURCE nose_hoover_init_LES.F90
+     ArrayList.c qm2_extern_gms_module.F90 qm2_extern_tc_module.F90 qm2_extern_gau_module.F90
+     qm2_extern_orc_module.F90 qm2_extern_nw_module.F90 qm2_extern_mrcc_module.F90
+     qm2_extern_qc_module.F90 qm2_extern_reaxff_puremd_module.F90
+-    qm2_extern_quick_module.F90 qm2_extern_genmpi_module.F90 qmmm_adaptive_module.F90
++    qm2_extern_quick_module.F90 qm2_extern_genmpi_module.F90 qm2_extern_qmhub_module.F90 qmmm_adaptive_module.F90
+     prn_qmmm_dipole.F90 binrestart.F90 getcor.F90 mdfil.F90 mdwrit.F90
+     lmod.F90 trajene.F90 ew_box.F90 minrit.F90 set.F90 qm_mm.F90 amd.F90 scaledMD.F90 quick_module.F90 tcpb_module.F90
+     fsockets_pure.F90 ipimod.F90)
+diff --git a/AmberTools/src/sander/Makefile b/AmberTools/src/sander/Makefile
+index 44b800e4..8827ace4 100644
+--- a/AmberTools/src/sander/Makefile
++++ b/AmberTools/src/sander/Makefile
+@@ -128,7 +128,7 @@ QMOBJ= \
+     qm2_extern_gau_module.o qm2_extern_orc_module.o \
+     qm2_extern_nw_module.o qm2_extern_qc_module.o qm2_extern_mrcc_module.o \
+     qm2_extern_quick_module.o qm2_extern_reaxff_puremd_module.o \
+-    qm2_extern_genmpi_module.o quick_module.o tcpb_module.o \
++    qm2_extern_genmpi_module.o qm2_extern_qmhub_module.o quick_module.o tcpb_module.o \
+     qmmm_adaptive_module.o prn_qmmm_dipole.o cewmod.o
+ 
+ ifdef LIOLIBS
+@@ -146,7 +146,7 @@ QMAPIOBJ = \
+     ArrayList.o qm2_extern_gms_module.o qm2_extern_tc_module.o \
+     qm2_extern_gau_module.o qm2_extern_orc_module.o qm2_extern_nw_module.o \
+     qm2_extern_qc_module.o qm2_extern_mrcc_module.o \
+-    qm2_extern_quick_module.o qm2_extern_genmpi_module.o quick_module.o tcpb_module.o \
++    qm2_extern_quick_module.o qm2_extern_genmpi_module.o qm2_extern_qmhub_module.o quick_module.o tcpb_module.o \
+     qm2_extern_reaxff_puremd_module.o qmmm_adaptive_module.o prn_qmmm_dipole.o
+ 
+ ifdef LIOLIBS
+@@ -286,7 +286,7 @@ LESOBJ= memory_module.o stack.o file_io_dat.o \
+     qm2_extern_gau_module.o qm2_extern_orc_module.o qm2_extern_nw_module.o \
+     qm2_extern_qc_module.o qm2_extern_mrcc_module.o \
+     qm2_extern_quick_module.o qm2_extern_reaxff_puremd_module.o \
+-    qm2_extern_genmpi_module.o quick_module.o tcpb_module.o \
++    qm2_extern_genmpi_module.o qm2_extern_qmhub_module.o quick_module.o tcpb_module.o \
+     qmmm_adaptive_module.o abfqmmm_module.o prn_qmmm_dipole.o \
+     AmberNetcdf.o bintraj.LES.o binrestart.LES.o getcor.LES.o mdfil.LES.o mdwrit.LES.o \
+     lmod.LES.o trajene.o ew_box.LES.o minrit.LES.o set.LES.o amd.o scaledMD.o \
+diff --git a/AmberTools/src/sander/depend b/AmberTools/src/sander/depend
+index 78ad87ea..0db22e31 100644
+--- a/AmberTools/src/sander/depend
++++ b/AmberTools/src/sander/depend
+@@ -4992,6 +4992,7 @@ qm2_extern_module.o: \
+                     qm2_extern_reaxff_puremd_module.o\
+                     qm2_extern_genmpi_module.o\
+                     qm2_extern_qc_module.o\
++                    qm2_extern_qmhub_module.o\
+                     qm2_extern_lio_module.o\
+                     qm2_extern_fb_module.o\
+                     file_io_dat.o\
+@@ -5018,6 +5019,7 @@ qm2_extern_module.LES.o: \
+                     qm2_extern_reaxff_puremd_module.o\
+                     qm2_extern_genmpi_module.o\
+                     qm2_extern_qc_module.o\
++                    qm2_extern_qmhub_module.o\
+                     qm2_extern_lio_module.o\
+                     qm2_extern_fb_module.o\
+                     file_io_dat.o\
+@@ -5080,6 +5082,18 @@ qm2_extern_qc_module.o:   qm2_extern_qc_module.F90
+ 	@echo '[SANDER]  FC $<'
+ 	$(VB)$(FC) $(FWARNFLAGS) $(SANDER_FPPFLAGS) -c $(FNOOPTFLAGS) $(FFLAGS) $(AMBERFFLAGS) $(RISMSANDER) -o $@ qm2_extern_qc_module.F90
+ 
++qm2_extern_qmhub_module.o: \
++                    ../include/dprec.fh\
++                    qm2_extern_util_module.o\
++                    constants.o\
++                    file_io_dat.o\
++                    box.h
++
++
++qm2_extern_qmhub_module.o:   qm2_extern_qmhub_module.F90
++	@echo '[SANDER]  FC $<'
++	$(VB)$(FC) $(FWARNFLAGS) $(SANDER_FPPFLAGS) -c $(FNOOPTFLAGS) $(FFLAGS) $(AMBERFFLAGS) $(RISMSANDER) -o $@ qm2_extern_qmhub_module.F90
++
+ qm2_extern_quick_module.o: \
+                     ../include/dprec.fh\
+                     qm2_extern_util_module.o\
+diff --git a/AmberTools/src/sander/qm2_extern_module.F90 b/AmberTools/src/sander/qm2_extern_module.F90
+index 7b25357a..1ac95507 100644
+--- a/AmberTools/src/sander/qm2_extern_module.F90
++++ b/AmberTools/src/sander/qm2_extern_module.F90
+@@ -37,6 +37,7 @@ module qm2_extern_module
+   use qm2_extern_genmpi_module, only: get_genmpi_forces
+ #endif
+   use qm2_extern_qc_module    , only: get_qc_forces
++  use qm2_extern_qmhub_module , only: get_qmhub_forces
+ #ifdef LIO
+   use qm2_extern_lio_module   , only: get_lio_forces 
+ #endif 
+@@ -51,7 +52,7 @@ module qm2_extern_module
+   contains
+ 
+   subroutine qm2_extern_get_qm_forces(nstep, nqmatoms, qmcoords, qmtypes, &
+-       qmcharges, nclatoms, clcoords, mmtypes, escf, dxyzqm, dxyzcl, id)
++       qmcharges, nclatoms, clcoords, mmtypes, ucell, escf, dxyzqm, dxyzcl, id)
+ 
+     use file_io_dat
+ #if defined(MPI)
+@@ -63,10 +64,11 @@ module qm2_extern_module
+     integer, intent(in) :: nqmatoms             ! Number QM of atoms
+     _REAL_,  intent(in) :: qmcoords(3,nqmatoms) ! QM atom coordinates
+     integer, intent(in) :: qmtypes(nqmatoms)    ! QM atom types (nuclear charge in au)
+-    _REAL_,  intent(inout) :: qmcharges(nqmatoms) ! QM charges
++    _REAL_,  intent(inout) :: qmcharges(nqmatoms)  ! QM atom RESP charges in au
+     integer, intent(in) :: nclatoms             ! Number of MM atoms
+     _REAL_,  intent(in) :: clcoords(4,nclatoms) ! MM atom coordinates and charges in au
+     integer, intent(in) :: mmtypes(nclatoms)    ! MM atom types
++    _REAL_,  intent(in) :: ucell(3,3)           ! Unit cell vectors
+     _REAL_, intent(out) :: escf                 ! SCF energy
+     _REAL_, intent(out) :: dxyzqm(3,nqmatoms)   ! SCF QM gradient
+     _REAL_, intent(out) :: dxyzcl(3,nclatoms)   ! SCF MM gradient
+@@ -97,7 +99,9 @@ module qm2_extern_module
+       call select_program(extern_program)
+       call check_electrostatic_embedding(nclatoms, qmmm_nml%qmmm_int, extern_program)
+       call print_citation_information(extern_program)
+-      call print_constants()
++      if (extern_program /= 'qmhub') then
++        call print_constants()
++      end if
+       first_call = .false.
+     end if
+ 
+@@ -156,6 +160,10 @@ module qm2_extern_module
+       call sander_bomb("qm2_extern_get_qm_forces", "Lio is not enabled", &
+            "Check your installation or reconfigure with the -lio option.")
+ #endif
++    case('qmhub')
++      call get_qmhub_forces(do_gradient, nstep, ntpr, id, nqmatoms, qmcoords,&
++           qmtypes, qmcharges, nclatoms, clcoords, escf, dxyzqm, dxyzcl, &
++           qmmm_nml%qmcharge, qmmm_nml%spin, ucell)
+     case('fb')
+ #ifdef FIREBALL
+       call get_fb_forces( do_gradient, nstep, ntpr, id, nqmatoms, qmcoords,&
+@@ -179,10 +187,10 @@ module qm2_extern_module
+     implicit none
+ 
+     integer :: i, ifind
+-    character(len=20) :: programs(13) = (/'adf   ', 'gms   ', 'tc    ', 'gau   ', &
++    character(len=20) :: programs(14) = (/'adf   ', 'gms   ', 'tc    ', 'gau   ', &
+                                          'orc   ', 'nw    ', 'qc    ', 'genmpi', &
+                                          'lio   ','mrcc  ', 'fb    ', 'quick ', &
+-                                         'reaxff'/)
++                                         'reaxff', 'qmhub '/)
+     character(len=20), intent(out) :: extern_program
+ 
+     ! Select which external program to use
+@@ -293,6 +301,13 @@ module qm2_extern_module
+             '| DOI: 10.1021/acs.jctc.0c00874'
+     end if
+ 
++    if ( trim(extern_program) == 'qmhub' ) then
++       write (6,'(/a/a/a)') &
++            '| Xiaoliang Pan and Yihan Shao', &
++            '| QMHub: A universal QM/MM interface', &
++            '| https://github.com/panxl/qmhub'
++    end if
++
+   end subroutine print_citation_information
+ 
+   ! Print information about natural constants
+@@ -321,6 +336,7 @@ module qm2_extern_module
+     use qm2_extern_genmpi_module, only: genmpi_finalize
+ #endif
+     use qm2_extern_reaxff_puremd_module, only: reaxff_puremd_finalize
++    use qm2_extern_qmhub_module, only: qmhub_finalize
+  
+     character(len=20) :: extern_program
+     call select_program(extern_program)
+@@ -338,6 +354,8 @@ module qm2_extern_module
+ #endif
+      case('reaxff')
+        call reaxff_puremd_finalize()
++     case('qmhub')
++       call qmhub_finalize()
+     end select
+  
+   end subroutine qm2_extern_finalize
+diff --git a/AmberTools/src/sander/qm2_extern_qmhub_module.F90 b/AmberTools/src/sander/qm2_extern_qmhub_module.F90
+new file mode 100644
+index 00000000..24ec9d4b
+--- /dev/null
++++ b/AmberTools/src/sander/qm2_extern_qmhub_module.F90
+@@ -0,0 +1,600 @@
++#include "../include/dprec.fh"
++module qm2_extern_qmhub_module
++! ----------------------------------------------------------------
++! Interface for QM and QM/MM MD via QMHub
++!
++! Implementation by
++! Xiaoliang Pan (OU)
++!
++! Date: October 2019
++!
++! ----------------------------------------------------------------
++  use qm2_extern_util_module, only: debug_enter_function, debug_exit_function
++
++  implicit none
++
++  private
++  public :: get_qmhub_forces, qmhub_finalize
++
++  character(len=*), parameter :: module_name = "qm2_extern_qmhub_module"
++
++  type qmhub_nml_type
++     character(len=100) :: config
++     character(len=100) :: basedir
++     integer :: ntpr
++     integer :: comm
++     integer :: debug
++  end type qmhub_nml_type
++
++  type(qmhub_nml_type), save :: qmhub_nml
++
++  integer, parameter :: iunit = 351
++  integer, parameter :: ounit = 352
++
++contains
++
++  ! --------------------------------------------
++  ! Get QM energy and forces from QMHub
++  ! --------------------------------------------
++  subroutine get_qmhub_forces(do_grad, nstep, ntpr_default, id, nqmatoms, qmcoords,&
++    qmtypes, qmcharges, nclatoms, clcoords, escf, dxyzqm, dxyzcl, charge, spinmult, ucell)
++
++    use qm2_extern_util_module, only: check_installation, print_results
++    use constants, only: AU_TO_KCAL, A_TO_BOHRS, ZERO
++    use file_io_dat
++
++    implicit none
++
++    logical, intent(in) :: do_grad              ! Return gradient/not
++    integer, intent(in) :: nstep                ! MD step number
++    integer, intent(in) :: ntpr_default         ! frequency of printing
++    character(len=3), intent(in) :: id          ! ID number for PIMD or REMD
++    integer, intent(in) :: nqmatoms             ! Number of QM atoms
++    _REAL_,  intent(in) :: qmcoords(3,nqmatoms) ! QM atom coordinates
++    integer, intent(in) :: qmtypes(nqmatoms)    ! QM atom types (nuclear charge in au)
++    _REAL_,  intent(in) :: qmcharges(nqmatoms)  ! QM atom scaled RESP charges
++    integer, intent(in) :: nclatoms             ! Number of MM atoms
++    _REAL_,  intent(in) :: clcoords(4,nclatoms) ! MM atom coordinates and charges in au
++    _REAL_, intent(out) :: escf                 ! SCF energy
++    _REAL_, intent(out) :: dxyzqm(3,nqmatoms)   ! SCF QM force
++    _REAL_, intent(out) :: dxyzcl(3,nclatoms)   ! SCF MM force
++    integer, intent(in) :: charge, spinmult     ! Charge and spin multiplicity
++    _REAL_,  intent(in) :: ucell(3,3)           ! Unit cell vectors
++
++    logical, save                :: first_call = .true.
++    integer                      :: i
++    integer                      :: printed =-1 ! Used to tell if we have printed this step yet
++                                                ! since the same step may be called multiple times
++    character(len=200)           :: call_buffer
++    character(len=6), save       :: program  = 'qmhub'
++    character(len=*), parameter  :: basename = 'qmmm'
++    character(len=*), parameter  :: inpext = '.inp'
++    character(len=*), parameter  :: outext = '.out'
++    character(len=100), save     :: inpfile, outfile
++    ! Need to prepend subdirectory if doing REMD, PIMD
++    character(len=25)            :: subdir
++
++    ! for system call
++    integer :: system
++    integer :: stat
++
++    ! Setup on first call
++    if ( first_call ) then
++       first_call = .false.
++       write(6,'(/,a,/)') '  >>> Running calculation with QMHub interface <<<'
++       call get_namelist( ntpr_default, qmhub_nml )
++       call print_namelist( qmhub_nml )
++       ! Check for QMHub to use; store as 'program'
++       call check_installation( program, id, .true., qmhub_nml%debug )
++
++       write(6,'(80a)') ('-', i=1,80)
++       write(6,'(a)') '   4.  RESULTS'
++       write(6,'(80a)') ('-', i=1,80)
++
++       ! assemble input - / output data filenames
++       subdir='/'
++       if ( trim(id)/='' ) then
++          subdir='/'//trim(id)//'/'
++       end if
++
++       ! Make directory
++       call_buffer = 'mkdir -p '//trim(qmhub_nml%basedir)//trim(subdir)
++
++       if ( qmhub_nml%debug > 0 ) then
++          write(6,'(2a)') 'call_buffer=', trim(call_buffer)
++       end if
++
++       stat = system(trim(call_buffer))
++       if ( stat /= 0 ) then
++       call sander_bomb('get_qmhub_forces (qm2_extern_qmhub_module)', &
++            'Error with system call (mkdir)', &
++            'Will quit now.')
++       end if
++
++       inpfile = trim(qmhub_nml%basedir)//trim(subdir)//basename//trim(id)//inpext
++       outfile = trim(qmhub_nml%basedir)//trim(subdir)//basename//trim(id)//outext
++
++       ! Remove old inpfile, outfile at the beginning of
++       ! a run so only the latest run is stored.
++       call_buffer = 'rm -f '//trim(inpfile)//' '//trim(outfile)
++
++       if ( qmhub_nml%debug > 0 ) then
++          write(6,'(2a)') 'call_buffer=', trim(call_buffer)
++       end if
++
++       stat = system(trim(call_buffer))
++       if ( stat /= 0 ) then
++          call sander_bomb('get_qmhub_forces (qm2_extern_qmhub_module)', &
++               'Error with system call (removing files)', &
++               'Will quit now.')
++       end if
++
++       if ( qmhub_nml%comm == 2 ) then
++          ! Make FIFO input file
++          call_buffer = 'mkfifo '//trim(inpfile)
++
++          if ( qmhub_nml%debug > 0 ) then
++             write(6,'(2a)') 'call_buffer=', trim(call_buffer)
++          end if
++
++          stat = system(trim(call_buffer))
++          if ( stat /= 0 ) then
++             call sander_bomb('get_qmhub_forces (qm2_extern_qmhub_module)', &
++                  'Error with system call (making fifo file)', &
++                  'Will quit now.')
++          end if
++
++          ! Run QMHub
++          call_buffer = program//trim(qmhub_nml%config)//' --fifo '//trim(inpfile)//' --driver sander&'
++
++          if ( qmhub_nml%debug > 0 ) then
++             write(6,'(2a)') 'call_buffer=', trim(call_buffer)
++          end if
++
++          stat = system(trim(call_buffer))
++          if ( stat /= 0 ) then
++             call sander_bomb('get_qmhub_forces (qm2_extern_qmhub_module)', &
++                  'Error with system call (executing QMHub)', &
++                  'Will quit now.')
++          end if
++       end if
++    end if
++
++    call write_inpfile( trim(inpfile), &
++      nqmatoms, qmcoords, qmtypes, qmcharges, nclatoms, clcoords, do_grad, charge, spinmult, &
++      nstep, ucell )
++
++    ! Run QMHub
++    if ( qmhub_nml%comm < 2 ) then
++      if ( qmhub_nml%comm == 0 ) then
++         call_buffer = program//trim(qmhub_nml%config)//' --text '//trim(inpfile)//' --driver sander'
++      else if ( qmhub_nml%comm == 1 ) then
++         call_buffer = program//trim(qmhub_nml%config)//' --bin '//trim(inpfile)//' --driver sander'
++      end if
++
++      if ( qmhub_nml%debug > 0 ) then
++         write(6,'(2a)') 'call_buffer=', trim(call_buffer)
++      end if
++
++      stat = system(trim(call_buffer))
++      if ( stat /= 0 ) then
++         call sander_bomb('get_qmhub_forces (qm2_extern_qmhub_module)', &
++              'Error with system call (executing QMHub)', &
++              'Will quit now.')
++      end if
++    end if
++
++    ! Retrieve data from QMHub output file
++    ! Will output data to escf and dxyqm for pure QM or mechanical embedding QM/MM
++    call read_results( trim(outfile), &
++      nqmatoms, escf, dxyzqm, nclatoms, dxyzcl)
++
++    if ( do_grad ) then
++       ! Convert Hartree/Bohr -> kcal/(mol*A)
++       dxyzqm(:,:) = dxyzqm(:,:) * (AU_TO_KCAL * A_TO_BOHRS)
++       if ( nclatoms > 0 ) then
++          dxyzcl(:,:) = dxyzcl(:,:) * (AU_TO_KCAL * A_TO_BOHRS)
++       end if
++    else
++      dxyzqm = ZERO
++      if ( nclatoms > 0 ) dxyzcl = ZERO
++    end if
++    escf = escf * AU_TO_KCAL
++
++    call print_results( 'qm2_extern_qmhub_module', escf, nqmatoms, dxyzqm,&
++      qmhub_nml%debug, nclatoms, dxyzcl )
++
++  end subroutine get_qmhub_forces
++
++  ! ---------------------------------------------
++  ! Read QMHub namelist values from file mdin,
++  ! use default values if none are present.
++  ! ---------------------------------------------
++  subroutine get_namelist(ntpr_default, qmhub_nml)
++
++    implicit none
++    integer, intent(in) :: ntpr_default
++    type(qmhub_nml_type), intent(out) :: qmhub_nml
++
++    integer :: comm, ntpr, debug
++    character(len=80) :: config, basedir
++    namelist /qmhub/ config, basedir, comm, debug
++
++    integer :: ierr
++
++    call debug_enter_function( 'get_namelist', module_name, qmhub_nml%debug )
++
++    ! Set default values for qmhub namelist values
++    config            = "qmhub.ini"
++    basedir           = "qmhub"
++    comm              = 2
++    ntpr              = ntpr_default
++    debug             = 0
++
++    ! Read namelist
++    rewind 5
++    read(5, nml=qmhub, iostat=ierr)
++
++    if ( ierr > 0 ) then
++       call sander_bomb('get_namelist (qm2_extern_qmhub_module)', &
++            '&qmhub namelist read error', &
++            'Please check your input.')
++    else if ( ierr < 0 ) then
++       write(6,'(a/a)') '&qmhub namelist read encountered end of file', &
++            'Please check your input if the calculation encounters a problem'
++    end if
++
++    qmhub_nml%config       = config
++    qmhub_nml%basedir      = basedir
++    qmhub_nml%comm         = comm
++    qmhub_nml%ntpr         = ntpr
++    qmhub_nml%debug        = debug
++
++    call debug_exit_function( 'get_namelist', module_name, qmhub_nml%debug )
++
++  end subroutine get_namelist
++
++  ! --------------------------------
++  ! Print QMHub namelist settings
++  ! --------------------------------
++  subroutine print_namelist(qmhub_nml)
++
++    implicit none
++    type(qmhub_nml_type), intent(in) :: qmhub_nml
++
++    write(6, '(a)')       '| &qmhub'
++    write(6, '(2a)')      '|   config       = ', qmhub_nml%config
++    write(6, '(2a)')      '|   basedir      = ', qmhub_nml%basedir
++    write(6, '(a,i0)')    '|   comm         = ', qmhub_nml%comm
++    write(6, '(a,i0)')    '|   ntpr         = ', qmhub_nml%ntpr
++    write(6, '(a,i0)')    '|   debug        = ', qmhub_nml%debug
++    write(6,'(a)')        '| /'
++
++  end subroutine print_namelist
++
++  ! -----------------------------
++  ! Write input file for qmhub
++  ! -----------------------------
++  subroutine write_inpfile( inpfile, nqmatoms, qmcoords, &
++    qmtypes, qmcharges, nclatoms, clcoords, do_grad, charge, spinmult, &
++    nstep, ucell )
++
++    use constants, only : INV_AMBER_ELECTROSTATIC
++    implicit none
++
++#include "box.h"
++
++    character(len=*), intent(in)     :: inpfile
++    integer, intent(in)              :: nqmatoms
++    _REAL_,  intent(in)              :: qmcoords(:,:)
++    integer, intent(in)              :: qmtypes(:)
++    _REAL_,  intent(in)              :: qmcharges(:)
++    integer, intent(in)              :: nclatoms
++    _REAL_,  intent(in)              :: clcoords(:,:)
++    logical, intent(in)              :: do_grad
++    integer, intent(in)              :: charge, spinmult
++    integer, intent(in)              :: nstep
++    _REAL_,  intent(in)              :: ucell(:,:)
++
++    integer            :: i, ierr
++    logical, save      :: first_call = .true.
++
++    ! for system call
++    integer :: system
++    integer :: stat
++
++    call debug_enter_function( 'write_inpfile', module_name, qmhub_nml%debug )
++
++    if ( first_call .and. qmhub_nml%comm == 2) then
++       first_call = .false.
++
++       open(iunit, file=inpfile, access='stream', form='unformatted', status='old', iostat=ierr)
++       if ( ierr /= 0 ) then
++          call sander_bomb('write_inpfile (qm2_extern_qmhub_module)', &
++               'Error opening QMHub FIFO input file '//inpfile//' for writing', &
++               'Will quit now.')
++       end if
++
++       write(iunit) nqmatoms+nclatoms, nqmatoms, charge, spinmult, ntb
++       write(iunit) qmcharges(:)*INV_AMBER_ELECTROSTATIC
++
++       if ( nclatoms > 0 ) then
++          write(iunit) clcoords(4,:)
++       end if
++
++       write(iunit) qmtypes
++
++       ! Write cell basis
++       if ( ntb > 0 ) then
++          write(iunit) (ucell(i,:), i=1,3)
++       end if
++    end if
++
++    if ( qmhub_nml%comm == 0 ) then
++       open(iunit, file=inpfile, iostat=ierr)
++       if ( ierr /= 0 ) then
++          call sander_bomb('write_inpfile (qm2_extern_qmhub_module)', &
++               'Error opening QMHub inpfile '//inpfile//' for writing', &
++               'Will quit now.')
++       end if
++
++       ! Write charge and spin multiplicity
++       write(iunit,'(5(i0,1x))') nqmatoms, nclatoms, charge, spinmult, nstep
++
++       ! Write QM atoms and coordinates
++       do i = 1, nqmatoms
++          write(iunit,'(4(e21.15,1x),i0)') qmcoords(1:3,i), &
++              qmcharges(i)*INV_AMBER_ELECTROSTATIC, qmtypes(i)
++       end do
++
++       ! When electrostatic embedding QM/MM is in use
++       ! Write MM coordinates with point charges
++       if ( nclatoms > 0 ) then
++          do i = 1, nclatoms
++             write(iunit,'(4(e21.15,1x))') clcoords(:,i)
++          end do
++       end if
++
++       ! Write cell basis
++       do i = 1, 3
++          write(iunit,'(3(e21.15,1x))') ucell(:,i)
++       end do
++
++       close(iunit, iostat=ierr)
++       if ( ierr /= 0 ) then
++          call sander_bomb('write_inpfile (qm2_extern_qmhub_module)', &
++               'Error closing QMHub runfile after writing', &
++               'Will quit now.')
++       end if
++    else if ( qmhub_nml%comm == 1 ) then
++       open(iunit, file=inpfile, access='stream', form='unformatted', iostat=ierr)
++       if ( ierr /= 0 ) then
++          call sander_bomb('write_inpfile (qm2_extern_qmhub_module)', &
++               'Error opening QMHub inpfile '//inpfile//' for writing', &
++               'Will quit now.')
++       end if
++
++       ! Write charge and spin multiplicity
++       write(iunit) nqmatoms, nclatoms, charge, spinmult, nstep
++
++       ! Write QM atoms and coordinates
++       do i = 1, nqmatoms
++          write(iunit) qmcoords(1:3,i), &
++              qmcharges(i)*INV_AMBER_ELECTROSTATIC, qmtypes(i)
++       end do
++
++      ! When electrostatic embedding QM/MM is in use
++      ! Write MM coordinates with point charges
++       if ( nclatoms > 0 ) then
++          do i = 1, nclatoms
++             write(iunit) clcoords(:,i)
++          end do
++       end if
++
++       ! Write cell basis
++       do i = 1, 3
++          write(iunit) ucell(:,i)
++       end do
++
++       close(iunit, iostat=ierr)
++       if ( ierr /= 0 ) then
++          call sander_bomb('write_inpfile (qm2_extern_qmhub_module)', &
++               'Error closing QMHub runfile after writing', &
++               'Will quit now.')
++       end if
++    else if ( qmhub_nml%comm == 2 ) then
++       ! Write step number
++       write(iunit) nstep
++
++       ! Write cell basis
++       if ( ntb == 2 ) then
++          write(iunit) (ucell(i,:), i=1,3)
++       end if
++
++       ! Write QM and MM coordinates
++       if ( nclatoms > 0 ) then
++          do i = 1, 3
++             write(iunit) qmcoords(i,:)
++             write(iunit) clcoords(i,:)
++          end do
++       else
++          write(iunit) (qmcoords(i,:), i=1,3)
++       end if
++    end if
++
++    call debug_exit_function( 'write_inpfile', module_name, qmhub_nml%debug )
++
++  end subroutine write_inpfile
++
++  ! QM or QM/MM results
++  subroutine read_results( outfile, nqmatoms, escf, dxyzqm, nclatoms, dxyzcl )
++
++    implicit none
++
++    character(len=*), intent(in)     :: outfile
++    integer, intent(in)              :: nqmatoms, nclatoms
++    _REAL_, intent(out)              :: escf, dxyzqm(3,nqmatoms), &
++                                        dxyzcl(3,nclatoms)
++
++    integer            :: ios, i
++    logical, save      :: first_call = .true.
++
++    call debug_enter_function( 'read_results', module_name, qmhub_nml%debug )
++
++    if ( first_call .and. qmhub_nml%comm == 2) then
++       first_call = .false.
++       open(ounit, file=outfile, access='stream', form='unformatted', status='old', iostat=ios)
++       if ( ios /= 0 ) then
++          call sander_bomb('read_results (qm2_extern_qmhub_module)', &
++              'Error opening QMHub FIFO output file '//outfile//' for reading', &
++              'Will quit now.')
++       end if
++    end if
++
++    if ( qmhub_nml%comm == 0 ) then
++       open(iunit, file=outfile, status='old', iostat=ios)
++       if ( ios /= 0 ) then
++       call sander_bomb('read_results (qm2_extern_qmhub_module)', &
++            'Error opening QMHub output file '//outfile//' (expected in same dir as input file).', &
++            'Will quit now')
++       end if
++
++       read(iunit, '((es22.14))', iostat=ios) escf
++
++       ! read QM gradients
++       do i = 1, nqmatoms
++          read(iunit, '(3(es22.14,x))', iostat=ios) dxyzqm(:,i)
++          if ( ios < 0 ) then
++             call sander_bomb('read_results (qm2_extern_qmhub_module)',&
++                  'Error reading QM gradients.',&
++                  'Will quit now')
++          end if
++       end do
++
++       ! QM/MM with electrostatic embedding: MM gradients
++       if ( nclatoms > 0 ) then
++          do i = 1, nclatoms
++             read(iunit, '(3(es22.14,x))', iostat=ios) dxyzcl(:,i)
++             if (ios < 0) then
++                call sander_bomb('read_results (qm2_extern_qmhub_module)', &
++                     'Error reading e-field at point charge positions.',&
++                     'Will quit now')
++                exit
++             end if
++          end do
++       end if
++
++       close (iunit)
++    else if ( qmhub_nml%comm == 1 ) then
++       open(iunit, file=outfile, access='stream', form='unformatted', status='old', iostat=ios)
++       if ( ios /= 0 ) then
++       call sander_bomb('read_results (qm2_extern_qmhub_module)', &
++            'Error opening QMHub log file '//outfile//' (expected in same dir as input file).', &
++            'Will quit now')
++       end if
++
++       read(iunit, iostat=ios) escf
++
++       if ( ios < 0 ) then
++          call sander_bomb('read_results (qm2_extern_qmhub_module)',&
++               'Error reading QM energy.',&
++               'Will quit now')
++       end if
++
++       ! read QM gradients
++       do i = 1, nqmatoms
++          read(iunit, iostat=ios) dxyzqm(:,i)
++       end do
++
++       if ( ios < 0 ) then
++          call sander_bomb('read_results (qm2_extern_qmhub_module)',&
++               'Error reading QM gradients.',&
++               'Will quit now')
++       end if
++
++       ! QM/MM with electrostatic embedding: MM gradients
++       if ( nclatoms > 0 ) then
++          do i = 1, nclatoms
++             read(iunit, iostat=ios) dxyzcl(:,i)
++          end do
++       end if
++
++       if ( ios < 0 ) then
++          call sander_bomb('read_results (qm2_extern_qmhub_module)',&
++               'Error reading MM gradients.',&
++               'Will quit now')
++       end if
++
++       close (iunit)
++    else if ( qmhub_nml%comm == 2 ) then
++       read(ounit, iostat=ios) escf
++
++       if ( ios < 0 ) then
++          call sander_bomb('read_results (qm2_extern_qmhub_module)',&
++               'Error reading QM energy.',&
++               'Will quit now')
++       end if
++
++       ! read QM gradients
++       do i = 1, nqmatoms
++          read(ounit, iostat=ios) dxyzqm(:,i)
++       end do
++
++       if ( ios < 0 ) then
++          call sander_bomb('read_results (qm2_extern_qmhub_module)',&
++               'Error reading QM gradients.',&
++               'Will quit now')
++       end if
++
++       ! QM/MM with electrostatic embedding: MM gradients
++       if ( nclatoms > 0 ) then
++          do i = 1, nclatoms
++             read(ounit, iostat=ios) dxyzcl(:,i)
++          end do
++       end if
++
++       if ( ios < 0 ) then
++          call sander_bomb('read_results (qm2_extern_qmhub_module)',&
++               'Error reading gradients.',&
++               'Will quit now')
++       end if
++    end if
++
++    call debug_exit_function( 'read_results', module_name, qmhub_nml%debug )
++
++  end subroutine read_results
++
++  ! --------------------------------
++  ! Close FIFO files
++  ! --------------------------------
++  subroutine qmhub_finalize()
++
++      implicit none
++
++      integer :: ierr
++
++    if (qmhub_nml%comm == 2) then
++       close(iunit, iostat=ierr)
++
++       if ( ierr /= 0 ) then
++          call sander_bomb('write_inpfile (qm2_extern_qmhub_module)', &
++               'Error closing QMHub FIFO input file after writing', &
++               'Will quit now.')
++       end if
++
++       close(ounit, iostat=ierr)
++
++       if ( ierr /= 0 ) then
++          call sander_bomb('write_inpfile (qm2_extern_qmhub_module)', &
++               'Error closing QMHub FIFO output file after reading', &
++               'Will quit now.')
++       end if
++
++       if ( qmhub_nml%debug > 0 ) then
++          write(6, '(2a)') 'FIFO files closed.'
++       endif
++    end if
++
++  end subroutine qmhub_finalize
++
++end module qm2_extern_qmhub_module
+diff --git a/AmberTools/src/sander/qm_mm.F90 b/AmberTools/src/sander/qm_mm.F90
+index 9360c8fe..885fb771 100644
+--- a/AmberTools/src/sander/qm_mm.F90
++++ b/AmberTools/src/sander/qm_mm.F90
+@@ -57,7 +57,7 @@ subroutine qm_mm(coords, natom, scaled_mm_charges, f, escf, periodic, &
+   use constants, only : EV_TO_KCAL, KCAL_TO_EV, zero, one, alpb_alpha
+ 
+   use parms, only : cn1, cn2, nttyp
+-  use nblist,only: alpha,beta,gamma
++  use nblist,only: alpha,beta,gamma,ucell
+   use qm2_extern_module, only: qm2_extern_get_qm_forces
+   use abfqmmm_module, only: abfqmmm_param
+   use quick_module, only: get_quick_qmmm_forces
+@@ -450,10 +450,11 @@ subroutine qm_mm(coords, natom, scaled_mm_charges, f, escf, periodic, &
+   if (qmmm_nml%qmtheory%EXTERN) then
+     call qm2_extern_get_qm_forces(nstep, qmmm_struct%nquant_nlink, &
+                                   qmmm_struct%qm_coords, &
+-                                  qmmm_struct%iqm_atomic_numbers,scf_mchg, &
++                                  qmmm_struct%iqm_atomic_numbers, &
++                                  qmmm_struct%qm_resp_charges, &
+                                   nclatoms, qmmm_struct%qm_xcrd, &
+-                                  qmmm_struct%qm_mm_pair_atom_numbers, escf, &
+-                                  qmmm_struct%dxyzqm, qmmm_struct%dxyzcl, id)
++                                  qmmm_struct%qm_mm_pair_atom_numbers, ucell, &
++                                  escf, qmmm_struct%dxyzqm, qmmm_struct%dxyzcl, id)
+   else if (qmmm_nml%qmtheory%ISQUICK) then
+     call get_quick_qmmm_forces(qmmm_struct%nquant_nlink, &
+                                qmmm_struct%qm_coords, &
+@@ -753,7 +754,7 @@ subroutine qm_fill_qm_xcrd_periodic(x, natom, iqmatoms, scaled_mm_chrgs, &
+   integer :: m,n, n1
+   _REAL_  :: dx2
+ ! _REAL_  :: fbndx0, fbndx1, fbndy0, fbndy1, fbndz0, fbndz1
+-  logical :: include_atom
++  logical :: include_atom, noqmcutoff
+ 
+ ! Move the first QM atom to be at the origin.
+ !   iqm_one = iqmatoms(1)
+@@ -839,7 +845,11 @@ subroutine qm_fill_qm_xcrd_periodic(x, natom, iqmatoms, scaled_mm_chrgs, &
+   ! sophisticated using the distance between parallel faces later if an
+   ! octahedral box or some other trclinic system is in play.  The
+   ! sphere is calculated in ew_box.f and used here.
+-  if ((xbnd1-xbnd0 > two*sphere) .or. (ybnd1-ybnd0 > two*sphere) .or. &
++  noqmcutoff = .false.
++  if ((xbnd1-xbnd0 > two*sphere) .and. (ybnd1-ybnd0 > two*sphere) .and. &
++      (zbnd1-zbnd0 > two*sphere)) then
++    noqmcutoff = .true.
++  elseif ((xbnd1-xbnd0 > two*sphere) .or. (ybnd1-ybnd0 > two*sphere) .or. &
+       (zbnd1-zbnd0 > two*sphere)) then
+     write(6,*) " ****************************************************"
+     write(6,*) " ERROR: QM region + cutoff larger than box dimension:"
+@@ -887,18 +897,29 @@ subroutine qm_fill_qm_xcrd_periodic(x, natom, iqmatoms, scaled_mm_chrgs, &
+     zz = x(3,m) - offset(3)
+     frac(1:3) = xx*recip(1,1:3) + yy*recip(2,1:3) + zz*recip(3,1:3)
+     frac(1:3) = frac(1:3) - anint(frac(1:3))
+-    xx = frac(1)*ucell(1,1) + frac(2)*ucell(1,2) + frac(3)*ucell(1,3)
+-    if ((xx > bxbnd(1)-offset(1)) .and. (xx < bxbnd(2)-offset(1))) then
++
++    if (noqmcutoff) then
++      xx = frac(1)*ucell(1,1) + frac(2)*ucell(1,2) + frac(3)*ucell(1,3)
+       yy = frac(1)*ucell(2,1) + frac(2)*ucell(2,2) + frac(3)*ucell(2,3)
+-      if ((yy > bxbnd(3)-offset(2)) .and. (yy < bxbnd(4)-offset(2))) then
+-        zz = frac(1)*ucell(3,1) + frac(2)*ucell(3,2) + frac(3)*ucell(3,3)
+-        if ((zz > bxbnd(5)-offset(3)) .and. (zz < bxbnd(6) -offset(3))) then
+-
+-          ! This atom is inside the box.  Record its shifted position.
+-          qmmm_scratch%qm_int_scratch(m)=1
+-          real_scratch(1,m) = xx
+-          real_scratch(2,m) = yy
+-          real_scratch(3,m) = zz
++      zz = frac(1)*ucell(3,1) + frac(2)*ucell(3,2) + frac(3)*ucell(3,3)
++      qmmm_scratch%qm_int_scratch(m)=1
++      real_scratch(1,m) = xx
++      real_scratch(2,m) = yy
++      real_scratch(3,m) = zz
++    else
++      xx = frac(1)*ucell(1,1) + frac(2)*ucell(1,2) + frac(3)*ucell(1,3)
++      if ((xx > bxbnd(1)-offset(1)) .and. (xx < bxbnd(2)-offset(1))) then
++        yy = frac(1)*ucell(2,1) + frac(2)*ucell(2,2) + frac(3)*ucell(2,3)
++        if ((yy > bxbnd(3)-offset(2)) .and. (yy < bxbnd(4)-offset(2))) then
++          zz = frac(1)*ucell(3,1) + frac(2)*ucell(3,2) + frac(3)*ucell(3,3)
++          if ((zz > bxbnd(5)-offset(3)) .and. (zz < bxbnd(6) -offset(3))) then
++
++            ! This atom is inside the box.  Record its shifted position.
++            qmmm_scratch%qm_int_scratch(m)=1
++            real_scratch(1,m) = xx
++            real_scratch(2,m) = yy
++            real_scratch(3,m) = zz
++          endif
+         endif
+       endif
+     endif
+@@ -915,47 +936,63 @@ subroutine qm_fill_qm_xcrd_periodic(x, natom, iqmatoms, scaled_mm_chrgs, &
+   enddo
+   call timer_stop_start(TIME_QMMMCOORDSX, TIME_QMMMLISTBUILD)
+ 
+-  ! Now calculate the pair list and fill qm_xcrd.  As in the
+-  ! non-periodic version of this subroutine above, n1 keeps
+-  ! a count of the number of atoms in the pair list.
+-  include_atom = .false.
+-  n1 = 0
+-  do m = 1, natom
+-
+-    ! Loop over all atoms, but excluding QM atoms
+-    if (qmmm_scratch%qm_int_scratch(m) > 0) then
+-      check_cut: do j = 1, qmmm_struct%nquant
+-
+-        ! Find all MM atoms that are within the cutoff of this QM atom
+-        xx = qmmm_struct%qm_coords(1,j)
+-        yy = qmmm_struct%qm_coords(2,j)
+-        zz = qmmm_struct%qm_coords(3,j)
+-
+-        ! Calculate the distance and see if it is within the cutoff
+-        dx2 = ((xx - real_scratch(1,m)) * (xx - real_scratch(1,m)) + &
+-               (yy - real_scratch(2,m)) * (yy - real_scratch(2,m)) + &
+-               (zz - real_scratch(3,m)) * (zz - real_scratch(3,m)))
+-        if (dx2 < qmmm_nml%qmcut2) then
+-
+-          ! We include the atom unless this is a QM/MM link pair
+-          if (qmmm_struct%mm_link_mask(m)) then
++  if (noqmcutoff) then
++    n1 = 0
++    do m = 1, natom
++
++      ! Loop over all atoms, but excluding QM atoms
++      if (qmmm_scratch%qm_int_scratch(m) > 0) then
++        if (.not. qmmm_struct%mm_link_mask(m)) then
++          n1 = n1 + 1
++          qmmm_struct%qm_mm_pair_list(n1) = m
++          qmmm_struct%qm_xcrd(1:3,n1) = real_scratch(1:3,m)
++          qmmm_struct%qm_xcrd(4,n1) = scaled_mm_chrgs(m)
++        end if
++      end if
++    end do
++  else
++    ! Now calculate the pair list and fill qm_xcrd.  As in the
++    ! non-periodic version of this subroutine above, n1 keeps
++    ! a count of the number of atoms in the pair list.
++    include_atom = .false.
++    n1 = 0
++    do m = 1, natom
++
++      ! Loop over all atoms, but excluding QM atoms
++      if (qmmm_scratch%qm_int_scratch(m) > 0) then
++        check_cut: do j = 1, qmmm_struct%nquant
++
++          ! Find all MM atoms that are within the cutoff of this QM atom
++          xx = qmmm_struct%qm_coords(1,j)
++          yy = qmmm_struct%qm_coords(2,j)
++          zz = qmmm_struct%qm_coords(3,j)
++
++          ! Calculate the distance and see if it is within the cutoff
++          dx2 = ((xx - real_scratch(1,m)) * (xx - real_scratch(1,m)) + &
++                (yy - real_scratch(2,m)) * (yy - real_scratch(2,m)) + &
++                (zz - real_scratch(3,m)) * (zz - real_scratch(3,m)))
++          if (dx2 < qmmm_nml%qmcut2) then
++
++            ! We include the atom unless this is a QM/MM link pair
++            if (qmmm_struct%mm_link_mask(m)) then
++              exit check_cut
++            end if
++            include_atom = .true.
+             exit check_cut
+           end if
+-          include_atom = .true.
+-          exit check_cut
++        end do check_cut
++        if (include_atom) then
++          n1 = n1 + 1
++          qmmm_struct%qm_mm_pair_list(n1) = m
++          qmmm_struct%qm_xcrd(1,n1) = real_scratch(1,m)
++          qmmm_struct%qm_xcrd(2,n1) = real_scratch(2,m)
++          qmmm_struct%qm_xcrd(3,n1) = real_scratch(3,m)
++          qmmm_struct%qm_xcrd(4,n1) = scaled_mm_chrgs(m)
++          include_atom = .false.
+         end if
+-      end do check_cut
+-      if (include_atom) then
+-        n1 = n1 + 1
+-        qmmm_struct%qm_mm_pair_list(n1) = m
+-        qmmm_struct%qm_xcrd(1,n1) = real_scratch(1,m)
+-        qmmm_struct%qm_xcrd(2,n1) = real_scratch(2,m)
+-        qmmm_struct%qm_xcrd(3,n1) = real_scratch(3,m)
+-        qmmm_struct%qm_xcrd(4,n1) = scaled_mm_chrgs(m)
+-        include_atom = .false.
+       end if
+-    end if
+-  end do
++    end do
++  end if
+ 
+   ! Record the number of QM:MM pairs
+   qmmm_struct%qm_mm_pairs = n1
+diff --git a/AmberTools/src/sqm/qm_zero_charges.F90 b/AmberTools/src/sqm/qm_zero_charges.F90
+index c8b69a73..f9c5a571 100644
+--- a/AmberTools/src/sqm/qm_zero_charges.F90
++++ b/AmberTools/src/sqm/qm_zero_charges.F90
+@@ -89,12 +89,16 @@ subroutine qm_zero_mm_link_pair_main_chg(nlink,link_pairs,charges,scaled_mm_char
+     do i = 1, nlink
+       y = link_pairs(1,i) !The  id of the MM link pair atom
+       qmmm_struct%mm_link_pair_resp_charges(i)=charges(y)
++      ! Put MM-Link charges to Link atoms
++      qmmm_struct%qm_resp_charges(qmmm_struct%nquant+i) = charges(y)
+       charges(y) = 0.0d0 !Zero the charge on this MM atom.
+       scaled_mm_charges(y) = 0.0d0
+     end do
+   else
+     do i = 1, nlink
+       y = link_pairs(1,i) !The  id of the MM link pair atom
++      ! Put MM-Link charges to Link atoms
++      qmmm_struct%qm_resp_charges(qmmm_struct%nquant+i) = charges(y)
+       charges(y) = 0.0d0 !Zero the charge on this MM atom.
+       scaled_mm_charges(y) = 0.0d0
+     end do
+@@ -134,7 +138,7 @@ subroutine qmmm_adjust_q(adjust_q, natom, nquant, nquant_nlink, nlink, charge, i
+ 
+ !Local
+   integer :: i,j, closest_id, link_no
+-   _REAL_ :: q_correction_sum, q_correction, correction, final_q_sum
++   _REAL_ :: q_correction_sum, q_correction, correction, correction_qm, final_q_sum
+    _REAL_ :: smallest_dist, vec(3), link_coord(3), r2
+ 
+   !If this is a pure QM calculation then there is nothing to do here.
+@@ -166,6 +170,7 @@ subroutine qmmm_adjust_q(adjust_q, natom, nquant, nquant_nlink, nlink, charge, i
+        write(6,'("QMMM: Atoms being adjusted = ")',ADVANCE='NO')
+     end if
+     correction = q_correction / dble(nlink)
++    correction_qm = -q_correction / dble(nquant_nlink)
+     do i = 1, nlink
+       !Go through each link atom in turn and find the MM atom that is closest to it.
+       !This is an expensive procedure but since this is part of the initial setup it
+@@ -191,6 +196,11 @@ subroutine qmmm_adjust_q(adjust_q, natom, nquant, nquant_nlink, nlink, charge, i
+       if (master) write(6,'(i6)',ADVANCE='NO') closest_id
+       charge(closest_id) = charge(closest_id) + correction
+     end do
++    do i = 1, natom
++      if (atom_mask(i) .or. mm_link_mask(i)) then
++        charge(i) = charge(i) + correction_qm
++      end if
++    end do
+     if (master) then
+       final_q_sum = qmcharge * AMBER_ELECTROSTATIC
+       do i = 1, natom
+@@ -219,6 +229,8 @@ subroutine qmmm_adjust_q(adjust_q, natom, nquant, nquant_nlink, nlink, charge, i
+     correction = q_correction / dble(natom-nquant_nlink) !Should never divide by zero here as code
+                                                          !returns above if nquant==natom. - i.e. pure QM run.
+ 
++    correction_qm = -q_correction / dble(nquant_nlink)
++
+     final_q_sum = qmcharge * AMBER_ELECTROSTATIC
+     do i = 1, natom
+       !Go through each atom adding correction to it's charge if it
+@@ -226,6 +238,8 @@ subroutine qmmm_adjust_q(adjust_q, natom, nquant, nquant_nlink, nlink, charge, i
+       if ((.not. atom_mask(i)) .and. (.not. mm_link_mask(i))) then
+         charge(i) = charge(i) + correction
+         final_q_sum = final_q_sum+charge(i)
++      else
++        charge(i) = charge(i) + correction_qm
+       end if
+     end do
+ 
