@@ -1064,3 +1064,18 @@ index c8b69a73..f9c5a571 100644
        end if
      end do
  
+diff --git a/AmberTools/src/sander/sander.F90 b/AmberTools/src/sander/sander.F90
+index d0b97a37..22e867da 100644
+--- a/AmberTools/src/sander/sander.F90
++++ b/AmberTools/src/sander/sander.F90
+@@ -1468,8 +1468,8 @@ subroutine sander()
+ #endif
+        if ( qmmm_nml%qm_pme ) then
+           if (master) then
+-             write(6,*)"ERROR: qm_pme must be false in the &qmmm namelist", &
+-                  & " when using the ab initio composite Ewald method"
++             write(6,*) 'ERROR: qm_pme must be false in the &qmmm namelist &
++                  &when using the ab initio composite Ewald method'
+           end if
+        end if
+     end if
