@@ -90,7 +90,7 @@ class QChem(QMBase):
         if qm_cache is not None:
             qm_cache.update_cache()
 
-        output = output or ("save/5001.0", "save/5002.0")
+        output = output or ("save/1521.0", "save/329.0")
 
         mm_esp = np.zeros((4, len(self.mm_charges)))
 

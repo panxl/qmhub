@@ -5,7 +5,6 @@ template = """\
 $$rem
 ${options}\
 qm_mm true
-!igdefield 1
 symmetry off
 sym_ignore true
 print_input false
